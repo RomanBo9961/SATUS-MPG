@@ -15,7 +15,8 @@ export default registerAs('config', () => {
         },
         jwt: {
             secret: process.env.JWT_SECRET,
-            expiresIn: process.env.JWT_EXPIRES_IN || '1h',
+            expiresIn: parseInt(process.env.JWT_EXPIRES_IN ?? '3600', 10)
+            // expiresIn: process.env.JWT_EXPIRES_IN,
         },
     }
 });
