@@ -27,10 +27,17 @@ export class UsersService {
     //     return user;
     // }
 
+
+
     async findByEmail(email: string) {
         const user = await this.userRepo.findOne({
             where: { email },
-            relations: ['roles'], //clave
+            relations: {
+                roles: {
+                    modules: true,
+                },
+            },
+            // relations: ['roles'], //clave
         });
 
         if (!user) {
@@ -72,26 +79,35 @@ export class UsersService {
         return this.userRepo.save(newUser);
     }
 
-    async updateUser(id: number, updateUserDto: any) {
-        const { roleIds, ...userData } = updateUserDto;
-        // Buscamos el usuario primero (incluyendo sus roles actuales)
+    async updateUser(id: number, updateUserDto: UpdateUserDto) {
+        const { roleIds, password, ...userData } = updateUserDto;
+
         const user = await this.userRepo.findOne({
             where: { id },
-            relations: ['roles']
+            relations: ['roles'],
         });
 
         if (!user) throw new NotFoundException('User not found');
 
-        // Si vienen nuevos roles, los actualizamos
+        // actualizar roles
         if (roleIds) {
             const roles = await this.rolesService.findByIds(roleIds);
+
             if (roles.length !== roleIds.length) {
                 throw new NotFoundException('Some roles were not found');
             }
+
             user.roles = roles;
         }
 
+        // actualizar password solo si viene
+        if (password) {
+            user.password = await bcrypt.hash(password, 10);
+        }
+
+        // actualizar resto de datos
         this.userRepo.merge(user, userData);
+
         return this.userRepo.save(user);
     }
 

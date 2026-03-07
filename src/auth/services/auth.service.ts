@@ -12,7 +12,7 @@ export class AuthService {
         private readonly usersService: UsersService,
         private readonly jwtService: JwtService,
         // @InjectRepository(User) private userRepo: Repository<User>
-    ){}
+    ) { }
 
     async validateUser(email: string, password: string) {
         const user: User = await this.usersService.findByEmail(email);
@@ -26,10 +26,23 @@ export class AuthService {
     }
 
     async login(user: UserModel) {
-        const payload = { sub: user.id, email: user.email };
+        const payload = {
+            sub: user.id,
+            email: user.email,
+            // roles: user.roles.map(r => r.name),
+        };
+
         return {
             access_token: this.jwtService.sign(payload),
+            user,
         };
     }
+
+    // async login(user: UserModel) {
+    //     const payload = { sub: user.id, email: user.email };
+    //     return {
+    //         access_token: this.jwtService.sign(payload),
+    //     };
+    // }
 
 }
