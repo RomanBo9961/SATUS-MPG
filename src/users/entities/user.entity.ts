@@ -24,11 +24,14 @@ export class User {
     @Column({ type: 'varchar', length: 255 })
     docNumber;
 
-    @Column({ type: 'varchar', length: 55 })
-    miTest;
+    @Column({ unique: true })
+    email: string;
 
-    @Column({ type: 'varchar', length: 255 })
-    miTest2;
+    @Column()
+    password: string;
+
+    @Column({ default: true })
+    isActive: boolean;
 
     @ManyToMany(() => Role, role => role.users)
     @JoinTable({

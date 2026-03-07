@@ -9,9 +9,9 @@ export class AppController {
     private readonly configService: ConfigService
   ) {}
 
-  @Get()
-  getHello(): string {
-    const myVar = this.configService.get<string>('NODE_ENV');
-    return this.appService.getHello(myVar);
-  }
+  // @Get()
+  // getHello(): string {
+  //   const myVar = this.configService.get<string>('NODE_ENV');
+  //   return this.appService.getHello(myVar);
+  // }
 }

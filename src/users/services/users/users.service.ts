@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { CreateUserDto, UpdateUserDto } from 'src/users/dtos/user.dto';
 import { RolesService } from 'src/roles/services/roles.service';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -16,14 +17,39 @@ export class UsersService {
 
     async findAll() {
         return await this.userRepo.find({ relations: ['roles'] });
-        // this.users = await this.userRepo.find();
-        // return this.users;
+    }
+
+    // async findByEmail(email: string) {
+    //     const user = await this.userRepo.findOne({ where: { email: email } });
+    //     if (!user) {
+    //         throw new NotFoundException(`User ${email} not found`);
+    //     }
+    //     return user;
+    // }
+
+
+
+    async findByEmail(email: string) {
+        const user = await this.userRepo.findOne({
+            where: { email },
+            relations: {
+                roles: {
+                    modules: true,
+                },
+            },
+            // relations: ['roles'], //clave
+        });
+
+        if (!user) {
+            throw new NotFoundException(`User ${email} not found`);
+        }
+        return user;
     }
 
     async findOne(userId: number) {
-        const user = await this.userRepo.findOne({ 
+        const user = await this.userRepo.findOne({
             where: { id: userId },
-            relations: ['roles'] 
+            relations: ['roles']
         });
         if (!user) {
             throw new NotFoundException(`User #${userId} not found`);
@@ -37,45 +63,51 @@ export class UsersService {
     // }
 
     async create(createUserDto: CreateUserDto) {
-        const { roleIds, ...userData } = createUserDto;
-
-        // Usamos el método findByIds de RolesService
+        const { roleIds, password, ...userData } = createUserDto;
+        const hashedPassword = await bcrypt.hash(password, 10);
         const roles = await this.rolesService.findByIds(roleIds);
 
-        // Validamos que se hayan encontrado todos los roles solicitados
         if (roles.length !== roleIds.length) {
             throw new NotFoundException('Some roles were not found');
         }
 
         const newUser = this.userRepo.create({
             ...userData,
-            roles, // Aquí se asigna el array de objetos Role a la relación ManyToMany
+            password: hashedPassword, //Guardamos la encriptada
+            roles,
         });
-
         return this.userRepo.save(newUser);
     }
 
-    async updateUser(id: number, updateUserDto: any) {
-        const { roleIds, ...userData } = updateUserDto;
+    async updateUser(id: number, updateUserDto: UpdateUserDto) {
+        const { roleIds, password, ...userData } = updateUserDto;
 
-        // Buscamos el usuario primero (incluyendo sus roles actuales)
         const user = await this.userRepo.findOne({
             where: { id },
-            relations: ['roles']
+            relations: ['roles'],
         });
 
         if (!user) throw new NotFoundException('User not found');
 
-        // Si vienen nuevos roles, los actualizamos
+        // actualizar roles
         if (roleIds) {
             const roles = await this.rolesService.findByIds(roleIds);
+
             if (roles.length !== roleIds.length) {
                 throw new NotFoundException('Some roles were not found');
             }
+
             user.roles = roles;
         }
 
+        // actualizar password solo si viene
+        if (password) {
+            user.password = await bcrypt.hash(password, 10);
+        }
+
+        // actualizar resto de datos
         this.userRepo.merge(user, userData);
+
         return this.userRepo.save(user);
     }
 

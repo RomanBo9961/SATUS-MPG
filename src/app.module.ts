@@ -9,6 +9,8 @@ import { enviroments } from './enviroments';
 import { UsersModule } from './users/users.module';
 import { RolesModule } from './roles/roles.module';
 import { PermissionsModule } from './permissions/permissions.module';
+import { AuthModule } from './auth/auth.module';
+import { ModulesModule } from './modules/modules.module';
 import config from './config';
 
 @Module({
@@ -23,12 +25,16 @@ import config from './config';
         POSTGRES_PASSWORD: Joi.string().required(),
         POSTGRES_PORT: Joi.number().required(),
         POSTGRES_HOST: Joi.string().required(),
+        JWT_SECRET: Joi.string().required(),
+        JWT_EXPIRES_IN: Joi.number().required(),
       }),
     }),
     DatabaseModule,
+    AuthModule,
     UsersModule,
     RolesModule,
-    PermissionsModule
+    PermissionsModule,
+    ModulesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

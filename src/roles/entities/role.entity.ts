@@ -1,8 +1,10 @@
-import { User } from 'src/users/entities/user.entity';
-import { 
-    Column, 
-    Entity, 
-    ManyToMany, 
+import { ModuleEntity } from '../../modules/entities/module.entity';
+import { User } from '../../users/entities/user.entity';
+import {
+    Column,
+    Entity,
+    JoinTable,
+    ManyToMany,
     PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -19,4 +21,12 @@ export class Role {
 
     @ManyToMany(() => User, user => user.roles)
     users: User[];
+
+    @ManyToMany(() => ModuleEntity, { eager: true })
+    @JoinTable({
+        name: 'role_modules',
+        joinColumn: { name: 'role_id', referencedColumnName: 'id' },
+        inverseJoinColumn: { name: 'module_id', referencedColumnName: 'id' }
+    })
+    modules: ModuleEntity[];
 }
