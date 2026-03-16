@@ -1,49 +1,52 @@
 services:
   api:
     build: .
-    container_name: auth_api_stg
+    container_name: satus_api_stg
     env_file:
       - .stg.env
     ports:
-      - "3001:3000"
+      - "3004:3000"
     depends_on:
-      postgres:
+      mongodb-stg:
         condition: service_healthy
     networks:
       - stg_net
 
-  postgres:
-    image: postgres:17
-    container_name: auth_postgres_stg
+  mongodb-stg:
+    image: mongo:7.0
+    container_name: satus_mongo_stg
     environment:
-      POSTGRES_DB: auth_stg_db
-      POSTGRES_USER: stg_user
-      POSTGRES_PASSWORD: 123456
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: satus_stg_db
     ports:
-      - "5433:5432"
+      - "27018:27017" # Cpuerto alt evita conflicto con DEV
     volumes:
-      - postgres_stg_data:/var/lib/postgresql/data
+      - satus_stg_data:/data/db
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U stg_user -d auth_stg_db"]
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
       interval: 5s
       timeout: 5s
       retries: 10
     networks:
       - stg_net
 
-  pgadmin:
-    image: dpage/pgadmin4
-    container_name: pgadmin_stg
+  mongo-express-stg:
+    image: mongo-express:latest
+    container_name: satus_mexpress_stg
     environment:
-      PGADMIN_DEFAULT_EMAIL: root@admin.com
-      PGADMIN_DEFAULT_PASSWORD: root
+      ME_CONFIG_MONGODB_URL: mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASSWORD}@mongodb-stg:27017/
+      ME_CONFIG_BASICAUTH_USERNAME: root
+      ME_CONFIG_BASICAUTH_PASSWORD: root
     ports:
-      - "5051:80"
+      - "8082:8081"
+    depends_on:
+      - mongodb-stg
     networks:
       - stg_net
 
 volumes:
-  postgres_stg_data:
+  satus_stg_data:
 
 networks:
   stg_net:

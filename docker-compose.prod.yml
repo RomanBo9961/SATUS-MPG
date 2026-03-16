@@ -3,39 +3,40 @@ services:
     build:
       context: .
       target: production
-    container_name: auth_api_prod
+    container_name: satus_api_prod
     env_file:
       - .prod.env
     depends_on:
-      postgres:
+      mongodb-prod:
         condition: service_healthy
     ports:
-      - "3002:3000"
+      - "3003:3000"
     restart: always
+    networks:
+      - prod_net
 
-  postgres:
-    image: postgres:17
-    container_name: auth_postgres_prod
+  mongodb-prod:
+    image: mongo:7.0
+    container_name: satus_mongo_prod
     environment:
-      POSTGRES_DB: auth_prod_db
-      POSTGRES_USER: prod_user
-      POSTGRES_PASSWORD: secure_password
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER} #Ref a .stg.env
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD} #Ref a .stg.env
+      MONGO_INITDB_DATABASE: satus_prod_db
     ports:
-      - "5434:5432"
+      - "27017:27017"
     volumes:
-      - postgres_prod_data:/var/lib/postgresql/data
+      - satus_prod_data:/data/db
     restart: always
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U prod_user -d auth_prod_db"]
-      interval: 5s
+    healthcheck:         #delay para que no explote nestjs!!
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
       timeout: 5s
-      retries: 10
-  pgadmin:
-    image: dpage/pgadmin4
-    environment:
-      PGADMIN_DEFAULT_EMAIL: root@admin.com
-      PGADMIN_DEFAULT_PASSWORD: root
-    ports: 
-      - "5052:80"
+      retries: 5
+    networks:
+      - prod_net
+
 volumes:
-  postgres_prod_data:
+  satus_prod_data:
+
+networks:
+  prod_net:
