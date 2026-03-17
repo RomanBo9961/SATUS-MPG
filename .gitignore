@@ -1,3 +1,10 @@
+node_modules/
+dist/
+.env
+.stg.env
+.prod.env
+*.log
+
 # compiled output
 /dist
 /node_modules

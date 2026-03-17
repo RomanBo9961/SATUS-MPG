@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <span class="logo">🛡️ SATUS</span>
+      <span class="version">v1.0</span>
+    </header>
+
+    <main>
+      <div class="user-card">
+        <p class="label">Usuario:</p>
+        <p id="user-role" class="value">Invitado (Guest)</p>
+      </div>
+
+      <div class="status-card">
+        <div class="status-info">
+          <p class="label">Protección:</p>
+          <p id="status-text" class="value online">Activa</p>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="shield-toggle" checked>
+          <span class="slider round"></span>
+        </label>
+      </div>
+
+      <button id="go-dashboard" class="primary-btn">Ir al Dashboard Web</button>
+    </main>
+
+    <footer>
+      <p>Powered by MyGuard AI</p>
+    </footer>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>

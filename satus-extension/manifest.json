@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "SATUS Ecosystem",
+  "version": "1.0",
+  "description": "Scorta de navegación en tiempo real asistido por AI.",
+  "permissions": [
+    "contextMenus",
+    "tabs",
+    "storage",
+    "scripting"
+  ],
+  "host_permissions": [
+    "http://localhost:3000/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  },
+   "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
+  ]
+}
