@@ -1,18 +1,19 @@
-import { Role } from 'src/roles/entities/role.entity';
-import { Entity, PrimaryGeneratedColumn, Column, ManyToMany } from 'typeorm';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document, Types } from 'mongoose';
 
-@Entity('modules')
-export class ModuleEntity {
+@Schema({ timestamps: true })
+export class ModuleEntity extends Document {
+  // Mongo genera el _id automáticamente (reemplaza a PrimaryGeneratedColumn)
 
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @Column({ unique: true })
+  @Prop({ required: true, unique: true })
   name: string;
 
-  @Column({ nullable: true })
+  @Prop()
   description: string;
 
-  @ManyToMany(() => Role, role => role.modules)
-  roles: Role[];
+  // Relación ManyToMany con Roles
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'Role' }] })
+  roles: Types.ObjectId[];
 }
+
+export const ModuleSchema = SchemaFactory.createForClass(ModuleEntity);

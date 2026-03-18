@@ -1,14 +1,18 @@
 import { Module } from '@nestjs/common';
+import { MongooseModule } from '@nestjs/mongoose'; // <--- CAMBIO
 import { RolesService } from './services/roles.service';
 import { RolesController } from './controllers/roles.controller';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { Role } from './entities/role.entity';
+import { Role, RoleSchema } from './entities/role.entity';
 import { ModulesModule } from '../modules/modules.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Role]), ModulesModule],
+  imports: [
+    // Registramos el Schema de Roles
+    MongooseModule.forFeature([{ name: Role.name, schema: RoleSchema }]), 
+    ModulesModule
+  ],
   providers: [RolesService],
   controllers: [RolesController],
-  exports: [RolesService, TypeOrmModule]
+  exports: [RolesService, MongooseModule] // Exportamos MongooseModule para que otros lo usen
 })
 export class RolesModule {}

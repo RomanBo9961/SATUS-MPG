@@ -9,6 +9,7 @@ import { DatabaseModule } from './database/database.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { enviroments } from './enviroments';
+import { DetectionsModule } from './detections/detections.module';
 import config from './config';
 
 const nodeEnv = process.env.NODE_ENV || 'dev'; 
@@ -23,7 +24,7 @@ const nodeEnv = process.env.NODE_ENV || 'dev';
         
         MONGO_INITDB_ROOT_USERNAME: Joi.string().required(),
         MONGO_INITDB_ROOT_PASSWORD: Joi.string().required(),
-        MONGO_DB: Joi.string().required(),
+        MONGO_NAME: Joi.string().required(),
         MONGO_PORT: Joi.number().required(),
         MONGO_HOST: Joi.string().required(),
         MONGO_CONNECTION: Joi.string().required(), // Ej: mongodb
@@ -38,6 +39,7 @@ const nodeEnv = process.env.NODE_ENV || 'dev';
     DatabaseModule, 
     AuthModule,
     UsersModule,
+    DetectionsModule,
     // Nota: Roles y Permissions se manejarán como campos en el Doc de Usuario en Mongo
   ],
   controllers: [AppController],

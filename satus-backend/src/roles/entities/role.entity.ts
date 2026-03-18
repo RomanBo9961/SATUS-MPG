@@ -1,32 +1,26 @@
-import { ModuleEntity } from '../../modules/entities/module.entity';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document, Types } from 'mongoose';
 import { User } from '../../users/entities/user.entity';
-import {
-    Column,
-    Entity,
-    JoinTable,
-    ManyToMany,
-    PrimaryGeneratedColumn,
-} from 'typeorm';
+import { ModuleEntity } from '../../modules/entities/module.entity';
 
-@Entity()
-export class Role {
-    @PrimaryGeneratedColumn()
-    id: number;
+@Schema({ timestamps: true })
+export class Role extends Document {
+  // En Mongo no usamos PrimaryGeneratedColumn, el ID es automático (_id)
 
-    @Column({ type: 'varchar', length: 255, unique: true })
-    name;
+  @Prop({ required: true, unique: true })
+  name: string;
 
-    @Column({ type: 'varchar', length: 255 })
-    description;
+  @Prop({ required: true })
+  description: string;
 
-    @ManyToMany(() => User, user => user.roles)
-    users: User[];
+  // Relación ManyToMany con Usuarios (Referencia)
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'User' }] })
+  users: User[];
 
-    @ManyToMany(() => ModuleEntity, { eager: true })
-    @JoinTable({
-        name: 'role_modules',
-        joinColumn: { name: 'role_id', referencedColumnName: 'id' },
-        inverseJoinColumn: { name: 'module_id', referencedColumnName: 'id' }
-    })
-    modules: ModuleEntity[];
+  // Relación ManyToMany con Módulos (Referencia)
+  // Nota: El "eager: true" lo manejaremos con .populate() en el Service
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'ModuleEntity' }] })
+  modules: ModuleEntity[];
 }
+
+export const RoleSchema = SchemaFactory.createForClass(Role);

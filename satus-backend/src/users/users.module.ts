@@ -1,14 +1,14 @@
 import { Module } from '@nestjs/common';
+import { MongooseModule } from '@nestjs/mongoose'; 
 import { UsersController } from './controllers/users/users.controller';
 import { UsersService } from './services/users/users.service';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from './entities/user.entity';
+import { User, UserSchema } from './entities/user.entity';
 import { RolesModule } from 'src/roles/roles.module';
-// import { RolesModule } from 'src/roles/roles.module';
 
 @Module({
   imports:[
-    TypeOrmModule.forFeature([User]),
+    // MongooseModule registra el Schema para que el Service lo use
+    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     RolesModule
   ],
   controllers: [UsersController],

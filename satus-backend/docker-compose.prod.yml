@@ -19,15 +19,16 @@ services:
     image: mongo:7.0
     container_name: satus_mongo_prod
     environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER} #Ref a .stg.env
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD} #Ref a .stg.env
-      MONGO_INITDB_DATABASE: satus_prod_db
+      # Sync con .prod.env
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_NAME}
     ports:
       - "27017:27017"
     volumes:
       - satus_prod_data:/data/db
     restart: always
-    healthcheck:         #delay para que no explote nestjs!!
+    healthcheck:
       test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
       interval: 10s
       timeout: 5s

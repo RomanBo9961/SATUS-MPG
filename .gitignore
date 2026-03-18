@@ -1,8 +1,5 @@
 node_modules/
 dist/
-.env
-.stg.env
-.prod.env
 *.log
 
 # compiled output
@@ -42,13 +39,6 @@ lerna-debug.log*
 !.vscode/launch.json
 !.vscode/extensions.json
 
-# dotenv environment variable files
-.env
-.env.development.local
-.env.test.local
-.env.production.local
-.env.local
-
 # temp directory
 .temp
 .tmp
@@ -61,7 +51,3 @@ pids
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
-
-/postgres_data
-/postgres_data_stg
-/postgres_data_prod

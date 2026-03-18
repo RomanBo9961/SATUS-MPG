@@ -20,14 +20,29 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "ANALYZE_LINK") {
-    console.log("🛡️ Cerebro recibió URL:", request.url);
+    console.log("🛡️ Central recibió enlace:", request.url);
     
-    // AQUÍ es donde haremos el fetch a http://localhost:3000/detections
-    // Por ahora simulamos una respuesta rápida
-    setTimeout(() => {
-      sendResponse({ status: "Procesando con IA... (conexion con NestJS)" });
-    }, 500);
+   // Petición POST al endpoint que crearemos en NestJS
+    fetch("http://localhost:3000/detections", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ url: request.url })
+    })
+    .then(response => {
+      if (!response.ok) throw new Error("Error en el servidor SATUS");
+      return response.json();
+    })
+    .then(data => {
+      // Enviamos la respuesta real de la IA al content.js
+      sendResponse({ status: data.message });
+    })
+    .catch(error => {
+      console.error("❌ Error de conexión:", error);
+      sendResponse({ status: "Error: El servidor SATUS no responde." });
+    });
 
-    return true; // Mantiene el canal abierto para respuestas asíncronas
+    return true; // Mantiene el canal abierto para la respuesta asíncrona del fetch
   }
 });

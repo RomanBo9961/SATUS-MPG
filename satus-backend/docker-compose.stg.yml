@@ -16,11 +16,12 @@ services:
     image: mongo:7.0
     container_name: satus_mongo_stg
     environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
-      MONGO_INITDB_DATABASE: satus_stg_db
+      # Sync con .stg.env
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_NAME}
     ports:
-      - "27018:27017" # Cpuerto alt evita conflicto con DEV
+      - "27018:27017" 
     volumes:
       - satus_stg_data:/data/db
     healthcheck:
@@ -35,7 +36,7 @@ services:
     image: mongo-express:latest
     container_name: satus_mexpress_stg
     environment:
-      ME_CONFIG_MONGODB_URL: mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASSWORD}@mongodb-stg:27017/
+      ME_CONFIG_MONGODB_URL: mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongodb-stg:27017/
       ME_CONFIG_BASICAUTH_USERNAME: root
       ME_CONFIG_BASICAUTH_PASSWORD: root
     ports:
