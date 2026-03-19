@@ -3,23 +3,23 @@ document.addEventListener('DOMContentLoaded', () => {
   const statusText = document.getElementById('status-text');
   const btnDashboard = document.getElementById('go-dashboard');
 
-  // 1. RECUPERAR: Al abrir el popup, preguntamos a Chrome cómo estaba el switch
+  // 1. Chrome devuelve el estado del switch
   chrome.storage.local.get(['satusActive'], (result) => {
-    // Si es la primera vez (undefined), asumimos que está ACTIVADO (true)
+    // El primer lanzamiento (estado undefinido) por defecto es ACTIVADO (true)
     const isActive = result.satusActive !== false; 
     toggle.checked = isActive;
     actualizarInterfaz(isActive);
   });
 
-  // 2. GUARDAR: Cuando el usuario mueve el switch
+  // 2. Guarda el estado => Cuando el usuario mueve el switch
   toggle.addEventListener('change', () => {
     const isActive = toggle.checked;
     
-    // Guardamos la elección en el "disco duro" de la extensión
+    // Se guarda la preferencia de estado en el "disco duro" de la extensión
     chrome.storage.local.set({ satusActive: isActive }, () => {
       actualizarInterfaz(isActive);
       
-        // COMUNICACIÓN EN VIVO: Avisar a todas las pestañas del cambio
+        // Revisión en todas las pestañas del cambio
       chrome.tabs.query({}, (tabs) => {
         tabs.forEach(tab => {
           // Solo enviamos mensaje a pestañas con URLs reales (http/https)

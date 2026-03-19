@@ -1,7 +1,6 @@
 /* eslint-disable prettier/prettier */
-import { IsString, IsNotEmpty, IsArray, ArrayNotEmpty, IsInt, IsBoolean } from "class-validator";
+import { IsString, IsNotEmpty, IsArray, ArrayNotEmpty, IsBoolean, IsMongoId } from "class-validator";
 import { PartialType, ApiProperty } from "@nestjs/swagger";
-import { Type } from "class-transformer";
 
 export class CreateUserDto {
     @IsString()
@@ -41,9 +40,9 @@ export class CreateUserDto {
 
     @IsArray()
     @ArrayNotEmpty()
-    @IsInt({ each: true })
-    @Type(() => Number)
-    @ApiProperty({ type: [Number] })
-    readonly roleIds: number[];
+    @IsMongoId({ each: true }) 
+    @ApiProperty({ type: [String] }) 
+    readonly roleIds: string[]; 
 }
+
 export class UpdateUserDto extends PartialType(CreateUserDto) { }

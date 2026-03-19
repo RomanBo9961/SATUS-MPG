@@ -1,12 +1,13 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, UseGuards } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth } from '@nestjs/swagger';
+/* eslint-disable prettier/prettier */
+import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Modules } from '../../../auth/decorators/modules.decorator';
 import { ModulesGuard } from '../../../auth/guards/modules.guard.guard';
 import { CreateUserDto, UpdateUserDto } from 'src/users/dtos/user.dto';
 import { UsersService } from '../../../users/services/users/users.service';
 import { JwtAuthGuard } from '../../../auth/guards/auth.guard';
 
+@ApiTags('users') // 🔹 Agregué Tags para que en Swagger se vea ordenado
 @ApiBearerAuth()
 @Modules('users')
 @UseGuards(JwtAuthGuard, ModulesGuard)
@@ -21,7 +22,8 @@ export class UsersController {
     }
 
     @Get(':userId')
-    getOne(@Param('userId', ParseIntPipe) userId: number){
+    // 🔹 CAMBIO: Eliminamos ParseIntPipe y usamos string
+    getOne(@Param('userId') userId: string){
         return this.usersService.findOne(userId);
     }
 
@@ -31,13 +33,14 @@ export class UsersController {
     }
 
     @Put(':userId')
-    updateUser(@Param('userId', ParseIntPipe) userId: number, @Body() payloadUpdated: UpdateUserDto){
+    // 🔹 CAMBIO: Eliminamos ParseIntPipe y usamos string
+    updateUser(@Param('userId') userId: string, @Body() payloadUpdated: UpdateUserDto){
         return this.usersService.updateUser(userId, payloadUpdated);
     }
 
     @Delete(':userId')
-    deleteUser(@Param('userId', ParseIntPipe) userId: number){
-        this.usersService.deleteUser(userId);
+    // 🔹 CAMBIO: Eliminamos ParseIntPipe y usamos string
+    async deleteUser(@Param('userId') userId: string){
+        return await this.usersService.deleteUser(userId);
     }
-
 }

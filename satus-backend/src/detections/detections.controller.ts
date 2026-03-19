@@ -6,12 +6,13 @@ import { CreateDetectionDto } from './dto/create-detection.dto';
 export class DetectionsController {
   constructor(private readonly detectionsService: DetectionsService) {}
 
-  @Post()
-  async handleExtensionAnalysis(@Body() createDetectionDto: CreateDetectionDto) {
-    // 1. Desestructuramos la URL validada que viene de la extensión
-    const { url } = createDetectionDto;
-    
-    // Llama al servicio (el cerebro/central) para procesar
-    return this.detectionsService.analyzeUrl(url);
-  }
+ @Post()
+async handleExtensionAnalysis(@Body() createDetectionDto: CreateDetectionDto) {
+  // Forzamos que la URL sea un string limpio antes de mandarla al servicio
+  const cleanUrl = String(createDetectionDto.url).trim();
+  
+  // Enviamos al servicio (el cerebro) la URL ya saneada
+  return this.detectionsService.analyzeUrl(cleanUrl);
+}
+
 }

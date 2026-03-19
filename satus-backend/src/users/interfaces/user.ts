@@ -1,9 +1,9 @@
 import { Role } from "src/roles/entities/role.entity";
 
 export interface UserModel {
-    id: number,
+    id: string,
     email: string,
     password? : string,
     isActive: boolean,
-    roles: Role[],
+    roles: Role[];
 }

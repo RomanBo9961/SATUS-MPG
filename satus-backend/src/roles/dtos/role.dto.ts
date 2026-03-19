@@ -1,7 +1,6 @@
 /* eslint-disable prettier/prettier */
-import { IsString, IsNotEmpty, IsArray, ArrayNotEmpty, IsInt, IsNumber } from "class-validator";
+import { IsString, IsNotEmpty, IsArray, ArrayNotEmpty, IsMongoId } from "class-validator";
 import { PartialType, ApiProperty } from "@nestjs/swagger";
-import { Type } from "class-transformer";
 
 export class CreateRoleDto {
     @IsString()
@@ -15,11 +14,13 @@ export class CreateRoleDto {
     readonly description: string;
 
     @ApiProperty({
-        example: [1, 2, 3],
+        example: ['65f1a2b3c4d5e6f7a8b9c0d1'], 
         description: 'IDs de los módulos asignados al rol'
     })
     @IsArray()
-    @IsNumber({}, { each: true })
-    moduleIds: number[];
+    @ArrayNotEmpty()
+    @IsMongoId({ each: true }) 
+    readonly moduleIds: string[];
 }
+
 export class UpdateRoleDto extends PartialType(CreateRoleDto) { }

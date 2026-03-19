@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "SATUS Ecosystem",
   "version": "1.0",
-  "description": "Scorta de navegación en tiempo real asistido por AI.",
+  "description": "Scorta de navegación en tiempo real. Interactue con total tranquilidad en y a traves de dominos en linea y links referidos.",
   "permissions": [
     "contextMenus",
     "tabs",

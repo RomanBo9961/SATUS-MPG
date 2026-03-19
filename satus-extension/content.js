@@ -5,7 +5,7 @@ let activeLink = "";
 
 // 1. FUNCIÓN DE INICIALIZACIÓN (Crea el escudo y los eventos)
 function initSatusSensor() {
-  console.log("🛡️ SATUS Shield: Sensor de proximidad cargado...");
+  console.log("🛡️ SATUS Shield: Sensor cargado...");
   
   satusBadge = document.createElement('div');
   satusBadge.innerHTML = '🛡️';
@@ -17,16 +17,21 @@ function initSatusSensor() {
     font-size: 18px;
     filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
     transition: transform 0.2s;
+    user-select: none;
   `;
   document.body.appendChild(satusBadge);
 
-  // Escuchamos el mouse
+  // Escuchamos el mouse en el documento
   document.addEventListener('mouseover', handleMouseOver);
   
-  // Acción al hacer clic (Tu lógica original con efectos)
+  // Acción al hacer clic
   satusBadge.onclick = (e) => {
     e.preventDefault();
-    console.log("🛡️ Enviando reporte al cerebro SATUS...");
+    e.stopPropagation(); // 🔹 Bloquea que el clic active el link de abajo
+    
+    if (!activeLink) return;
+
+    console.log("🛡️ Enviando reporte a la central SATUS...");
     satusBadge.innerText = '🌀'; 
     satusBadge.style.transform = 'scale(1.2)';
 
@@ -34,7 +39,7 @@ function initSatusSensor() {
       satusBadge.innerText = '🛡️';
       satusBadge.style.transform = 'scale(1)';
       if (chrome.runtime.lastError || !response) {
-        alert("❌ Error: No se pudo contactar con el servidor SATUS.");
+        alert("❌ Error: No se pudo contactar con el servidor de SATUS.");
       } else {
         alert("🤖 SATUS AI dice: " + response.status);
       }
@@ -42,41 +47,48 @@ function initSatusSensor() {
   };
 }
 
-// 2. MANEJADOR DE HOVER (Solo funciona si isShieldActive es true)
+// 2. DRIVER DE HOVER (Detección de links mejorada)
 function handleMouseOver(e) {
   if (!isShieldActive) return;
 
+  // Si el mouse está sobre el escudo mismo, no hacemos nada para evitar ruido
+  if (e.target === satusBadge) return;
+
   const link = e.target.closest('a');
-  if (link && link.href.startsWith('http')) {
-    activeLink = link.href;
-    const rect = link.getBoundingClientRect();
-    satusBadge.style.display = 'block';
-    satusBadge.style.top = (rect.top + window.scrollY - 20) + 'px';
-    satusBadge.style.left = (rect.left + window.scrollX + (rect.width / 2)) + 'px';
-  } else if (e.target !== satusBadge) {
+  
+  if (link) {
+    const rawHref = link.getAttribute('href');
+    // 🔹 Convertimos a URL absoluta real para evitar caracteres duplicados
+    if (rawHref && (rawHref.startsWith('http') || rawHref.startsWith('/') || rawHref.startsWith('#'))) {
+      try {
+        activeLink = new URL(rawHref, window.location.origin).href;
+        
+        const rect = link.getBoundingClientRect();
+        satusBadge.style.display = 'block';
+        satusBadge.style.top = (rect.top + window.scrollY - 22) + 'px';
+        satusBadge.style.left = (rect.left + window.scrollX + (rect.width / 2) - 10) + 'px';
+      } catch (err) {
+        console.error("❌ Error procesando URL:", err);
+      }
+    }
+  } else {
+    // Si el mouse no está sobre un link ni sobre el escudo, lo ocultamos
     satusBadge.style.display = 'none';
   }
 }
 
 // --- ARRANQUE Y CONTROL DE ESTADO ---
 
-// A. Al cargar la página: Leemos cómo está el switch
+// A. Al cargar la página: Leemos el estado del switch
 chrome.storage.local.get(['satusActive'], (result) => {
   isShieldActive = result.satusActive !== false;
   initSatusSensor();
-  
-  if (!isShieldActive) {
-    console.log("🛡️ SATUS Shield: Iniciado en modo DESACTIVADO.");
-  }
 });
 
-// B. ESCUCHA EN VIVO: El popup nos avisa si el usuario mueve el switch
+// B. Escucha en vivo para el switch del popup
 chrome.runtime.onMessage.addListener((request) => {
   if (request.action === "TOGGLE_SHIELD") {
     isShieldActive = request.status;
-    console.log(isShieldActive ? "🛡️ SATUS Activado en vivo" : "🛡️ SATUS Desactivado en vivo");
-    
-    // Si se desactiva, ocultamos el escudo inmediatamente
     if (!isShieldActive && satusBadge) {
       satusBadge.style.display = 'none';
     }

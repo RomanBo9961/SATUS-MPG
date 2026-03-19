@@ -1,4 +1,3 @@
-// Este script corre en el "cerebro" del navegador
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
     id: "analyzeWithSatus",
@@ -22,7 +21,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "ANALYZE_LINK") {
     console.log("🛡️ Central recibió enlace:", request.url);
     
-   // Petición POST al endpoint que crearemos en NestJS
+   // Petición POST al endpoint en NestJS
     fetch("http://localhost:3000/detections", {
       method: "POST",
       headers: {
@@ -35,7 +34,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       return response.json();
     })
     .then(data => {
-      // Enviamos la respuesta real de la IA al content.js
+      // Respuesta de AI al content.js
       sendResponse({ status: data.message });
     })
     .catch(error => {
