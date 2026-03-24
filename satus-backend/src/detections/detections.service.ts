@@ -13,40 +13,57 @@ export class DetectionsService {
     private readonly httpService: HttpService,
     @Inject(config.KEY) private configService: ConfigType<typeof config>,
   ) {
+    // Inicializamos Gemini con la API KEY de Google
     this.genAI = new GoogleGenerativeAI(this.configService.apiKeys.ai!);
   }
 
-  async analyzeUrl(url: string) {
-    const cleanUrl = url.trim().replace(/([^:])\/\//g, '$1/');
-    console.log(`🛡️ SATUS Service procesando: ${cleanUrl}`);
+   async analyzeUrl(url: string) {
+    const cleanUrl = url.trim();
+    console.log("1. LLEGADA AL SERVICE:", cleanUrl);
 
     const apiKey = this.configService.apiKeys.vt!;
     const urlBase64 = Buffer.from(cleanUrl).toString('base64').replace(/=/g, '');
 
     try {
+      // 1. INTENTAR CONSULTA (GET)
       const vtReport = await this.fetchVTReport(urlBase64, apiKey);
       const aiAdvice = await this.getAiAdvice(cleanUrl, vtReport.details);
-
       return { ...vtReport, message: aiAdvice };
 
     } catch (error: any) {
+      // 2. SI EL LINK ES NUEVO (404)
       if (error.response?.status === 404) {
-        console.log("📡 Link nuevo. Escaneando...");
+        console.log("📡 Link nuevo detectado. Enviando a escaneo...");
         try {
+          // 🚀 LA SOLUCIÓN DEFINITIVA:
+          // 1. URL completa de la API (/api/v3/urls)
+          // 2. Cuerpo plano 'url=...' para evitar doble codificación de %C3
+          const vtEndpoint = 'https://www.virustotal.com';
+          const payload = `url=${cleanUrl}`; 
+
           await firstValueFrom(
-            this.httpService.post('https://www.virustotal.com',
-              `url=${encodeURIComponent(cleanUrl)}`,
-              { headers: { 'x-apikey': apiKey, 'Content-Type': 'application/x-www-form-urlencoded' } })
+            this.httpService.post(vtEndpoint, payload, { 
+              headers: { 
+                'x-apikey': apiKey, 
+                'Content-Type': 'application/x-www-form-urlencoded' 
+              } 
+            })
           );
-          return { status: "processing", message: "🌀 Link nuevo en análisis. ¡Vuelve a tocar el escudo en 10 segundos!" };
-        } catch (postError) {
+          
+          return { 
+            status: "processing", 
+            message: "🌀 Link nuevo. SATUS lo está analizando. ¡Reintenta en 10 segundos!" 
+          };
+        } catch (postError: any) {
+          console.error("❌ DETALLE ERROR VT:", postError.response?.data || postError.message);
           return { status: "error", message: "No se pudo iniciar el escaneo." };
         }
       }
-      return { status: "error", message: "Error de comunicación con VirusTotal." };
+      return { status: "error", message: "Error de comunicación con la inteligencia." };
     }
   }
 
+  // 🤖 MÉTODO DE IA: Traduce números a lenguaje humano (Gemini)
   private async getAiAdvice(url: string, stats: any) {
     try {
       const model = this.genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
@@ -63,6 +80,7 @@ export class DetectionsService {
   }
 
   private async fetchVTReport(urlBase64: string, apiKey: string) {
+    // ✅ URL CORRECTA DE API V3 PARA CONSULTA
     const response = await firstValueFrom(
       this.httpService.get(`https://www.virustotal.com/${urlBase64}`, {
         headers: { 'x-apikey': apiKey }

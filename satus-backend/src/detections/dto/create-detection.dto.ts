@@ -1,7 +1,9 @@
-import { IsUrl, IsNotEmpty } from 'class-validator';
+import { IsString, IsNotEmpty, IsUrl } from 'class-validator';
 
 export class CreateDetectionDto {
-  @IsUrl()
+  @IsString() 
+  //@IsUrl()
   @IsNotEmpty()
-  url: string; // La extensión solo nos mandará esto por ahora
+  //url: string; // La extensión solo nos mandará esto por ahora
+  readonly url: string;
 }
