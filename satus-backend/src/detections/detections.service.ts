@@ -13,11 +13,10 @@ export class DetectionsService {
     private readonly httpService: HttpService,
     @Inject(config.KEY) private configService: ConfigType<typeof config>,
   ) {
-    // Inicializamos Gemini con la API KEY de Google
     this.genAI = new GoogleGenerativeAI(this.configService.apiKeys.ai!);
   }
 
-   async analyzeUrl(url: string) {
+  async analyzeUrl(url: string) {
     const cleanUrl = url.trim();
     console.log("1. LLEGADA AL SERVICE:", cleanUrl);
 
@@ -30,19 +29,18 @@ export class DetectionsService {
       const aiAdvice = await this.getAiAdvice(cleanUrl, vtReport.details);
       return { ...vtReport, message: aiAdvice };
 
-    } catch (error: any) {
-      // 2. SI EL LINK ES NUEVO (404)
+  } catch (error: any) {
       if (error.response?.status === 404) {
         console.log("📡 Link nuevo detectado. Enviando a escaneo...");
         try {
-          // 🚀 LA SOLUCIÓN DEFINITIVA:
-          // 1. URL completa de la API (/api/v3/urls)
-          // 2. Cuerpo plano 'url=...' para evitar doble codificación de %C3
-          const vtEndpoint = 'https://www.virustotal.com';
-          const payload = `url=${cleanUrl}`; 
+          // 🚀 CAMBIO 1: Agregada la ruta completa de la API
+          const vtEndpoint = 'https://www.virustotal.com/api/v3/urls';
+          
+          const body = new URLSearchParams();
+          body.append('url', cleanUrl);
 
           await firstValueFrom(
-            this.httpService.post(vtEndpoint, payload, { 
+            this.httpService.post(vtEndpoint, body.toString(), { 
               headers: { 
                 'x-apikey': apiKey, 
                 'Content-Type': 'application/x-www-form-urlencoded' 
@@ -55,7 +53,7 @@ export class DetectionsService {
             message: "🌀 Link nuevo. SATUS lo está analizando. ¡Reintenta en 10 segundos!" 
           };
         } catch (postError: any) {
-          console.error("❌ DETALLE ERROR VT:", postError.response?.data || postError.message);
+          console.error("❌ ERROR POST VT:", postError.response?.data || postError.message);
           return { status: "error", message: "No se pudo iniciar el escaneo." };
         }
       }
@@ -63,34 +61,68 @@ export class DetectionsService {
     }
   }
 
-  // 🤖 MÉTODO DE IA: Traduce números a lenguaje humano (Gemini)
-  private async getAiAdvice(url: string, stats: any) {
+  private async fetchVTReport(urlBase64: string, apiKey: string) {
+    
+    const response = await firstValueFrom(
+      this.httpService.get(`https://www.virustotal.com/api/v3/urls/${urlBase64}`, { 
+        headers: { 'x-apikey': apiKey }
+      })
+    );
+
+    const attributes = response.data.data.attributes;
+    const stats = attributes.last_analysis_stats;
+
+    return {
+      status: "success",
+      riskLevel: stats.malicious > 0 ? "ALTO" : "BAJO",
+      details: {
+        stats: stats,           // Números (Malicious, Harmless...)
+        info: attributes,       // Contexto (Title, Categories, Reputation...)
+        lastAnalysis: attributes.last_analysis_results //Reporte Unitario Motor Antimlware (opcional)
+      }
+    };
+  }
+
+ private async getAiAdvice(url: string, details: any) {
     try {
-      const model = this.genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-      const prompt = `Analiza estos datos de VirusTotal para el link "${url}":
-      Motores Maliciosos: ${stats.malicious}, Sospechosos: ${stats.suspicious}, Limpios: ${stats.harmless}.
-      Dime en una frase breve y directa (máximo 15 palabras) si es seguro entrar y por qué. Tono experto en ciberseguridad.`;
+      const model = this.genAI.getGenerativeModel({ model: "models/gemini-1.5-flash" });
+      
+      // Extrae datos reales de atributos que vienen de VT
+      const stats = details.stats;
+      const info = details.info;
+
+      const reputacion = info.reputation || 0;
+      // Separacion por comas
+      const categorias = info.categories ? Object.values(info.categories).join(", ") : "General / Información";
+
+      // PROMPT GEMINI
+      const prompt = `Actúa como un analista experto de SATUS. 
+      Analiza el siguiente enlace: ${url}
+      
+      DATOS TÉCNICOS DE SEGURIDAD:
+      - Detecciones Maliciosas: ${stats.malicious} de ${stats.malicious + stats.harmless} motores.
+      - Puntuación de Reputación: ${reputacion}
+      - Categoría del Sitio: ${categorias}
+
+      INSTRUCCIONES:
+      Escribe un reporte humanizado que pueda comprender un usuario normal de internet y que a la vez luzca profesional (entre 30 y 50 palabras). 
+      No digas solo "es seguro". Explica que la decisión se basa en la reputación del dominio y la ausencia (o presencia) de motores de malware. 
+      Ademas ten en cuenta que terminos como pishing o scammer son desconocidos para el suaurio normal en consecuencia debes explicar como "este sitio no 
+      almacenara sus datos bancarios o contraseñas" y de detectar que si lo hara explicar que y como.
+      Si el sitio es muy conocido, menciona su fiabilidad como fuente de información.`;
 
       const result = await model.generateContent(prompt);
       const response = await result.response;
       return response.text();
     } catch (e) {
-      return stats.malicious > 0 ? "⚠️ ¡Peligro detectado! No entres." : "✅ El link parece seguro.";
-    }
-  }
+      // Plan B por si la IA se duerme
+     console.error("❌ Error en getAiAdvice:", e); 
+      
+      const malicious = details.stats?.malicious || 0;
 
-  private async fetchVTReport(urlBase64: string, apiKey: string) {
-    // ✅ URL CORRECTA DE API V3 PARA CONSULTA
-    const response = await firstValueFrom(
-      this.httpService.get(`https://www.virustotal.com/${urlBase64}`, {
-        headers: { 'x-apikey': apiKey }
-      })
-    );
-    const stats = response.data.data.attributes.last_analysis_stats;
-    return {
-      status: "success",
-      riskLevel: stats.malicious > 0 ? "ALTO" : "BAJO",
-      details: stats
-    };
+      return malicious > 0 
+        ? `⚠️ ¡Peligro! ${malicious} motores de seguridad detectaron amenazas activas.` 
+        : "✅ Enlace verificado: Los motores de seguridad no reportan malware ni phishing en este dominio.";
+     }
   }
 }
