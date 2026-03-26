@@ -4,6 +4,7 @@ import type { ConfigType } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import config from '../config';
+import axios from 'axios';
 
 @Injectable()
 export class DetectionsService {
@@ -19,6 +20,17 @@ export class DetectionsService {
   async analyzeUrl(url: string) {
     const cleanUrl = url.trim();
     console.log("1. LLEGADA AL SERVICE:", cleanUrl);
+
+    //------------------------Escaner Modelos AI [IMPORTANTE] ----------------------//
+
+    /* try {
+      const modelsList = await axios.get(`https://generativelanguage.googleapis.com/v1/models?key=${this.configService.apiKeys.ai}`);
+      console.log("📋 MODELOS DISPONIBLES PARA TU KEY:", modelsList.data.models.map(m => m.name));
+    } catch (err) {
+      console.error("❌ No pude listar los modelos:", err.message);
+    }*/
+
+    //-----------------------------------------------------------------//
 
     const apiKey = this.configService.apiKeys.vt!;
     const urlBase64 = Buffer.from(cleanUrl).toString('base64').replace(/=/g, '');
@@ -84,25 +96,19 @@ export class DetectionsService {
   }
 
  private async getAiAdvice(url: string, details: any) {
-    try {
-      const model = this.genAI.getGenerativeModel({ model: "models/gemini-1.5-flash" });
-      
-      // Extrae datos reales de atributos que vienen de VT
-      const stats = details.stats;
-      const info = details.info;
+  try {
+    const apiKey = this.configService.apiKeys.ai;
+    const stats = details.stats;
+    const info = details.info;
+    const reputacion = info.reputation || 0;
+    const categorias = info.categories ? Object.values(info.categories).join(", ") : "General / Información";
 
-      const reputacion = info.reputation || 0;
-      // Separacion por comas
-      const categorias = info.categories ? Object.values(info.categories).join(", ") : "General / Información";
-
-      // PROMPT GEMINI
-      const prompt = `Actúa como un analista experto de SATUS. 
-      Analiza el siguiente enlace: ${url}
-      
-      DATOS TÉCNICOS DE SEGURIDAD:
-      - Detecciones Maliciosas: ${stats.malicious} de ${stats.malicious + stats.harmless} motores.
-      - Puntuación de Reputación: ${reputacion}
-      - Categoría del Sitio: ${categorias}
+    const promptText = `Actúa como un analista experto de SATUS. 
+    Analiza el enlace: ${url}
+    DATOS TÉCNICOS:
+    - Detecciones Maliciosas: ${stats.malicious} de ${stats.malicious + stats.harmless}
+    - Reputación: ${reputacion}
+    - Categoría: ${categorias}
 
       INSTRUCCIONES:
       Escribe un reporte humanizado que pueda comprender un usuario normal de internet y que a la vez luzca profesional (entre 30 y 50 palabras). 
@@ -111,18 +117,30 @@ export class DetectionsService {
       almacenara sus datos bancarios o contraseñas" y de detectar que si lo hara explicar que y como.
       Si el sitio es muy conocido, menciona su fiabilidad como fuente de información.`;
 
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      return response.text();
-    } catch (e) {
-      // Plan B por si la IA se duerme
-     console.error("❌ Error en getAiAdvice:", e); 
-      
-      const malicious = details.stats?.malicious || 0;
+        const response = await axios.post(
+      `https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash-lite:generateContent?key=${apiKey}`,
+      {
+        contents: [{ parts: [{ text: promptText }] }]
+      }
+    );
 
-      return malicious > 0 
-        ? `⚠️ ¡Peligro! ${malicious} motores de seguridad detectaron amenazas activas.` 
-        : "✅ Enlace verificado: Los motores de seguridad no reportan malware ni phishing en este dominio.";
-     }
+   const text = response.data.candidates[0].content.parts[0].text;
+
+    if (!text) throw new Error("No se pudo obtener el texto de la IA");
+    
+    return text;
+
+  } catch (e: any) {
+    console.error("❌ Error directo en Gemini:", e.response?.data || e.message);
+    
+    const malicious = details.stats?.malicious || 0;
+    const harmless = details.stats?.harmless || 0;
+
+    if (malicious > 0) {
+      return `⚠️ ALERTA TÉCNICA: ${malicious} motores de seguridad detectaron amenazas. Evita ingresar a este sitio.`;
+    } else {
+      return `✅ VERIFICACIÓN TÉCNICA: Analizado por ${harmless} motores de seguridad. No se detectó malware, Sin embargo el reporte detallado no está disponible o es accesible en este momento.`;
+    }
   }
+ }
 }
