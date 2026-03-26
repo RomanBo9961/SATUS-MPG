@@ -1,0 +1,39 @@
+.satus-popup {
+    position: absolute;
+    width: 300px;
+    background: #0f0f0f;
+    color: #f0f0f0;
+    border: 1px solid #00ff88;
+    border-radius: 10px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.7);
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    z-index: 999999;
+    padding: 15px;
+    animation: satusSlideIn 0.3s ease-out;
+}
+
+.satus-popup-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #333;
+    padding-bottom: 5px;
+}
+
+.satus-logo { color: #00ff88; font-weight: bold; font-size: 13px; }
+
+.satus-close { 
+    background: none; border: none; color: #888; 
+    font-size: 20px; cursor: pointer; line-height: 1;
+}
+
+.satus-popup-body { font-size: 13px; line-height: 1.5; color: #ccc; }
+
+.satus-popup-footer { 
+    margin-top: 10px; font-size: 9px; color: #555; text-align: right; 
+}
+
+@keyframes satusSlideIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}

@@ -118,7 +118,7 @@ export class DetectionsService {
       Si el sitio es muy conocido, menciona su fiabilidad como fuente de información.`;
 
         const response = await axios.post(
-      `https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash-lite:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash-lite-001:generateContent?key=${apiKey}`,
       {
         contents: [{ parts: [{ text: promptText }] }]
       }
@@ -139,7 +139,7 @@ export class DetectionsService {
     if (malicious > 0) {
       return `⚠️ ALERTA TÉCNICA: ${malicious} motores de seguridad detectaron amenazas. Evita ingresar a este sitio.`;
     } else {
-      return `✅ VERIFICACIÓN TÉCNICA: Analizado por ${harmless} motores de seguridad. No se detectó malware, Sin embargo el reporte detallado no está disponible o es accesible en este momento.`;
+      return `✅ VERIFICACIÓN TÉCNICA: Analizado por ${harmless} motores de seguridad. No se detectó malware, Sin embargo el reporte detallado no está disponible o no es accesible en este momento.`;
     }
   }
  }

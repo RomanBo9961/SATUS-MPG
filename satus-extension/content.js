@@ -66,7 +66,7 @@ function handleMouseOver(e) {
         const rect = link.getBoundingClientRect();
         satusBadge.style.display = 'block';
         satusBadge.style.top = (rect.top + window.scrollY - 22) + 'px';
-        satusBadge.style.left = (rect.left + window.scrollX + (rect.width / 2) - 10) + 'px';
+        satusBadge.style.left = (rect.left + window.scrollX) + 'px';
       } catch (err) {
         activeLink = "";
       }
@@ -88,3 +88,34 @@ chrome.runtime.onMessage.addListener((request) => {
     if (!isShieldActive && satusBadge) satusBadge.style.display = 'none';
   }
 });
+
+function showSatusPopup(message, x, y) {
+    const oldPopup = document.querySelector('.satus-popup');
+    if (oldPopup) oldPopup.remove();
+
+    const popup = document.createElement('div');
+    popup.className = 'satus-popup';
+    
+    popup.innerHTML = `
+        <div class="satus-popup-header">
+            <span class="satus-logo">🛡️ SATUS Intelligence</span>
+            <button class="satus-close" id="close-satus">×</button>
+        </div>
+        <div class="satus-popup-body">
+            ${message.replace(/\n/g, '<br>')}
+        </div>
+        <div class="satus-popup-footer">
+            Análisis en tiempo real • Google Gemini 2.0
+        </div>
+    `;
+
+    popup.style.top = (y + 30) + 'px';
+    popup.style.left = x + 'px';
+
+    document.body.appendChild(popup);
+
+    document.getElementById('close-satus').onclick = () => popup.remove();
+    
+    // Auto-cerrar con Scroll
+    window.addEventListener('scroll', () => popup.remove(), { once: true });
+}
