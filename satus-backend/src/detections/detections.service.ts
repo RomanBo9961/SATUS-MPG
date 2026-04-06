@@ -14,7 +14,7 @@ export class DetectionsService {
     private readonly httpService: HttpService,
     @Inject(config.KEY) private configService: ConfigType<typeof config>,
   ) {
-    this.genAI = new GoogleGenerativeAI(this.configService.apiKeys.ai!);
+    //this.genAI = new GoogleGenerativeAI(this.configService.apiKeys.ai!);
   }
 
   async analyzeUrl(url: string) {
@@ -98,6 +98,8 @@ export class DetectionsService {
  private async getAiAdvice(url: string, details: any) {
   try {
     const apiKey = this.configService.apiKeys.ai;
+    const apiUrl = this.configService.apiKeys.aiUrl;
+
     const stats = details.stats;
     const info = details.info;
     const reputacion = info.reputation || 0;
@@ -112,26 +114,47 @@ export class DetectionsService {
 
       INSTRUCCIONES:
       Escribe un reporte humanizado que pueda comprender un usuario normal de internet y que a la vez luzca profesional (entre 30 y 50 palabras). 
-      No digas solo "es seguro". Explica que la decisión se basa en la reputación del dominio y la ausencia (o presencia) de motores de malware. 
-      Ademas ten en cuenta que terminos como pishing o scammer son desconocidos para el suaurio normal en consecuencia debes explicar como "este sitio no 
-      almacenara sus datos bancarios o contraseñas" y de detectar que si lo hara explicar que y como.
+      PRIORIDAD MÁXIMA: Si 'stats.malicious' es mayor a 0, debes iniciar el reporte con una ADVERTENCIA CLARA, sin importar la reputación del dominio.
+      Si es 0 indicale que el sitio u archivo(segun corresponda) no tiene antecedentes, que es seguro en la medida de que no sea nuevo por que si lo es puede ser malicioso. 
+      Explica que, aunque el sitio/archivo no sea corrupto, se han detectado elementos peligrosos y enuncialos, sino todos por lo menos los mas relevantes(explicalos de ser posible). 
+      No digas solo "es seguro". Explica que la decisión se basa en la 
+      reputación del dominio y la ausencia (o presencia) de malware u otros. 
+      Ademas ten en cuenta que terminos como "pishing" o "scammer" son desconocidos para el usuario normal en consecuencia debes explicar como, por ejemplo, "este sitio no 
+      almacenara sus datos bancarios o contraseñas" o "este archivo no comprometera la integridad de los datos en su pc o robara contraseñas), segùn el caso. De detectar que si lo haría, debes explicar que y como.
       Si el sitio es muy conocido, menciona su fiabilidad como fuente de información.`;
 
         const response = await axios.post(
-      `https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash-lite-001:generateContent?key=${apiKey}`,
-      {
+      //`https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash-lite-001:generateContent?key=${apiKey}`,
+      apiUrl!,
+     /* {
         contents: [{ parts: [{ text: promptText }] }]
+      }*/
+{
+        model: "llama-3.1-8b-instant", 
+        messages: [
+          { role: "system", content: "Eres un analista de ciberseguridad de la plataforma SATUS." },
+          { role: "user", content: promptText }
+        ],
+        temperature: 0.5
+      },
+      {
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json'
+        }
       }
+
     );
 
-   const text = response.data.candidates[0].content.parts[0].text;
+   const text = response.data.choices[0].message.content;
+    //const text = response.data.candidates[0].content.parts[0].text;
 
     if (!text) throw new Error("No se pudo obtener el texto de la IA");
     
     return text;
 
   } catch (e: any) {
-    console.error("❌ Error directo en Gemini:", e.response?.data || e.message);
+    console.error("❌ Error directo en traducción:", e.response?.data || e.message);
     
     const malicious = details.stats?.malicious || 0;
     const harmless = details.stats?.harmless || 0;

@@ -15,6 +15,7 @@ export default registerAs('config', () => {
     apiKeys: {
       vt: process.env.VT_API_KEY,
       ai: process.env.AI_API_KEY,
+      aiUrl: process.env.AI_API_URL,
     }
   };
 });

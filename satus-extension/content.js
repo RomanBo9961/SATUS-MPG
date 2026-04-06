@@ -67,12 +67,22 @@ function handleMouseOver(e) {
         satusBadge.style.display = 'block';
         satusBadge.style.top = (rect.top + window.scrollY - 22) + 'px';
         satusBadge.style.left = (rect.left + window.scrollX) + 'px';
+        satusBadge.style.padding = "10px"; 
+        satusBadge.style.marginTop = "-10px";
       } catch (err) {
         activeLink = "";
       }
     }, 10);
   } else {
-    satusBadge.style.display = 'none';
+    {
+    clearTimeout(mouseTimer); 
+    mouseTimer = setTimeout(() => {
+      // Se oculta solo si el mouse NO está encima del escudo
+      if (!satusBadge.matches(':hover')) {
+        satusBadge.style.display = 'none';
+      }
+    }, 500); 
+  }
   }
 }
 
@@ -105,7 +115,7 @@ function showSatusPopup(message, x, y) {
             ${message.replace(/\n/g, '<br>')}
         </div>
         <div class="satus-popup-footer">
-            Análisis en tiempo real • Google Gemini 2.0
+            Análisis en tiempo real ••• 
         </div>
     `;
 
