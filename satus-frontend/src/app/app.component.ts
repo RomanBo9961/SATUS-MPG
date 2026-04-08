@@ -20,15 +20,19 @@ export class AppComponent implements OnInit {
   }
 
   loadHistory() {
-    this.detectionsService.getHistory().subscribe({
-      next: (data) => {
-        this.detections = data;
-        this.loading = false;
-      },
-      error: (err) => {
-        console.error('Error cargando historial:', err);
-        this.loading = false;
-      }
-    });
-  }
+  this.detectionsService.getHistory().subscribe({
+    next: (data) => {
+      console.log("📦 DATOS RECIBIDOS EN ANGULAR:", data); 
+      this.detections = data.map((item: any) => ({
+        ...item,
+        message: item.message.replace(/\*\*/g, '') 
+      }));
+      this.loading = false;
+    },
+    error: (err) => {
+      console.error('Error cargando historial:', err);
+      this.loading = false;
+    }
+  });
+}
 }

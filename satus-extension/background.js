@@ -22,7 +22,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     console.log("🛡️ Central recibió enlace:", request.url);
     
    // Petición POST al endpoint en NestJS
-    fetch("http://localhost:3000/detections", {
+    fetch("http://localhost:3000/api/detections/scan", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"

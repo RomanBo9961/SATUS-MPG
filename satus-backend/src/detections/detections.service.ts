@@ -1,18 +1,23 @@
 import { Injectable, Inject } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose'; 
+import { Model } from 'mongoose';  
+import { Detection } from './entities/detection.entity';             
 import { HttpService } from '@nestjs/axios';
 import type { ConfigType } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+//import { GoogleGenerativeAI } from '@google/generative-ai';
 import config from '../config';
 import axios from 'axios';
 
 @Injectable()
 export class DetectionsService {
-  private genAI: GoogleGenerativeAI;
+  //private genAI: GoogleGenerativeAI;
 
   constructor(
     private readonly httpService: HttpService,
     @Inject(config.KEY) private configService: ConfigType<typeof config>,
+  
+     @InjectModel(Detection.name) private detectionModel: Model<Detection>,
   ) {
     //this.genAI = new GoogleGenerativeAI(this.configService.apiKeys.ai!);
   }
@@ -39,13 +44,25 @@ export class DetectionsService {
       // 1. INTENTAR CONSULTA (GET)
       const vtReport = await this.fetchVTReport(urlBase64, apiKey);
       const aiAdvice = await this.getAiAdvice(cleanUrl, vtReport.details);
+      
+        const newRecord = new this.detectionModel({
+    url: cleanUrl,
+    riskLevel: vtReport.riskLevel,
+    message: aiAdvice,
+    details: vtReport.details,
+    createdAt: new Date() 
+  });
+  
+  await newRecord.save(); 
+  console.log("✅ Análisis guardado en MongoDB");  
+      
       return { ...vtReport, message: aiAdvice };
 
   } catch (error: any) {
       if (error.response?.status === 404) {
         console.log("📡 Link nuevo detectado. Enviando a escaneo...");
         try {
-          // 🚀 CAMBIO 1: Agregada la ruta completa de la API
+          // RUTA API VT
           const vtEndpoint = 'https://www.virustotal.com/api/v3/urls';
           
           const body = new URLSearchParams();
@@ -166,4 +183,10 @@ export class DetectionsService {
     }
   }
  }
+
+ async findAll() {
+  // Asegúrate de que 'detectionModel' sea el nombre de tu modelo de Mongoose
+  return this.detectionModel.find().sort({ createdAt: -1 }).exec();
+}
+
 }

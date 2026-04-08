@@ -1,4 +1,4 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Get } from '@nestjs/common';
 import { DetectionsService } from './detections.service';
 import { CreateDetectionDto } from './dto/create-detection.dto';
 
@@ -6,6 +6,10 @@ import { CreateDetectionDto } from './dto/create-detection.dto';
 export class DetectionsController {
   constructor(private readonly detectionsService: DetectionsService) {}
 
+   @Get()
+async getAll() {
+  return this.detectionsService.findAll(); // O el nombre que tenga tu método de búsqueda
+}
  /*@Post()
 async handleExtensionAnalysis(@Body() createDetectionDto: CreateDetectionDto) {
   // Forzamos que la URL sea un string limpio antes de mandarla al servicio
@@ -15,7 +19,7 @@ async handleExtensionAnalysis(@Body() createDetectionDto: CreateDetectionDto) {
   return this.detectionsService.analyzeUrl(cleanUrl);
 } */
 
-    @Post()
+    @Post('scan')
   async handleExtensionAnalysis(@Body() body: any) {
     // 🚩 PRUEBA DEFINITIVA: Leemos directamente del body sin pasar por el DTO
     const rawUrl = body.url;
