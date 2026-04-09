@@ -7,3 +7,15 @@
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     object-fit: cover; z-index: -10;
 }
+
+/* Scrollbar */
+.custom-scroll::-webkit-scrollbar {
+width: 4px;
+}
+.custom-scroll::-webkit-scrollbar-track {
+background: rgba(0, 0, 0, 0.2);
+}
+.custom-scroll::-webkit-scrollbar-thumb {
+  background: #cd7f32; /* Tu nuevo bronce añejo */
+border-radius: 10px;
+}

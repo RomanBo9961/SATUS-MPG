@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, ChangeDetectorRef } from '@angular/core'; 
 import { CommonModule } from '@angular/common';
 import { DetectionsService } from './services/detections.service';
 
@@ -9,30 +9,71 @@ import { DetectionsService } from './services/detections.service';
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, AfterViewInit {
   detections: any[] = [];
   loading = true;
 
-  constructor(private detectionsService: DetectionsService) {}
+  @ViewChild('bgVideo') videoRef!: ElementRef<HTMLVideoElement>;
+
+  // 1. INYECTAMOS el detector de cambios en el constructor
+  constructor(
+    private detectionsService: DetectionsService,
+    private cd: ChangeDetectorRef 
+  ) {}
 
   ngOnInit() {
-    this.loadHistory();
+    setTimeout(() => {
+      this.loadHistory();
+    }, 800); 
+  }
+
+  ngAfterViewInit() {
+    if (this.videoRef) {
+      const video = this.videoRef.nativeElement;
+      video.muted = true;
+      video.play().catch(err => {
+        console.log("Esperando interacción para iniciar video...");
+        window.addEventListener('click', () => video.play(), { once: true });
+      });
+    }
   }
 
   loadHistory() {
   this.detectionsService.getHistory().subscribe({
     next: (data) => {
-      console.log("📦 DATOS RECIBIDOS EN ANGULAR:", data); 
-      this.detections = data.map((item: any) => ({
-        ...item,
-        message: item.message.replace(/\*\*/g, '') 
-      }));
-      this.loading = false;
+      if (data && Array.isArray(data)) {
+        this.detections = data.map((item: any) => ({
+          ...item,
+          message: item.message ? item.message.replace(/\*\*/g, '') : 'Sin reporte disponible',
+          expanded: false // controla el "Ver más"
+        }));
+      }
+      this.loading = false; 
+      this.cd.detectChanges(); 
     },
     error: (err) => {
-      console.error('Error cargando historial:', err);
+      console.error('Error:', err);
       this.loading = false;
+      this.cd.detectChanges();
     }
   });
 }
+
+// Truncar el texto (35-40 palabras)
+getShortMessage(text: string): string {
+  const words = text.split(' ');
+  if (words.length <= 40) return text;
+  return words.slice(0, 40).join(' ') + '...';
+}
+
+  calculateIntegrity(): number {
+    if (this.detections.length === 0) return 100;
+    // Contamos ALTOS ignorando espacios o mayúsculas rebeldes
+    const threats = this.detections.filter(d => 
+      d.riskLevel?.trim().toUpperCase() === 'ALTO'
+    ).length;
+    
+    const score = 100 - (threats * 10);
+    return score < 5 ? 5 : score;
+  }
 }

@@ -5,7 +5,7 @@ module.exports = {
     extend: {
       colors: {
         'satus-bg': '#050505',
-        'satus-neon': '#00f2ff',
+        'satus-neon': '#139292',
         'satus-dark': '#0f0f0f',
         'satus-alert': '#ff0055',
       },
