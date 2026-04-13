@@ -16,7 +16,7 @@
       <h1 class="text-xl font-bold tracking-tighter text-white">SATUS CORE</h1>
     </div>
     <div class="text-[10px] text-satus-neon tracking-widest uppercase">
-      Status: <span class="text-green-400">Secure</span> | Encryption: Active
+      Status: <span class="text-satus-on">Seguro</span> | Encryption: <span class="text-satus-on">Activo</span>
     </div>
   </header>
 
@@ -33,7 +33,7 @@
       <div *ngFor="let scan of detections" class="bg-satus-dark/60 border border-white/10 p-4 backdrop-blur-md hover:border-satus-neon/40 transition-all mb-4">
         <div class="flex justify-between items-start mb-2">
           <span class="text-satus-neon text-[10px] uppercase">{{ scan.createdAt | date:'dd/MM HH:mm' }}</span>
-          <span [class]="scan.riskLevel === 'ALTO' ? 'text-satus-alert border-satus-alert' : 'text-green-400 border-green-400'" 
+          <span [class]="scan.riskLevel === 'ALTO' ? 'text-satus-alert border-satus-alert' : 'text-satus-on border-satus-on'" 
                 class="text-[10px] border px-2 py-0.5 uppercase">
             {{ scan.riskLevel }}
           </span>

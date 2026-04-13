@@ -16,6 +16,6 @@ width: 4px;
 background: rgba(0, 0, 0, 0.2);
 }
 .custom-scroll::-webkit-scrollbar-thumb {
-  background: #cd7f32; /* Tu nuevo bronce añejo */
+  background: #cd7f32; 
 border-radius: 10px;
 }

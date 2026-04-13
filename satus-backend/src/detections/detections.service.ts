@@ -12,6 +12,7 @@ import axios from 'axios';
 @Injectable()
 export class DetectionsService {
   //private genAI: GoogleGenerativeAI;
+public aiModelName = 'llama-3.1-8b-instant';
 
   constructor(
     private readonly httpService: HttpService,
@@ -147,7 +148,7 @@ export class DetectionsService {
         contents: [{ parts: [{ text: promptText }] }]
       }*/
 {
-        model: "llama-3.1-8b-instant", 
+        model: this.aiModelName,
         messages: [
           { role: "system", content: "Eres un analista de ciberseguridad de la plataforma SATUS." },
           { role: "user", content: promptText }
@@ -185,7 +186,7 @@ export class DetectionsService {
  }
 
  async findAll() {
-  // Asegúrate de que 'detectionModel' sea el nombre de tu modelo de Mongoose
+  
   return this.detectionModel.find().sort({ createdAt: -1 }).exec();
 }
 

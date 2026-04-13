@@ -7,7 +7,8 @@ import { Observable } from 'rxjs';
 })
 export class DetectionsService {
   private apiUrl = '/api/detections'; // proxy previamente config
-
+  public currentModel = 'LLAMA 3.1 8B INSTANT'; 
+  
   constructor(private http: HttpClient) {}
 
   // historial del usuario
