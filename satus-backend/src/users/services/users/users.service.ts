@@ -1,9 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose'; // 🔹 Cambio clave
 import { Model, Types } from 'mongoose'; // 🔹 Cambio clave
-import { User } from 'src/users/entities/user.entity';
-import { CreateUserDto, UpdateUserDto } from 'src/users/dtos/user.dto';
-import { RolesService } from 'src/roles/services/roles.service';
+import { User } from '../../../users/entities/user.entity';
+import { CreateUserDto, UpdateUserDto } from '../../../users/dtos/user.dto';
+import { RolesService } from '../../../roles/services/roles.service';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()

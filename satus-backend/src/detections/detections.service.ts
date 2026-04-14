@@ -123,7 +123,7 @@ public aiModelName = 'llama-3.1-8b-instant';
     const reputacion = info.reputation || 0;
     const categorias = info.categories ? Object.values(info.categories).join(", ") : "General / Información";
 
-    const promptText = `Actúa como un analista experto de SATUS. 
+    const promptText = `Actúa como analista experto de un sistema denominado SATUS. 
     Analiza el enlace: ${url}
     DATOS TÉCNICOS:
     - Detecciones Maliciosas: ${stats.malicious} de ${stats.malicious + stats.harmless}
@@ -139,7 +139,7 @@ public aiModelName = 'llama-3.1-8b-instant';
       reputación del dominio y la ausencia (o presencia) de malware u otros. 
       Ademas ten en cuenta que terminos como "pishing" o "scammer" son desconocidos para el usuario normal en consecuencia debes explicar como, por ejemplo, "este sitio no 
       almacenara sus datos bancarios o contraseñas" o "este archivo no comprometera la integridad de los datos en su pc o robara contraseñas), segùn el caso. De detectar que si lo haría, debes explicar que y como.
-      Si el sitio es muy conocido, menciona su fiabilidad como fuente de información.`;
+      Si el sitio es muy conocido, menciona su fiabilidad como fuente de información. Recuerda devolver el reporte con la URL traducida(que los caracteres sean equivalentes al lenguaje humano y no maquina)`;
 
         const response = await axios.post(
       //`https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash-lite-001:generateContent?key=${apiKey}`,

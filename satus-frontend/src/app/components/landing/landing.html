@@ -8,9 +8,9 @@
 </div>
 
 <!-- CONTENIDO DE LA LANDING -->
-<div *ngIf="!loadingSystem" class="min-h-screen bg-[#050505] text-[#e0e0e0] font-mono selection:bg-satus-bronce selection:text-black animate-in fade-in duration-1000">
+<div *ngIf="!loadingSystem" class="min-h-screen bg-black text-[#e0e0e0] font-mono selection:bg-satus-bronce selection:text-black animate-in fade-in duration-1000">
 
-<!-- VIDEO DE FONDO (Ahora dentro del IF y con filtro bronceado) -->
+<!-- VIDEO DE FONDO -->
 <div class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
     <video #bgVideo autoplay muted loop playsinline 
         class="w-full h-full object-cover opacity-20 sepia-[.5] brightness-[0.4] grayscale-[0.3]">
@@ -19,18 +19,18 @@
     <div class="absolute inset-0 bg-[#050505]/40"></div>
 </div>
 
-<!-- Estructura de Rejilla Global (z-index alto para que se vea sobre el video) -->
+<!-- Estructura de Rejilla Global -->
 <div class="fixed inset-0 border-[0.5px] border-satus-bronce/10 pointer-events-none z-10"></div>
 
-<!-- Contenido Real (Agregamos relative z-20 para que esté sobre el fondo) -->
+<!-- Contenido Real -->
 <div class="relative z-20">
     <!-- Header -->
-    <header class="flex justify-between items-end p-10 border-b border-satus-bronce/20">
+    <header class="flex justify-between items-end p-10">
         <div>
         <span class="text-[10px] text-satus-bronce block mb-1 tracking-[0.3em]">PROYECTO SATUS</span>
-        <h1 class="text-2xl font-bold tracking-tighter uppercase">Shielding Intelligence</h1>
+        <h1 class="text-2xl font-bold tracking-tighter uppercase">Blindaje Adaptativo</h1>
         </div>
-        <a routerLink="/dashboard" class="text-[10px] tracking-[0.4em] uppercase border-b border-satus-bronce pb-1 hover:text-satus-bronce transition-all">
+        <a routerLink="/login" class="text-[10px] tracking-[0.4em] uppercase border-b border-satus-bronce pb-1 hover:text-satus-bronce transition-all">
         [ Acceso al Sistema ]
         </a>
     </header>
@@ -43,7 +43,7 @@
     </span>
     </div>
 
-    <div class="col-span-11 lg:col-span-7 p-10 space-y-20 border-r border-satus-bronce/10">
+    <div class="col-span-11 lg:col-span-7 p-10 space-y-20">
     <div class="mt-20">
         <h2 class="text-7xl lg:text-[120px] font-bold leading-[0.8] tracking-tighter">
         SATUS<br><span class="text-satus-bronce">01</span>
@@ -55,16 +55,16 @@
     </div>
 
     <div class="col-span-11 lg:col-span-4 flex items-center justify-center p-10 bg-gradient-to-br from-transparent to-satus-bronce/5">
-    <img src="assets/tu-render-3d.png" class="w-full h-auto drop-shadow-2xl grayscale hover:grayscale-0 transition-all duration-700">
+    <img src="assets/render-3d.png" class="w-full h-auto drop-shadow-2xl grayscale hover:grayscale-0 transition-all duration-700">
     </div>
 </main>
 
-<section class="grid grid-cols-12 border-b border-satus-bronce/10 bg-black/20">
-<div class="col-span-1 border-r border-satus-bronce/10"></div>
+<section class="grid grid-cols-12 bg-black/20">
+<div class="col-span-1"></div>
 
 <div class="col-span-11 grid grid-cols-1 md:grid-cols-3">
     <!-- Bloque 01: Latencia -->
-    <div class="p-10 border-r border-satus-bronce/10 space-y-4 group">
+    <div class="p-10 space-y-4 group">
     <div class="flex items-center gap-2">
         <div class="w-1.5 h-1.5 bg-satus-bronce animate-ping"></div>
         <span class="text-satus-bronce text-[10px] tracking-widest">ANALISIS DE LATENCIA</span>
@@ -74,7 +74,7 @@
     </div>
 
     <!-- Bloque 02: VirusTotal -->
-    <div class="p-10 border-r border-satus-bronce/10 space-y-4">
+    <div class="p-10 space-y-4">
     <div class="flex items-center gap-2">
         <span class="text-satus-bronce text-[10px] tracking-widest">INTELLIGENCIA EXTERNA</span>
     </div>
@@ -94,3 +94,46 @@
 </section>
 
 </div>
+
+<!-- Transición de Escáner al Footer -->
+<div class="relative z-10 h-64 bg-black overflow-hidden border-t border-satus-bronce/10">
+    <div class="absolute inset-0 bg-gradient-to-b from-[#050505] via-black/80 to-black"></div>
+
+    <!--Linea de Scanner-->
+    <div class="absolute top-0 left-0 w-full h-[1px] bg-satus-bronce/40 shadow-[0_0_15px_#cd7f32] animate-scan-slow"></div>
+
+<div class="relative z-20 flex flex-col items-center justify-center h-full space-y-4">
+    <span class="text-[8px] tracking-[0.6em] text-satus-bronce/50 uppercase">Muestreo Actual</span>
+    <!--div class="w-1 h-8 bg-satus-bronce/20"></div-->
+</div>
+</div>
+
+<!-- Footer Negro -->
+<footer class="relative z-10 bg-black text-gray-500 py-20 px-10">
+<div class="grid grid-cols-1 md:grid-cols-12 gap-10">
+    <div class="md:col-span-1 border-r border-white/5"></div>
+    
+    <!-- Contacto Estilo Terminal -->
+    <div class="md:col-span-4 space-y-8">
+    <div>
+        <h4 class="text-satus-bronce text-[10px] tracking-widest mb-4 uppercase">Directorio Contacto</h4>
+        <p class="text-xs leading-relaxed text-gray-600">Para consultas técnicas sobre el núcleo SATUS CORE o reportes de vulnerabilidades críticas.</p>
+    </div>
+    
+    <div class="group border-b border-white/10  transition-all py-2">
+        <span class="text-satus-bronce text-xs">></span>
+        <input type="email" placeholder="improvesec@satus.co" 
+            class="bg-transparent border-none outline-none text-xs ml-2 w-4/5 placeholder:text-gray-800 text-satus-bronce">
+    </div>
+    </div>
+
+    <!-- Info Legal / Copyright -->
+    <div class="md:col-span-6 flex flex-col justify-end text-right">
+    <div class="text-[8px] tracking-[0.4em] space-y-1">
+        <p>SATUS SECURITY SUITE // VER 2.1.0</p>
+        <p>COLOMBIA 2026 / NODE ID: {{ (progress * 1324).toString(16).toUpperCase() }}</p>
+        <p>© TODOS LOS DERECHOS RESERVADOS</p>
+    </div>
+    </div>
+</div>
+</footer>
