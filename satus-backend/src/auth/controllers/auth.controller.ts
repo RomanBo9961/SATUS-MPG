@@ -13,13 +13,13 @@ export class AuthController {
     @Post('login')
     @ApiOperation({ summary: 'Inicio de sesión para obtener el token JWT' })
     async login(@Body() body: LoginDto) {
-        // 1. Validamos credenciales (devuelve el usuario de Mongo)
+        // 1. Validacion de credenciales (devuelve el usuario de Mongo)
         const user = await this.authService.validateUser(
             body.email,
             body.password,
         );
 
-        // 2. Generamos el token (Pasamos como any para evitar líos de interfaces id vs _id)
+        // 2. Genera el token (Any para evitar líos de interfaces id vs _id)
         return this.authService.login(user as any);
     }
 }

@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, ChangeDetectorRef } from '@angular/core'; 
 import { CommonModule } from '@angular/common';
 import { DetectionsService } from '../../services/detections.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -12,17 +13,20 @@ import { DetectionsService } from '../../services/detections.service';
 export class DashboardComponent implements OnInit, AfterViewInit {
   detections: any[] = [];
   loading = true;
+  userRole: string = 'GUEST';
 
   @ViewChild('bgVideo') videoRef!: ElementRef<HTMLVideoElement>;
 
   // 1. INYECTAMOS el detector de cambios en el constructor
   constructor(
     private detectionsService: DetectionsService,
-    private cd: ChangeDetectorRef 
+    private cd: ChangeDetectorRef,
+    private authService: AuthService
   ) {}
 
   ngOnInit() {
     setTimeout(() => {
+      this.userRole = this.authService.getRole();
       this.loadHistory();
     }, 800); 
   }

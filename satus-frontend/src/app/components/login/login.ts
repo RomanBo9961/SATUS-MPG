@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms'; 
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -13,18 +14,35 @@ import { FormsModule } from '@angular/forms';
 export class LoginComponent {
   // Variables para capturar de datos
   userCredentials = {
-    username: '',
+    email: '',
     password: ''
   };
 
-  constructor(private router: Router) {}
+constructor(
+    private authService: AuthService, 
+    private router: Router
+  ) {}
 
-  // Función para simular inicio de sesión
-  onLogin() {
-    console.log("Iniciando protocolo para:", this.userCredentials.username);
-    
-  
-    // validacion de los ROLES (Admin, SuperAdmin, etc)
-    this.router.navigate(['/dashboard']);
+  // Inicio de sesión
+ onLogin() {
+ 
+  if (!this.userCredentials.email || !this.userCredentials.password) {
+    alert("DENEGADO: Ingrese credenciales.");
+    return;
   }
+
+  //console.log("PAQUETE_A_ENVIAR:", this.userCredentials);
+
+  this.authService.login(this.userCredentials).subscribe({
+    next: (res) => {
+      console.log("Autentificado. Perfil:", res.role);
+      this.router.navigate(['/dashboard']);
+    },
+    error: (err: any) => {
+      console.error("Fallo al acceder:", err);
+      alert("ERR: Credenciales no válidas.");
+    }
+  });
+}
+
 }

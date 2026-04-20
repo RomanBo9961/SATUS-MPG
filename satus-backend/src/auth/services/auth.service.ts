@@ -14,35 +14,36 @@ export class AuthService {
         // @InjectRepository(User) private userRepo: Repository<User>
     ) { }
 
-    async validateUser(email: string, password: string) {
-        const user: User = await this.usersService.findByEmail(email);
+async validateUser(identifier: string, pass: string) {
+  //console.log('Identifier recibido:', identifier); 
 
-        if (!user || !(await bcrypt.compare(password, user.password))) {
-            throw new UnauthorizedException('Invalid credentials');
-        }
 
-        const { password: _, ...result } = user;
-        return result;
-    }
+const user = await this.usersService.findByIdentifier(identifier);
+ console.log('Usuario encontrado en DB:', user ? user.username : 'NADIE');
 
-    async login(user: UserModel) {
-        const payload = {
-            sub: user.id,
-            email: user.email,
-            // roles: user.roles.map(r => r.name),
-        };
 
-        return {
-            access_token: this.jwtService.sign(payload),
-            user,
-        };
-    }
 
-    // async login(user: UserModel) {
-    //     const payload = { sub: user.id, email: user.email };
-    //     return {
-    //         access_token: this.jwtService.sign(payload),
-    //     };
-    // }
+if (user && await bcrypt.compare(pass, user.password)) {
+    
+    console.log('Contraseña coincidente: SÍ');
+
+    const roleName = user.roles.length > 0 ? (user.roles[0] as any).name : 'FREE';
+    
+    const { password, ...result } = user.toObject();
+    return { ...result, roleName };
+}
+
+console.log('Fallo: Usuario no existe o contraseña errónea');
+throw new UnauthorizedException('Credenciales inválidas');
+}
+
+async login(user: any) {
+const payload = { username: user.username, sub: user._id, role: user.roleName };
+return {
+    access_token: this.jwtService.sign(payload),
+    role: user.roleName, // Enviar el rol al front
+    username: user.username
+};
+}
 
 }

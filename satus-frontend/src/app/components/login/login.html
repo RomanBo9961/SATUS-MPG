@@ -1,11 +1,11 @@
 <div class="min-h-screen bg-black flex items-center justify-center font-mono relative overflow-hidden">
 
-<!-- Video muy oscuro de fondo -->
+<!-- Video de fondo -->
 <video autoplay muted loop playsinline class="absolute inset-0 w-full h-full object-cover opacity-10 grayscale sepia">
     <source src="bg-cyber.mp4" type="video/mp4">
 </video>
 
-<!-- Tarjeta de Login -->
+<!-- Tarjeta Login -->
 <div class="relative z-10 w-full max-w-md p-8 border border-satus-bronce/20 bg-black/80 backdrop-blur-xl">
     <div class="text-center mb-8">
     <span class="text-[10px] text-satus-bronce tracking-[0.5em] uppercase">Security Gateway</span>
@@ -13,21 +13,37 @@
     </div>
 
     <form class="space-y-6">
-    <div class="space-y-1">
-        <label class="text-[9px] text-gray-500 uppercase tracking-widest">Identificador Usuario</label>
-        <input type="text" placeholder="USER_ID" class="w-full bg-transparent border-b border-white/10 p-2 text-satus-bronce outline-none focus:border-satus-bronce transition-all">
-    </div>
+<!-- Campo Usuario / ID -->
+<div class="space-y-1">
+    <label class="text-[9px] text-gray-500 uppercase tracking-widest">Identificador Usuario</label>
+    <input 
+    type="text" 
+    name="email" 
+    [(ngModel)]="userCredentials.email" 
+    placeholder="USER_ID" 
+    class="w-full bg-transparent border-b border-white/10 p-2 text-satus-bronce outline-none focus:border-satus-bronce transition-all">
+</div>
 
-    <div class="space-y-1">
-        <label class="text-[9px] text-gray-500 uppercase tracking-widest">Código Acceso</label>
-        <input type="password" placeholder="********" class="w-full bg-transparent border-b border-white/10 p-2 text-satus-bronce outline-none focus:border-satus-bronce transition-all">
-    </div>
+<!-- Campo Password -->
+<div class="space-y-1">
+    <label class="text-[9px] text-gray-500 uppercase tracking-widest">Código Acceso</label>
+    <input 
+    type="password" 
+    name="password" 
+    [(ngModel)]="userCredentials.password" 
+    placeholder="********" 
+    class="w-full bg-transparent border-b border-white/10 p-2 text-satus-bronce outline-none focus:border-satus-bronce transition-all">
+</div>
 
-    <button routerLink="/dashboard" class="w-full border border-satus-bronce py-3 text-xs uppercase tracking-[0.3em] hover:bg-satus-bronce hover:text-black transition-all">
-        [ Iniciar_Protocolo ]
-    </button>
-    </form>
-    
+<!-- Botón de Acción -->
+<button 
+    type="button"
+    (click)="onLogin()" 
+    class="w-full border border-satus-bronce py-3 text-xs uppercase tracking-[0.3em] hover:bg-satus-bronce hover:text-black transition-all">
+    [ Iniciar Protocolo ]
+</button>
+</form>
+
     <div class="mt-8 text-center">
     <a routerLink="/" class="text-[8px] text-gray-600 hover:text-satus-bronce transition-all uppercase tracking-widest">
         &lt; Volver al Inicio

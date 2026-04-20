@@ -18,20 +18,41 @@ export class UsersService {
         return await this.userModel.find().populate('roles').exec();
     }
 
-    async findByEmail(email: string) {
-        // Buscar y popular roles y sus módulos internos
-        const user = await this.userModel.findOne({ email })
-            .populate({
-                path: 'roles',
-                populate: { path: 'modules' }
-            })
-            .exec();
+    async findByIdentifier(identifier: string) {
+  console.log('--- [DEBUG] BUSCANDO EN MONGO POR:', identifier);
 
-        if (!user) {
-            throw new NotFoundException(`User ${email} not found`);
-        }
-        return user;
+   const dbName = this.userModel.db.name; 
+  console.log('--- [SONDA] EL BACKEND ESTÁ MIRANDO LA DB:', dbName);
+
+  const totalUsers = await this.userModel.countDocuments();
+  console.log('--- [SONDA] TOTAL DE USUARIOS EN ESTA DB:', totalUsers);
+  
+  try {
+    const user = await this.userModel.findOne({
+      $or: [
+        { email: identifier },
+        { username: identifier }
+      ]
+    })
+    .populate({
+      path: 'roles',
+      // Comenta la línea de abajo si el error persiste para descartar
+      populate: { path: 'modules' } 
+    })
+    .exec();
+
+    if (!user) {
+      console.log('--- [DEBUG] USUARIO NO ENCONTRADO EN DB');
+      throw new NotFoundException(`User ${identifier} not found`);
     }
+
+    console.log('--- [DEBUG] USUARIO ENCONTRADO:', user.username);
+    return user;
+  } catch (error:any) {
+    console.error('--- [ERROR CRÍTICO] FALLO EN CONSULTA MONGO:', error.message);
+    throw error;
+  }
+}
 
     async findOne(userId: string) { // 🔹 Nota: En Mongo el ID es string (ObjectId)
         const user = await this.userModel.findById(userId).populate('roles').exec();

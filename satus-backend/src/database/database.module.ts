@@ -14,7 +14,7 @@ import config from '../config';
         
         return {
           // Construye la URI: mongodb://admin:615243@localhost:27017/
-          uri: `${connection}://${user}:${password}@${host}:${port}/`,
+          uri: `${connection}://${user}:${password}@${host}:${port}/${dbName}?authSource=admin`,
           dbName,
           authSource: 'admin', // Indica que el usuario 'admin' está en la db de administración de Mongo
         };

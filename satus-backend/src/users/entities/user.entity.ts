@@ -19,15 +19,19 @@ export class User extends Document {
   @Prop({ required: true, unique: true })
   email: string;
 
+  @Prop({ unique: true, required: true })
+  username: string;
+
   @Prop({ required: true })
   password: string;
 
   @Prop({ default: true })
   isActive: boolean;
 
-  // En Mongo, guarda un array de IDs que apuntan a la colección de Roles
+  // En Mongo, guarda el array de IDs que apuntan a la colección de Roles
   @Prop({ type: [{ type: Types.ObjectId, ref: 'Role' }] })
   roles: Role[];
+
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
