@@ -1,60 +1,61 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose'; // 🔹 Cambio clave
-import { Model, Types } from 'mongoose'; // 🔹 Cambio clave
+import { InjectModel } from '@nestjs/mongoose'; 
+import { Model, Types } from 'mongoose'; 
 import { User } from '../../../users/entities/user.entity';
 import { CreateUserDto, UpdateUserDto } from '../../../users/dtos/user.dto';
 import { RolesService } from '../../../roles/services/roles.service';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class UsersService {
     constructor(
-        @InjectModel(User.name) private userModel: Model<User>, // 🔹 Inyección de Mongo
+        @InjectModel(User.name) private userModel: Model<User>, 
         private rolesService: RolesService,
     ) { }
 
     async findAll() {
-        // En Mongo se usa .populate() para traer las relaciones
+        
         return await this.userModel.find().populate('roles').exec();
     }
 
     async findByIdentifier(identifier: string) {
-  console.log('--- [DEBUG] BUSCANDO EN MONGO POR:', identifier);
+console.log('--- [DEBUG] BUSCANDO EN MONGO POR:', identifier);
 
-   const dbName = this.userModel.db.name; 
-  console.log('--- [SONDA] EL BACKEND ESTÁ MIRANDO LA DB:', dbName);
+const dbName = this.userModel.db.name; 
+console.log('--- [SONDA] EL BACKEND ESTÁ MIRANDO LA DB:', dbName);
 
-  const totalUsers = await this.userModel.countDocuments();
-  console.log('--- [SONDA] TOTAL DE USUARIOS EN ESTA DB:', totalUsers);
-  
-  try {
+const totalUsers = await this.userModel.countDocuments();
+console.log('--- [SONDA] TOTAL DE USUARIOS EN ESTA DB:', totalUsers);
+
+try {
     const user = await this.userModel.findOne({
-      $or: [
+    $or: [
         { email: identifier },
         { username: identifier }
-      ]
+    ]
     })
+    .select('+password')
     .populate({
-      path: 'roles',
-      // Comenta la línea de abajo si el error persiste para descartar
-      populate: { path: 'modules' } 
+    path: 'roles',
+    // .populate() para traer las relaciones
+    populate: { path: 'modules' } 
     })
     .exec();
 
     if (!user) {
-      console.log('--- [DEBUG] USUARIO NO ENCONTRADO EN DB');
-      throw new NotFoundException(`User ${identifier} not found`);
+    console.log('--- [DEBUG] USUARIO NO ENCONTRADO EN DB');
+    throw new NotFoundException(`User ${identifier} not found`);
     }
 
     console.log('--- [DEBUG] USUARIO ENCONTRADO:', user.username);
     return user;
-  } catch (error:any) {
+} catch (error:any) {
     console.error('--- [ERROR CRÍTICO] FALLO EN CONSULTA MONGO:', error.message);
     throw error;
-  }
+}
 }
 
-    async findOne(userId: string) { // 🔹 Nota: En Mongo el ID es string (ObjectId)
+    async findOne(userId: string) { // 🔹 OJO!!: En Mongo el ID es string (ObjectId)
         const user = await this.userModel.findById(userId).populate('roles').exec();
         if (!user) {
             throw new NotFoundException(`User #${userId} not found`);

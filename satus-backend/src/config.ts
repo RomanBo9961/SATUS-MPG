@@ -3,7 +3,7 @@ import { registerAs } from '@nestjs/config';
 export default registerAs('config', () => {
   return {
     database: {
-      dbName: process.env.MONGO_DB,
+      dbName: process.env.MONGO_NAME,
       user: process.env.MONGO_INITDB_ROOT_USERNAME,
       password: process.env.MONGO_INITDB_ROOT_PASSWORD,
       port: parseInt(process.env.MONGO_PORT as string, 10),
