@@ -1,3 +1,4 @@
+// 1. Menú Contextual (Click derecho)
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
     id: "analyzeWithSatus",
@@ -8,40 +9,64 @@ chrome.runtime.onInstalled.addListener(() => {
 
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "analyzeWithSatus") {
-    // mensaje rápido de test
     chrome.scripting.executeScript({
       target: { tabId: tab.id },
-      func: (url) => { alert("SATUS está analizando este link: " + url); },
+      func: (url) => { alert("SATUS está analizando: " + url); },
       args: [info.linkUrl]
     });
   }
 });
 
+// 2. RECIBIR TOKEN DESDE LA WEB (Angular)
+chrome.runtime.onMessageExternal.addListener((request, sender, sendResponse) => {
+  if (request.action === "SET_TOKEN") {
+    chrome.storage.local.set({ 
+      satusToken: request.token,
+      satusUser: request.user
+    }, () => {
+      console.log("🔑 [Satus_Central] Token y Perfil sincronizados.");
+    });
+  }
+  return true;
+});
+
+// ORDEN DE ESCANEO DESDE EL ESCUDO (content.js)
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "ANALYZE_LINK") {
-    console.log("🛡️ Central recibió enlace:", request.url);
-    
-   // Petición POST al endpoint en NestJS
-    fetch("http://localhost:3000/api/detections/scan", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ url: request.url })
-    })
-    .then(response => {
-      if (!response.ok) throw new Error("Error en el servidor SATUS");
-      return response.json();
-    })
-    .then(data => {
-      // Respuesta de AI al content.js
-      sendResponse({ status: data.message });
-    })
-    .catch(error => {
-      console.error("❌ Error de conexión:", error);
-      sendResponse({ status: "Error: El servidor SATUS no responde." });
-    });
+    chrome.storage.local.get(['satusToken'], (result) => {
+      const token = result.satusToken;
 
-    return true; // Mantiene el canal abierto para la respuesta asíncrona del fetch
+      fetch("http://localhost:3000/api/detections/scan", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}` 
+        },
+        body: JSON.stringify({ url: request.url })
+      })
+      .then(res => {
+        if (res.status === 401) throw new Error("Nodo no autorizado. Inicie sesión.");
+        return res.json();
+      })
+      .then(data => sendResponse({ status: data.message }))
+      .catch(err => sendResponse({ status: err.message }));
+    });
+    return true; 
   }
+
+  
 });
+
+chrome.runtime.onMessageExternal.addListener((request, sender, sendResponse) => {
+  if (request.action === "SET_TOKEN") {
+    // Guarda el token automáticamente cuando haces login en la web
+    chrome.storage.local.set({ 
+      satusToken: request.token,
+      satusUser: request.user
+    }, () => {
+      console.log("🔑 [SATUS_CENTRAL] Token sincronizado automáticamente.");
+      if (sendResponse) sendResponse({ success: true });
+    });
+  }
+  return true;
+  });

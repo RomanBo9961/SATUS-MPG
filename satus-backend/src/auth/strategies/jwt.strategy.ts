@@ -21,7 +21,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  // 🔹 Agregamos : Promise<any> explícito para matar el error TS7056
+  // Promise<any> para matar el error TS7056
   async validate(payload: JwtPayload): Promise<any> {
     // En Mongo el payload.sub es un string (el ObjectId)
     const user = await this.userService.findOne(payload.sub.toString());

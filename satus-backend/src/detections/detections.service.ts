@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose'; 
-import { Model } from 'mongoose';  
+import { Model, Types } from 'mongoose';  
 import { Detection } from './entities/detection.entity';             
 import { HttpService } from '@nestjs/axios';
 import type { ConfigType } from '@nestjs/config';
@@ -23,7 +23,7 @@ public aiModelName = 'llama-3.1-8b-instant';
     //this.genAI = new GoogleGenerativeAI(this.configService.apiKeys.ai!);
   }
 
-  async analyzeUrl(url: string) {
+  async analyzeUrl(url: string, userId: string) {
     const cleanUrl = url.trim();
     console.log("1. LLEGADA AL SERVICE:", cleanUrl);
 
@@ -51,12 +51,14 @@ public aiModelName = 'llama-3.1-8b-instant';
     riskLevel: vtReport.riskLevel,
     message: aiAdvice,
     details: vtReport.details,
+    owner: new Types.ObjectId(userId),
     createdAt: new Date() 
   });
   
   await newRecord.save(); 
   console.log("✅ Análisis guardado en MongoDB");  
-      
+  console.log("✅ Análisis guardado en MongoDB para el usuario:", userId);
+
       return { ...vtReport, message: aiAdvice };
 
   } catch (error: any) {
@@ -185,9 +187,12 @@ public aiModelName = 'llama-3.1-8b-instant';
   }
  }
 
- async findAll() {
-  
-  return this.detectionModel.find().sort({ createdAt: -1 }).exec();
+async findAll(userId: string) {
+  // Filtro para que devuelva lo del usuario logueado
+  return this.detectionModel
+    .find({ owner: new Types.ObjectId(userId) })
+    .sort({ createdAt: -1 })
+    .exec();
 }
 
 }

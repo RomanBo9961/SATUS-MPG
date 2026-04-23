@@ -1,4 +1,3 @@
-// content.js - Versión para cazar el "Eco"
 let satusBadge = null;
 let isShieldActive = true;
 let activeLink = "";

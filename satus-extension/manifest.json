@@ -12,13 +12,18 @@
   "host_permissions": [
     "http://localhost:3000/*"
   ],
+
+  "externally_connectable": {
+    "matches": ["http://localhost:4200/*"]
+  },
+  
   "background": {
     "service_worker": "background.js"
   },
   "action": {
     "default_popup": "popup.html"
   },
-   "content_scripts": [
+  "content_scripts": [
     {
       "matches": ["<all_urls>"],
       "js": ["content.js"],

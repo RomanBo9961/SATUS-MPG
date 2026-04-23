@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 
-@Schema({ timestamps: true }) // Crear automáticamente 'createdAt' y 'updatedAt'
+@Schema({ timestamps: true }) 
 export class Detection extends Document {
   @Prop({ required: true })
   url: string;
