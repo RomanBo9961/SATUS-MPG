@@ -12,9 +12,12 @@ export class DetectionsService {
   constructor(private http: HttpClient) {}
 
   // historial del usuario
-  getHistory(): Observable<any[]> {
-    return this.http.get<any[]>(this.apiUrl);
-  }
+  getHistory() {
+  const token = localStorage.getItem('satusToken'); 
+  return this.http.get<any[]>('/api/detections', {
+    headers: { 'Authorization': `Bearer ${token}` }
+  });
+}
 
   // Escaneo desde el Dashboard
   analyzeUrl(url: string): Observable<any> {

@@ -11,27 +11,27 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "analyzeWithSatus") {
     chrome.scripting.executeScript({
       target: { tabId: tab.id },
-      func: (url) => { alert("SATUS está analizando: " + url); },
+      func: (url) => { alert("SATUS está procesando: " + url); },
       args: [info.linkUrl]
     });
   }
 });
 
-// 2. RECIBIR TOKEN DESDE LA WEB (Angular)
-chrome.runtime.onMessageExternal.addListener((request, sender, sendResponse) => {
-  if (request.action === "SET_TOKEN") {
+// 2. RECEPTOR ÚNICO DE MENSAJES (Sincronización y Escaneo)
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  
+  // A. Sincronización de Identidad (procedente del content.js)
+  if (request.action === "SYNC_AUTH") {
     chrome.storage.local.set({ 
       satusToken: request.token,
       satusUser: request.user
     }, () => {
-      console.log("🔑 [Satus_Central] Token y Perfil sincronizados.");
+      console.log("🔄 [SATUS] Identidad sincronizada con éxito.");
     });
+    return false; // No esperamos respuesta aquí
   }
-  return true;
-});
 
-// ORDEN DE ESCANEO DESDE EL ESCUDO (content.js)
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  // B. Orden de Escaneo (procedente del content.js en respuesta al click de 🛡️)
   if (request.action === "ANALYZE_LINK") {
     chrome.storage.local.get(['satusToken'], (result) => {
       const token = result.satusToken;
@@ -45,28 +45,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         body: JSON.stringify({ url: request.url })
       })
       .then(res => {
-        if (res.status === 401) throw new Error("Nodo no autorizado. Inicie sesión.");
+        if (res.status === 401) throw new Error("Nodo no autorizado. Inicie sesión en la web.");
         return res.json();
       })
       .then(data => sendResponse({ status: data.message }))
       .catch(err => sendResponse({ status: err.message }));
     });
-    return true; 
+    return true; // Mantiene el canal abierto para el fetch asíncrono
   }
-
-  
 });
-
-chrome.runtime.onMessageExternal.addListener((request, sender, sendResponse) => {
-  if (request.action === "SET_TOKEN") {
-    // Guarda el token automáticamente cuando haces login en la web
-    chrome.storage.local.set({ 
-      satusToken: request.token,
-      satusUser: request.user
-    }, () => {
-      console.log("🔑 [SATUS_CENTRAL] Token sincronizado automáticamente.");
-      if (sendResponse) sendResponse({ success: true });
-    });
-  }
-  return true;
-  });

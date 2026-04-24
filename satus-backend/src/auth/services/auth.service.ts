@@ -14,33 +14,48 @@ export class AuthService {
         // @InjectRepository(User) private userRepo: Repository<User>
     ) { }
 
-async validateUser(identifier: string, pass: string) {
-const user = await this.usersService.findByIdentifier(identifier);
+    async validateUser(identifier: string, pass: string) {
+        const user = await this.usersService.findByIdentifier(identifier);
 
-if (user) {
-    
-    const isMatch = await bcrypt.compare(pass, user.password);
-//console.log('¿Resultado del cotejo?:', isMatch);
+        if (user) {
 
-    if (isMatch) {
-        console.log('Contraseña coincidente: SÍ');
-        const roleName = user.roles && user.roles.length > 0 ? (user.roles[0] as any).name : 'FREE';
-        const { password, ...result } = user.toObject();
-        return { ...result, roleName };
+            const isMatch = await bcrypt.compare(pass, user.password);
+            //console.log('¿Resultado del cotejo?:', isMatch);
+
+            if (isMatch) {
+                // Convertimos el documento de Mongoose a un objeto plano de JS
+                const userObj = user.toObject();
+
+                console.log('--- [PROCESO_INTERNO] ---');
+                console.log('¿Qué ID tiene el rol?:', userObj.roles?.[0]?._id);
+                console.log('¿Qué NOMBRE tiene el rol?:', userObj.roles?.[0]?.name);
+
+                let roleName = 'FREE';
+
+                // Verificamos si existe el array y si el primer elemento tiene el campo 'name'
+                if (userObj.roles && userObj.roles.length > 0) {
+                    // Al estar poblado, roles[0] es el objeto { _id, name, ... }
+                    roleName = userObj.roles[0].name || 'FREE';
+                }
+
+                console.log('--- [SISTEMA] ROL FINAL CONFIRMADO:', roleName);
+
+                const { password, ...result } = userObj;
+                return { ...result, roleName };
+            }
+        }
+
+        //console.log('Fallo: Usuario no existe o contraseña errónea');
+        throw new UnauthorizedException('Credenciales inválidas');
     }
-}
 
-//console.log('Fallo: Usuario no existe o contraseña errónea');
-throw new UnauthorizedException('Credenciales inválidas');
-}
-
-async login(user: any) {
-const payload = { username: user.username, sub: user._id, role: user.roleName };
-return {
-    access_token: this.jwtService.sign(payload),
-    role: user.roleName, // Envia el rol al front
-    username: user.username
-};
-}
+    async login(user: any) {
+        const payload = { username: user.username, sub: user._id, role: user.roleName };
+        return {
+            access_token: this.jwtService.sign(payload),
+            role: user.roleName, // Envia el rol al front
+            username: user.username
+        };
+    }
 
 }

@@ -31,9 +31,9 @@
 
 <div class="relative group">
   
-  <!-- EL FILTRO BLUR (Se activa si NO es PRO) -->
+  <!-- EL FILTRO BLUR (Se activa si NO es PRO) >
   <div [class.blur-md]="userRole === 'FREE' || userRole === 'GUEST'" 
-      [class.pointer-events-none]="userRole === 'FREE'">
+      [class.pointer-events-none]="userRole === 'FREE'"-->
 
       <!-- Tarjetas con "Ver Más" -->
       <div *ngFor="let scan of detections" class="bg-satus-dark/60 border border-white/10 p-4 backdrop-blur-md hover:border-satus-neon/40 transition-all mb-4">
@@ -57,9 +57,9 @@
         </div>
       </div>
 
-      </div>
+      <!--/div-->
 
-      <div *ngIf="userRole === 'FREE' || userRole === 'GUEST'" 
+      <!--div *ngIf="userRole === 'FREE' || userRole === 'GUEST'" 
       class="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/40 border border-satus-bronce/20 backdrop-blur-sm transition-all">
     <span class="text-satus-bronce text-[10px] tracking-[0.5em] mb-4">ACCESO RESTRINGIDO</span>
     <h3 class="text-white text-xl font-bold mb-6">HISTORIAL BLOQUEADO</h3>
@@ -67,7 +67,7 @@
       [ Subir a NIVEL_PRO ]
     </button>
     <p class="mt-4 text-[8px] text-gray-500 uppercase">Desbloquea reportes y análisis detallados</p>
-  </div>
+  </div-->
 </div>
 
       <div *ngIf="detections.length === 0 && !loading" class="text-center py-20 border border-dashed border-white/10">

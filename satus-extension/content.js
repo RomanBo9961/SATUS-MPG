@@ -128,3 +128,26 @@ function showSatusPopup(message, x, y) {
     // Auto-cerrar con Scroll
     window.addEventListener('scroll', () => popup.remove(), { once: true });
 }
+
+//Sincronizar automaticamente el token del ID de la extension
+function syncAuth() {
+  try {
+    const token = localStorage.getItem('satusToken');
+    const userRole = localStorage.getItem('user_role');
+    const username = localStorage.getItem('username');
+
+    // Solo envia si el token existe
+    if (token && chrome.runtime?.id) { 
+      chrome.runtime.sendMessage({
+        action: "SYNC_AUTH",
+        token: token,
+        user: { username, role: userRole }
+      });
+    }
+  } catch (e) {
+    // Evita que el script truene en páginas donde el localStorage está bloqueado
+  }
+}
+
+syncAuth();
+window.addEventListener('storage', syncAuth);
