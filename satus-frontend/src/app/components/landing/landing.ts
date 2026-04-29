@@ -27,8 +27,27 @@ export class Landing implements OnInit, AfterViewInit {
   ) {}
 
   ngOnInit() {
+    this.initializeGuestSession();
     this.systemBoot();
     this.getLiveSpecs();
+  }
+
+  initializeGuestSession() {
+    // ignora usuario logueado
+    const currentToken = localStorage.getItem('satusToken');
+    
+    if (!currentToken) {
+      // Generar ID de invitado rápido
+      const guestId = 'GUEST_' + Math.random().toString(36).substring(2, 8).toUpperCase();
+      
+      localStorage.setItem('user_role', 'GUEST');
+      localStorage.setItem('username', guestId);
+      localStorage.setItem('satusToken', 'GUEST_TOKEN');
+
+      // Disparar el evento 'storage' que content.js escucha)
+      window.dispatchEvent(new Event('storage'));
+      console.log(`--- [SISTEMA] IDENTIDAD TEMPORAL ASIGNADA: ${guestId} ---`);
+    }
   }
 
   ngAfterViewInit() {

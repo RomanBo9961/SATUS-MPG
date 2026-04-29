@@ -10,11 +10,13 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import config from '../config';
 import { ModulesGuard } from './guards/modules.guard.guard';
 import { JwtAuthGuard } from './guards/auth.guard';
+import { RolesModule } from '../roles/roles.module'; 
 
 @Module({
   imports: [
     UsersModule,
     PassportModule,
+    RolesModule,
     JwtModule.registerAsync({
       inject: [config.KEY],
       useFactory: (configType: ConfigType<typeof config>): JwtModuleOptions => {

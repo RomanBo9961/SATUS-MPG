@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, ChangeDetectorRef } from '@angular/core'; 
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DetectionsService } from '../../services/detections.service';
 import { AuthService } from '../../services/auth.service';
@@ -22,13 +22,13 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     private detectionsService: DetectionsService,
     private cd: ChangeDetectorRef,
     private authService: AuthService
-  ) {}
+  ) { }
 
   ngOnInit() {
     setTimeout(() => {
       this.userRole = this.authService.getRole();
       this.loadHistory();
-    }, 800); 
+    }, 800);
   }
 
   ngAfterViewInit() {
@@ -43,41 +43,48 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   }
 
   loadHistory() {
-  this.detectionsService.getHistory().subscribe({
-    next: (data) => {
-      if (data && Array.isArray(data)) {
-        this.detections = data.map((item: any) => ({
-          ...item,
-          message: item.message ? item.message.replace(/\*\*/g, '') : 'Sin reporte disponible',
-          expanded: false // controla el "Ver más"
-        }));
+    this.detectionsService.getHistory().subscribe({
+      next: (data) => {
+        if (data && Array.isArray(data)) {
+          this.detections = data.map((item: any) => ({
+            ...item,
+            message: item.message ? item.message.replace(/\*\*/g, '') : 'Sin reporte disponible',
+            expanded: false // controla el "Ver más"
+          }));
+        }
+        this.loading = false;
+        this.cd.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error:', err);
+        this.loading = false;
+        this.cd.detectChanges();
       }
-      this.loading = false; 
-      this.cd.detectChanges(); 
-    },
-    error: (err) => {
-      console.error('Error:', err);
-      this.loading = false;
-      this.cd.detectChanges();
-    }
-  });
-}
+    });
+  }
 
-// Truncar el texto (35-40 palabras)
-getShortMessage(text: string): string {
-  const words = text.split(' ');
-  if (words.length <= 40) return text;
-  return words.slice(0, 40).join(' ') + '...';
-}
+  // Truncar el texto (35-40 palabras)
+  getShortMessage(text: string): string {
+    const words = text.split(' ');
+    if (words.length <= 40) return text;
+    return words.slice(0, 40).join(' ') + '...';
+  }
 
   calculateIntegrity(): number {
     if (this.detections.length === 0) return 100;
     // Contamos ALTOS ignorando espacios o mayúsculas rebeldes
-    const threats = this.detections.filter(d => 
+    const threats = this.detections.filter(d =>
       d.riskLevel?.trim().toUpperCase() === 'ALTO'
     ).length;
-    
+
     const score = 100 - (threats * 10);
     return score < 5 ? 5 : score;
+  }
+
+  onLogout() {
+    // Confirmación rápida estilo terminal
+    if (confirm("¿TERMINAR SESIÓN Y CERRAR VÍNCULO?")) {
+      this.authService.logout();
+    }
   }
 }

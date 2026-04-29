@@ -8,7 +8,7 @@ import { ModulesModule } from '../modules/modules.module';
 @Module({
   imports: [
     // Registramos el Schema de Roles
-    MongooseModule.forFeature([{ name: Role.name, schema: RoleSchema }]), 
+    MongooseModule.forFeature([{ name: 'Role', schema: RoleSchema }]), 
     ModulesModule
   ],
   providers: [RolesService],

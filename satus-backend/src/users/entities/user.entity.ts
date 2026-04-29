@@ -1,8 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { Role } from '../../roles/entities/role.entity'; 
+import { Role } from '../../roles/entities/role.entity';
 
-@Schema({ timestamps: true })
+@Schema({ timestamps: true, collection: 'users' })
 export class User extends Document {
   @Prop({ required: true })
   name: string;
@@ -28,9 +28,8 @@ export class User extends Document {
   @Prop({ default: true })
   isActive: boolean;
 
-  // En Mongo, guarda el array de IDs que apuntan a la colección de Roles
   @Prop({ type: [{ type: Types.ObjectId, ref: 'Role' }] })
-  roles: Role[];
+roles: Role[];
 
 }
 

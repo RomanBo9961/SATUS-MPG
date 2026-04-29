@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { tap } from 'rxjs/operators';
+import { Router } from '@angular/router';
 
 declare const chrome: any;
 
@@ -8,7 +9,10 @@ declare const chrome: any;
 export class AuthService {
     private apiUrl = '/api/auth/login'; //Confg Prox
 
-    constructor(private http: HttpClient) { }
+    constructor(
+        private http: HttpClient,
+        private router: Router
+    ) { }
 
     login(credentials: any) {
         return this.http.post<any>(this.apiUrl, credentials).pipe(
@@ -21,11 +25,30 @@ export class AuthService {
         );
     }
 
+    register(userData: any) {
+        return this.http.post<any>('/api/users/register', userData);
+    }
+
+    getUsername() {
+        return localStorage.getItem('username') || 'USUARIO';
+    }
+
     getRole() {
         return localStorage.getItem('user_role') || 'GUEST';
     }
 
     logout() {
+
         localStorage.clear();
+
+        if (typeof chrome !== 'undefined' && chrome.runtime) {
+            chrome.runtime.sendMessage({
+                action: "SYNC_AUTH",
+                token: null,
+                user: { username: 'INVITADO', role: 'GUEST' }
+            });
+        }
+
+        this.router.navigate(['/login']);
     }
 }

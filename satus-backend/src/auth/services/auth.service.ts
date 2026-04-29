@@ -4,6 +4,7 @@ import { User } from '../../users/entities/user.entity';
 import { UsersService } from '../../users/services/users/users.service';
 import * as bcrypt from 'bcryptjs';
 import { UserModel } from '../../users/interfaces/user';
+import { RolesService } from '../../roles/services/roles.service';
 
 @Injectable()
 export class AuthService {
@@ -11,6 +12,7 @@ export class AuthService {
     constructor(
         private readonly usersService: UsersService,
         private readonly jwtService: JwtService,
+        private readonly rolesService: RolesService,
         // @InjectRepository(User) private userRepo: Repository<User>
     ) { }
 
@@ -23,26 +25,29 @@ export class AuthService {
             //console.log('¿Resultado del cotejo?:', isMatch);
 
             if (isMatch) {
-                // Convertimos el documento de Mongoose a un objeto plano de JS
-                const userObj = user.toObject();
 
-                console.log('--- [PROCESO_INTERNO] ---');
-                console.log('¿Qué ID tiene el rol?:', userObj.roles?.[0]?._id);
-                console.log('¿Qué NOMBRE tiene el rol?:', userObj.roles?.[0]?.name);
+    const rawUser = await (this.usersService as any).userModel.collection.findOne({ _id: user._id });
+    
+    let roleName = 'FREE';
+    
+    if (rawUser && rawUser.roles && rawUser.roles.length > 0) {
+        
+        const idEnDisco = rawUser.roles.toString();
+        
+        
+        if (idEnDisco === '660000000000000000000003') {
+            roleName = 'PRO';
+        } else {
+            // populate sldps
+            roleName = (user.roles && (user.roles as any).name) ? (user.roles as any).name : 'FREE';
+        }
+    }
 
-                let roleName = 'FREE';
+    console.log(`--- [SEGURIDAD] NODO VALIDADO: ${user.username} | RANGO: ${roleName} ---`);
 
-                // Verificamos si existe el array y si el primer elemento tiene el campo 'name'
-                if (userObj.roles && userObj.roles.length > 0) {
-                    // Al estar poblado, roles[0] es el objeto { _id, name, ... }
-                    roleName = userObj.roles[0].name || 'FREE';
-                }
-
-                console.log('--- [SISTEMA] ROL FINAL CONFIRMADO:', roleName);
-
-                const { password, ...result } = userObj;
-                return { ...result, roleName };
-            }
+    const { password, ...result } = user;
+    return { ...result, roleName };
+}
         }
 
         //console.log('Fallo: Usuario no existe o contraseña errónea');
@@ -53,7 +58,7 @@ export class AuthService {
         const payload = { username: user.username, sub: user._id, role: user.roleName };
         return {
             access_token: this.jwtService.sign(payload),
-            role: user.roleName, // Envia el rol al front
+            role: user.roleName, // Enviar el rol al front
             username: user.username
         };
     }

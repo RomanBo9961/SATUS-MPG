@@ -136,16 +136,25 @@ function syncAuth() {
     const userRole = localStorage.getItem('user_role');
     const username = localStorage.getItem('username');
 
-    // Solo envia si el token existe
-    if (token && chrome.runtime?.id) { 
-      chrome.runtime.sendMessage({
-        action: "SYNC_AUTH",
-        token: token,
-        user: { username, role: userRole }
-      });
+    if (chrome.runtime?.id) { 
+      if (token) {
+        // Enviar credenciales reales
+        chrome.runtime.sendMessage({
+          action: "SYNC_AUTH",
+          token: token,
+          user: { username, role: userRole }
+        });
+      } else {
+        // LOGOUT / INVITADO
+        chrome.runtime.sendMessage({
+          action: "SYNC_AUTH",
+          token: 'GUEST_TOKEN', 
+          user: { username: 'INVITADO', role: 'GUEST' }
+        });
+      }
     }
   } catch (e) {
-    // Evita que el script truene en páginas donde el localStorage está bloqueado
+    // Silencio en páginas con Storage bloqueado
   }
 }
 

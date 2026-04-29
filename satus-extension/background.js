@@ -22,6 +22,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   
   // A. Sincronización de Identidad (procedente del content.js)
   if (request.action === "SYNC_AUTH") {
+    const token = request.token || 'GUEST_TOKEN'; 
     chrome.storage.local.set({ 
       satusToken: request.token,
       satusUser: request.user
@@ -34,7 +35,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   // B. Orden de Escaneo (procedente del content.js en respuesta al click de 🛡️)
   if (request.action === "ANALYZE_LINK") {
     chrome.storage.local.get(['satusToken'], (result) => {
-      const token = result.satusToken;
+      const token = result.satusToken || 'GUEST_TOKEN';
 
       fetch("http://localhost:3000/api/detections/scan", {
         method: "POST",

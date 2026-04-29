@@ -7,14 +7,14 @@ import { CreateUserDto, UpdateUserDto } from '../../../users/dtos/user.dto';
 import { UsersService } from '../../../users/services/users/users.service';
 import { JwtAuthGuard } from '../../../auth/guards/auth.guard';
 
-@ApiTags('users') // 🔹 Agregué Tags para que en Swagger se vea ordenado
+@ApiTags('users')
 @ApiBearerAuth()
 @Modules('users')
 @UseGuards(JwtAuthGuard, ModulesGuard)
 @Controller('users')
 export class UsersController {
 
-    constructor(private usersService: UsersService){}
+    constructor(private usersService: UsersService) { }
 
     @Get()
     getUsers() {
@@ -22,25 +22,28 @@ export class UsersController {
     }
 
     @Get(':userId')
-    // 🔹 CAMBIO: Eliminamos ParseIntPipe y usamos string
-    getOne(@Param('userId') userId: string){
+    getOne(@Param('userId') userId: string) {
         return this.usersService.findOne(userId);
     }
 
     @Post()
-    createUser(@Body() payload: CreateUserDto){
+    createUser(@Body() payload: CreateUserDto) {
         return this.usersService.create(payload);
     }
 
     @Put(':userId')
-    // 🔹 CAMBIO: Eliminamos ParseIntPipe y usamos string
-    updateUser(@Param('userId') userId: string, @Body() payloadUpdated: UpdateUserDto){
+    updateUser(@Param('userId') userId: string, @Body() payloadUpdated: UpdateUserDto) {
         return this.usersService.updateUser(userId, payloadUpdated);
     }
 
     @Delete(':userId')
-    // 🔹 CAMBIO: Eliminamos ParseIntPipe y usamos string
-    async deleteUser(@Param('userId') userId: string){
+    async deleteUser(@Param('userId') userId: string) {
         return await this.usersService.deleteUser(userId);
+    }
+
+    @Post('register')
+    async register(@Body() createUserDto: CreateUserDto) {
+        const defaultRole = ['660000000000000000000002'];
+        return this.usersService.create({ ...createUserDto, roleIds: defaultRole });
     }
 }
