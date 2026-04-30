@@ -1,5 +1,5 @@
 <!-- Video de Fondo -->
-<video #bgVideo autoplay muted loop playsinline [muted]="true" id="bg-video" 
+<video #bgVideo autoplay muted loop playsinline [muted]="true" id="bg-video"
   class="fixed top-0 left-0 min-w-full min-h-full object-cover z-[-30]">
   <source src="bg-cyber.mp4" type="video/mp4">
 </video>
@@ -8,74 +8,103 @@
 <div class="fixed top-0 left-0 w-full h-full bg-satus-bg z-[-20]"></div>
 <div class="fixed top-0 left-0 w-full h-full bg-black/60 z-[-10]"></div>
 
-<div class="relative z-0 min-h-screen p-6 font-mono text-gray-300"> 
+<div class="relative z-0 min-h-screen p-6 font-mono text-gray-300">
   <!-- Header -->
-  <header class="flex justify-between items-center border-b border-satus-neon/20 pb-4 mb-8">
+  <header class="relative z-[100] flex justify-between items-center border-b border-satus-neon/20 pb-4 mb-8">
     <div class="flex items-center gap-3">
       <div class="w-3 h-3 bg-satus-neon rounded-full animate-pulse"></div>
       <h1 class="text-xl font-bold tracking-tighter text-white">SATUS CORE</h1>
     </div>
-    <div class="text-[10px] text-satus-neon tracking-widest uppercase">
-      Estado: <span class="text-satus-on">Seguro</span> | Encriptacion: <span class="text-satus-on">Activo</span>
+
+    <div class="flex items-center gap-6">
+      <div class="text-[10px] text-satus-neon tracking-widest uppercase">
+        Estado: <span class="text-satus-on">Seguro</span> | Nodo: <span class="text-satus-on">{{ userRole }}</span>
+      </div>
+
+      <!-- BOTÓN DINÁMICO -->
+      <button *ngIf="userRole !== 'GUEST'; else loginBtn" (click)="onLogout()"
+        class="text-[10px] border border-satus-alert/40 text-satus-alert px-3 py-1 hover:bg-satus-alert hover:text-white transition-all uppercase tracking-tighter">
+        [ DESCONECTAR ]
+      </button>
+
+      <ng-template #loginBtn>
+        <button routerLink="/login"
+          class="text-[10px] border border-satus-neon/40 text-satus-neon px-3 py-1 hover:bg-satus-neon hover:text-black transition-all uppercase tracking-tighter">
+          [ ACCEDER]
+        </button>
+      </ng-template>
     </div>
-    <button (click)="onLogout()" 
-            class="text-[10px] border border-satus-alert/40 text-satus-alert px-3 py-1 hover:bg-satus-alert hover:text-white transition-all uppercase tracking-tighter">
-      [ DESCONECTAR ]
-    </button>
   </header>
 
   <main class="grid grid-cols-1 lg:grid-cols-3 gap-6">
     <!-- Sección Izquierda: Historial -->
     <section class="lg:col-span-2 space-y-4">
       <h2 class="text-xs uppercase text-gray-500 mb-4 tracking-widest">Recientes Auditados</h2>
-      
-      <div *ngIf="loading && detections.length === 0" class="text-satus-neon animate-pulse text-xs">
-        Sincronizando con base de datos...
-      </div>
 
-<div class="relative group">
-  
-  <!--EL FILTRO BLUR (Se activa si NO es PRO) -->
-  <div [class.blur-md]="userRole === 'FREE' || userRole === 'GUEST'" 
-      [class.pointer-events-none]="userRole === 'FREE'">
+      <div class="relative border border-dashed border-white/10 bg-black/20 min-h-[400px] overflow-hidden">
 
-      <!-- Tarjetas con "Ver Más" -->
-      <div *ngFor="let scan of detections" class="bg-satus-dark/60 border border-white/10 p-4 backdrop-blur-md hover:border-satus-neon/40 transition-all mb-4">
-        <div class="flex justify-between items-start mb-2">
-          <span class="text-satus-neon text-[10px] uppercase">{{ scan.createdAt | date:'dd/MM HH:mm' }}</span>
-          <span [class]="scan.riskLevel === 'ALTO' ? 'text-satus-alert border-satus-alert' : 'text-satus-on border-satus-on'" 
-                class="text-[10px] border px-2 py-0.5 uppercase">
-            {{ scan.riskLevel }}
-          </span>
+        <!-- Mensaje de Carga -->
+        <div *ngIf="loading && detections.length === 0" class="p-4 text-satus-neon animate-pulse text-xs">
+          Sincronizando con base de datos...
         </div>
-        
-        <p class="text-sm text-white mb-2 truncate font-mono">{{ scan.url }}</p>
-        
-        <div class="bg-black/40 p-3 text-xs leading-relaxed border-l-2 border-satus-neon italic text-gray-400">
-          {{ scan.expanded ? scan.message : getShortMessage(scan.message) }}
-          
-          <button (click)="scan.expanded = !scan.expanded" 
-                  class="block mt-2 text-satus-neon hover:underline cursor-pointer uppercase text-[9px] tracking-widest">
-            {{ scan.expanded ? '[ - COLAPSAR ]' : '[ + VER_MÁS ]' }}
+
+        <!-- FILTRO BLUR>
+        <div [class.blur-md]="userRole === 'FREE' || userRole === 'GUEST'"
+          [class.pointer-events-none]="userRole === 'FREE' || userRole === 'GUEST'" class="p-4"-->
+
+        <!-- Mensaje si el sector está limpio -->
+        <div *ngIf="detections.length === 0 && !loading" class="text-center py-20">
+          <p class="text-gray-600 uppercase text-[10px] tracking-widest">No se registran amenazas en el sector actual.
+          </p>
+        </div>
+
+        <!-- Tarjetas de Escaneo -->
+        <div *ngFor="let scan of detections"
+          class="bg-satus-dark/60 border border-white/10 p-4 backdrop-blur-md hover:border-satus-neon/40 transition-all mb-4">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-satus-neon text-[10px] uppercase">{{ scan.createdAt | date:'dd/MM HH:mm' }}</span>
+            <span
+              [class]="scan.riskLevel === 'ALTO' ? 'text-satus-alert border-satus-alert' : 'text-satus-on border-satus-on'"
+              class="text-[10px] border px-2 py-0.5 uppercase">
+              {{ scan.riskLevel }}
+            </span>
+          </div>
+
+          <p class="text-sm text-white mb-2 truncate font-mono">{{ scan.url }}</p>
+
+          <div class="bg-black/40 p-3 text-xs leading-relaxed border-l-2 border-satus-neon italic text-gray-400">
+
+            <ng-container *ngIf="userRole !== 'FREE' && userRole !== 'GUEST'; else lockedMessage">
+              {{ scan.expanded ? scan.message : getShortMessage(scan.message) }}
+
+              <button (click)="scan.expanded = !scan.expanded"
+                class="block mt-2 text-satus-neon hover:underline cursor-pointer uppercase text-[9px] tracking-widest">
+                {{ scan.expanded ? '[ - COLAPSAR ]' : '[ + VER_MÁS ]' }}
+              </button>
+            </ng-container>
+
+            <ng-template #lockedMessage>
+              <span class="opacity-50 select-none">
+                [ PROTOCOLO DE SEGURIDAD ]: Contenido cifrado. Requiere actualización de nodo para visualización...
+              </span>
+            </ng-template>
+          </div>
+        </div>
+        <!--/div-->
+
+        <div *ngIf="userRole === 'FREE' || userRole === 'GUEST'"
+          class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm">
+
+          <span class="text-satus-neon text-[10px] tracking-[0.5em] mb-4">ACCESO RESTRINGIDO</span>
+          <h3 class="text-white text-xl font-bold mb-6">HISTORIAL BLOQUEADO</h3>
+
+          <button
+            class="bg-satus-on text-black px-8 py-3 text-xs font-bold uppercase tracking-widest hover:scale-105 transition-transform shadow-[0_10px_20px_rgba(0,0,0,0.5)]">
+            [ Subir a NIVEL AVANZADO ]
           </button>
+
+          <p class="mt-4 text-[8px] text-gray-500 uppercase">Desbloquea reportes y análisis detallados</p>
         </div>
-      </div>
-
-      </div>
-
-      <div *ngIf="userRole === 'FREE' || userRole === 'GUEST'" 
-      class="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/40 border border-satus-bronce/20 backdrop-blur-sm transition-all">
-    <span class="text-satus-bronce text-[10px] tracking-[0.5em] mb-4">ACCESO RESTRINGIDO</span>
-    <h3 class="text-white text-xl font-bold mb-6">HISTORIAL BLOQUEADO</h3>
-    <button class="bg-satus-bronce text-black px-8 py-3 text-xs font-bold uppercase tracking-widest hover:scale-105 transition-transform">
-      [ Subir a NIVEL_PRO ]
-    </button>
-    <p class="mt-4 text-[8px] text-gray-500 uppercase">Desbloquea reportes y análisis detallados</p>
-  </div>
-</div>
-
-      <div *ngIf="detections.length === 0 && !loading" class="text-center py-20 border border-dashed border-white/10">
-        <p class="text-gray-600">No se registran amenazas en el sector actual.</p>
       </div>
     </section>
 
@@ -85,11 +114,11 @@
         <h3 class="text-[10px] uppercase text-gray-500 mb-2">Integridad Sistema</h3>
         <div class="text-3xl font-light text-white">{{ calculateIntegrity() }}%</div>
         <div class="w-full bg-gray-800 h-1 mt-4">
-          <div class="bg-satus-neon h-1 shadow-[0_0_10px_#00f2ff] transition-all duration-1000" 
+          <div class="bg-satus-neon h-1 shadow-[0_0_10px_#00f2ff] transition-all duration-1000"
             [style.width.%]="calculateIntegrity()">
-          </div> 
-        </div> 
-      </div> 
+          </div>
+        </div>
+      </div>
     </aside>
   </main>
 </div>

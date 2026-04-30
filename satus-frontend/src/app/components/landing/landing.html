@@ -46,29 +46,67 @@
 
         <!-- Hero Section -->
         <main class="relative grid grid-cols-12 min-h-screen border-b border-satus-bronce/10">
-            <div class="hidden lg:flex col-span-1 border-r border-satus-bronce/10 items-center justify-center">
-                <span class="rotate-180 text-[10px] tracking-[1em] uppercase text-gray-600 [writing-mode:vertical-lr]">
-                    Evolution of Security
-                </span>
-            </div>
+    <div class="hidden lg:flex col-span-1 border-r border-satus-bronce/10 items-center justify-center">
+        <span class="rotate-180 text-[10px] tracking-[1em] uppercase text-gray-600 [writing-mode:vertical-lr]">
+            Evolution of Security
+        </span>
+    </div>
 
-            <div class="col-span-11 lg:col-span-7 p-10 space-y-20">
-                <div class="mt-20">
-                    <h2 class="text-7xl lg:text-[120px] font-bold leading-[0.8] tracking-tighter">
-                        SATUS<br><span class="text-satus-bronce">01</span>
-                    </h2>
-                    <p class="mt-10 max-w-sm text-xs leading-relaxed text-gray-500 uppercase tracking-widest">
-                        Sistema de análisis heurístico y protección proactiva basado en núcleos de IA descentralizados.
-                    </p>
-                </div>
-            </div>
+    <!-- Info del Producto -->
+    <div class="col-span-11 lg:col-span-5 p-10 flex flex-col justify-center space-y-12">
+        <div>
+            <h2 class="text-7xl lg:text-[120px] font-bold leading-[0.8] tracking-tighter">
+                SATUS<br><span class="text-satus-bronce">01</span>
+            </h2>
+            <p class="mt-10 max-w-sm text-xs leading-relaxed text-gray-500 uppercase tracking-widest">
+                Protección de última generación. Caracteriza amenazas antes de que toquen su sistema.
+        <!--Sistema de análisis heurístico y protección proactiva basado en núcleos de IA descentralizados.-->
+            </p>
+        </div>
 
-            <div class="col-span-11 lg:col-span-4 items-left p-10 bg-gradient-to-br from-transparent to-satus-bronce/5">
-                <img src="render-3d.png"
-                    class="w-full max-w-[270px] h-auto drop-shadow-[0_0_30px_rgba(205,127,50,0.2)] grayscale hover:grayscale-0 transition-all duration-700 ease-in-out"
-                    alt="SATUS Core Render">
+        <ul class="space-y-4">
+            <li class="flex items-center gap-3 text-[10px] tracking-widest text-gray-300 uppercase">
+                <span class="w-1 h-1 bg-satus-bronce shadow-[0_0_5px_#cd7f32]"></span> Análisis Heurístico Asistido
+            </li>
+            <li class="flex items-center gap-3 text-[10px] tracking-widest text-gray-300 uppercase">
+                <span class="w-1 h-1 bg-satus-bronce shadow-[0_0_5px_#cd7f32]"></span> Reportes Precisos y Claros
+            </li>
+            <li class="flex items-center gap-3 text-[10px] tracking-widest text-gray-300 uppercase">
+                <span class="w-1 h-1 bg-satus-bronce shadow-[0_0_5px_#cd7f32]"></span> Sincronización Global de Amenazas
+            </li>
+        </ul>
+    </div>
+
+    <!-- BLOQUE DE ACCIÓN -->
+    <div class="col-span-11 lg:col-span-5 p-10 flex items-center justify-center bg-satus-bronce/[0.007] hover:bg-satus-bronce/[0.012] border-l border-satus-bronce/10 transition-all duration-700 group cursor-default">
+    <div class="text-center space-y-10 w-full max-w-sm lg:mr-auto lg:ml-10">
+        
+        <div class="relative inline-block">
+            <img src="render-3d.png"
+                class="w-full max-w-[280px] h-auto 
+                    filter grayscale group-hover:grayscale-0 
+                    drop-shadow-[0_0_15px_rgba(205,127,50,0.1)] 
+                    group-hover:drop-shadow-[0_0_50px_rgba(205,127,50,0.4)] 
+                    transition-all duration-1000 ease-in-out"
+                alt="SATUS Core Render">
+        </div>
+
+        <!-- Llamado a la Acción -->
+        <div class="space-y-6">
+            <div class="space-y-2">
+                <h3 class="text-white/80 text-3xl font-bold tracking-tighter uppercase italic group-hover:text-white transition-colors duration-500">DESCARGAR YA</h3>
+                <p class="text-[9px] text-satus-bronce/60 tracking-[0.3em] uppercase group-hover:text-satus-bronce transition-colors">V 2.1.0 // NODO DISPONIBLE</p>
             </div>
-        </main>
+            
+            <button class="w-full py-4 bg-satus-bronce/20 border border-satus-bronce/40 text-satus-bronce font-bold uppercase tracking-[0.4em] text-[10px] group-hover:bg-satus-bronce group-hover:text-black group-hover:border-transparent transition-all duration-500 shadow-xl">
+                [ Obtener Extensión ]
+            </button>
+            
+            <p class="text-[8px] text-gray-600 uppercase tracking-widest">Optimizado para entornos Chromium</p>
+        </div>
+    </div>
+</div>
+</main>
 
         <section class="grid grid-cols-12 bg-black/20">
             <div class="col-span-1"></div>

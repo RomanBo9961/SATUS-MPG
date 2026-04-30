@@ -29,7 +29,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }, () => {
       console.log("🔄 [SATUS] Identidad sincronizada con éxito.");
     });
-    return false; // No esperamos respuesta aquí
+    return false; 
   }
 
   // B. Orden de Escaneo (procedente del content.js en respuesta al click de 🛡️)

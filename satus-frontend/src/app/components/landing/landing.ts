@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { DetectionsService } from '../../services/detections.service'; 
+import { DetectionsService } from '../../services/detections.service';
 
 @Component({
   selector: 'app-landing',
@@ -13,8 +13,8 @@ import { DetectionsService } from '../../services/detections.service';
 export class Landing implements OnInit, AfterViewInit {
   loadingSystem = true;
   progress = 0;
-  
-   @ViewChild('bgVideo') videoRef!: ElementRef<HTMLVideoElement>;
+
+  @ViewChild('bgVideo') videoRef!: ElementRef<HTMLVideoElement>;
 
   // Variables para la info en tiempo real
   aiModel = 'DETECTANDO...';
@@ -24,7 +24,7 @@ export class Landing implements OnInit, AfterViewInit {
   constructor(
     private cd: ChangeDetectorRef,
     private detectionsService: DetectionsService
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.initializeGuestSession();
@@ -35,23 +35,21 @@ export class Landing implements OnInit, AfterViewInit {
   initializeGuestSession() {
     // ignora usuario logueado
     const currentToken = localStorage.getItem('satusToken');
-    
+
     if (!currentToken) {
-      // Generar ID de invitado rápido
       const guestId = 'GUEST_' + Math.random().toString(36).substring(2, 8).toUpperCase();
-      
-      localStorage.setItem('user_role', 'GUEST');
+
+      // Datos FREE
+      localStorage.setItem('user_role', 'GUEST'); 
       localStorage.setItem('username', guestId);
       localStorage.setItem('satusToken', 'GUEST_TOKEN');
 
-      // Disparar el evento 'storage' que content.js escucha)
       window.dispatchEvent(new Event('storage'));
       console.log(`--- [SISTEMA] IDENTIDAD TEMPORAL ASIGNADA: ${guestId} ---`);
     }
   }
 
   ngAfterViewInit() {
-    // Intentamos reproducir cada vez que el componente se asiente
     this.playVideo();
   }
 
@@ -67,12 +65,12 @@ export class Landing implements OnInit, AfterViewInit {
   }
 
   getLiveSpecs() {
-    
-    this.aiModel = this.detectionsService.currentModel.toUpperCase();  
+
+    this.aiModel = this.detectionsService.currentModel.toUpperCase();
 
     this.latency = (Math.random() * (0.45 - 0.12) + 0.12).toFixed(2) + 'ms';
 
-    this.vtStatus = 'NODO ACTIVO'; 
+    this.vtStatus = 'NODO ACTIVO';
   }
 
   systemBoot() {
@@ -86,7 +84,7 @@ export class Landing implements OnInit, AfterViewInit {
         setTimeout(() => {
           this.loadingSystem = false;
           this.cd.detectChanges();
-          setTimeout(() => this.playVideo(), 100); 
+          setTimeout(() => this.playVideo(), 100);
         }, 800);
       }
     }, 150);

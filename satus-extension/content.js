@@ -4,21 +4,26 @@ let activeLink = "";
 let mouseTimer = null;
 
 function initSatusSensor() {
-  console.log("🛡️ SATUS Shield: Sensor cargado...");
+  console.log("SATUS Shield: Sensor cargado...");
   
   satusBadge = document.createElement('div');
-  satusBadge.innerHTML = '🛡️';
+  satusBadge.innerHTML = `<img src="${chrome.runtime.getURL('satus_shield.png')}" style="width: 24px; pointer-events: none;">`;
+  
   satusBadge.style.cssText = `
     position: absolute;
     display: none;
     cursor: pointer;
     z-index: 10000;
-    font-size: 18px;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
-    transition: transform 0.2s;
+    filter: drop-shadow(0 0 8px rgba(205, 127, 50, 0.6)); 
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     user-select: none;
   `;
+
   document.body.appendChild(satusBadge);
+
+  // Efecto visual al pasar el mouse por el escudo
+  satusBadge.onmouseenter = () => satusBadge.style.transform = 'scale(1.2)';
+  satusBadge.onmouseleave = () => satusBadge.style.transform = 'scale(1)';
 
   document.addEventListener('mouseover', handleMouseOver);
   
@@ -31,12 +36,17 @@ function initSatusSensor() {
     // 🚩 PRUEBA DE FUEGO 1: ¿Qué tiene la extensión en la mano antes de enviarlo?
     console.log("📝 URL EN CONTENT.JS (ANTES DE ENVIAR):", activeLink);
 
-    satusBadge.innerText = '🌀'; 
-    satusBadge.style.transform = 'scale(1.2)';
+    // 🌀 Animación de carga: Brillo intenso y rotación
+    satusBadge.style.filter = 'drop-shadow(0 0 15px rgba(205, 127, 50, 1))';
+    satusBadge.style.transform = 'scale(1.3) rotate(360deg)';
+    satusBadge.style.transition = 'transform 1s linear, filter 0.3s';
 
     chrome.runtime.sendMessage({ action: "ANALYZE_LINK", url: activeLink }, (response) => {
-      satusBadge.innerText = '🛡️';
-      satusBadge.style.transform = 'scale(1)';
+      // 🛡️ vuelve a stado normal
+      satusBadge.innerHTML = `<img src="${chrome.runtime.getURL('satus_shield.png')}" style="width: 24px;">`;
+      satusBadge.style.transform = 'scale(1) rotate(0deg)';
+      satusBadge.style.filter = 'drop-shadow(0 0 8px rgba(205, 127, 50, 0.6))';
+      satusBadge.style.transition = 'transform 0.2s';
       
       if (chrome.runtime.lastError || !response) {
         console.error("❌ Error de comunicación:", chrome.runtime.lastError);

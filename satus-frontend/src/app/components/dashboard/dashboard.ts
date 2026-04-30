@@ -25,8 +25,11 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   ) { }
 
   ngOnInit() {
+    this.userRole = this.authService.getRole();
+    console.log(`--- [NODO_DASHBOARD] RANGO DETECTADO: ${this.userRole} ---`);
     setTimeout(() => {
       this.userRole = this.authService.getRole();
+      this.cd.detectChanges();
       this.loadHistory();
     }, 800);
   }

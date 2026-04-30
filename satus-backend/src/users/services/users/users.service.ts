@@ -19,31 +19,35 @@ export class UsersService {
     }
 
     async findByIdentifier(identifier: string) {
-        try {
-            const user = await this.userModel.findOne({
-                $or: [{ email: identifier }, { username: identifier }]
-            })
-                .select('+password')
-                .populate({
-                    path: 'roles',
-                    model: 'Role' // 👈 Forzamos la conexión con la tabla Role
-                })
-                .lean() // 👈 Esto va al final para que el JSON salga limpio
-                .exec();
+    try {
+        // 1. Buscamos el usuario
+        const user = await this.userModel.findOne({
+            $or: [{ email: identifier }, { username: identifier }]
+        })
+        .select('+password')
+        .lean() // Lo traemos plano para manipularlo
+        .exec();
 
-            if (user) {
-                // Este log te dirá si por fin el array tiene el objeto PRO
-                console.log('--- [SISTEMA] DATOS RECUPERADOS:', JSON.stringify(user.roles, null, 2));
+        if (user && user.roles) {
+            // 2. ⚡ BÚSQUEDA MANUAL DE ROL (Plan de choque)
+            // En lugar de confiar en populate(), vamos nosotros mismos a la tabla de roles
+            const roleData = await this.userModel.db.collection('roles').findOne({
+                _id: new Types.ObjectId(user.roles[0].toString())
+            });
+
+            if (roleData) {
+                // Inyectamos el rol real encontrado (PROLicense, etc)
+                user.roles = [roleData as any]; 
+                console.log(`--- [DB_RECO] ROL IDENTIFICADO EN TABLA: ${roleData.name}`);
             }
-
-            if (!user) throw new NotFoundException(`User ${identifier} not found`);
-
-            return user;
-        } catch (error: any) {
-            console.error('--- [ERROR] FALLO EN MONGO:', error.message);
-            throw error;
         }
+
+        return user;
+    } catch (error: any) {
+        console.error('--- [ERROR_DB] ---', error.message);
+        throw error;
     }
+}
 
     async findOne(userId: string) { // 🔹 OJO!!: En Mongo el ID es string (ObjectId)
         const user = await this.userModel.findById(userId).populate('roles').exec();
