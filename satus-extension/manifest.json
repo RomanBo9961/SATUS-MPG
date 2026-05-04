@@ -3,6 +3,11 @@
   "name": "SATUS Ecosystem",
   "version": "1.0",
   "description": "Scorta de navegación en tiempo real. Interactue con total tranquilidad en y a traves de dominos en linea y links referidos.",
+  "icons": {
+    "16": "satus_logo.png",
+    "48": "satus_logo.png",
+    "128": "satus_logo.png"
+  },
   "permissions": [
     "contextMenus",
     "tabs",
@@ -21,6 +26,10 @@
     "service_worker": "background.js"
   },
   "action": {
+    "default_icon": {
+      "16": "satus_logo.png",
+      "48": "satus_logo.png"
+    },
     "default_popup": "popup.html"
   },
   "content_scripts": [
@@ -30,11 +39,12 @@
       "css": ["styles.css"]
     }
   ],
- 
+
   "web_accessible_resources": [
   {
     "resources": ["satus_shield.png"],
     "matches": ["<all_urls>"]
   }
 ]
+
 }

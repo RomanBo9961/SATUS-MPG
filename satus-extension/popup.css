@@ -1,9 +1,9 @@
 :root {
   --bg-black: #050505;
-  --satus-bronce: #cd7f32;
+  --satus-bronce: #c09e2fbe;
   --satus-bronce-low: rgba(205, 127, 50, 0.2);
-  --satus-cyan: #9bc44f; /* Solo para estados ACTIVOS */
-  --text-main: #e0e0e0;
+  --satus-verda: #8c9e44; 
+  --text-main: #c4d621d7;
   --text-dim: #666666;
 }
 
@@ -42,6 +42,36 @@ header {
   margin-bottom: 12px;
 }
 
+/* Estilo para el cuerpo del reporte en content.js */
+.satus-popup-body {
+    max-height: 250px; /* 📏 Altura máxima para que no ocupe toda la pantalla */
+    overflow-y: auto;  /* 📜 Activa el scroll vertical */
+    padding-right: 10px;
+    font-size: 11px;
+    line-height: 1.5;
+    color: #e0e0e0;
+}
+
+/* BARRA DE SCROLL POP UP*/
+.satus-popup-body::-webkit-scrollbar {
+    width: 4px;
+}
+.satus-popup-body::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+}
+.satus-popup-body::-webkit-scrollbar-thumb {
+    background: #cd7f32; 
+    border-radius: 10px;
+}
+
+/*DESVANECIMIENTO del POP UP*/
+.satus-fade-out {
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.5s, transform 0.5s;
+    pointer-events: none;
+}
+
 .label { 
   font-size: 9px; 
   color: var(--text-dim); 
@@ -52,10 +82,9 @@ header {
 
 .value { font-size: 12px; margin: 4px 0 0; color: #fff; }
 
-/* El cian solo brilla si está ON */
 .online { 
-  color: var(--satus-cyan); 
-  text-shadow: 0 0 8px rgba(0, 242, 255, 0.5);
+  color: var(--satus-verda); 
+  text-shadow: 0 0 8px rgba(157, 255, 0, 0.5);
 }
 
 .status-card { display: flex; justify-content: space-between; align-items: center; }
@@ -71,10 +100,10 @@ header {
   position: absolute; content: ""; height: 10px; width: 10px; left: 2px; bottom: 2px; 
   background-color: var(--satus-bronce); transition: .4s; 
 }
-input:checked + .slider { border-color: var(--satus-cyan); }
+input:checked + .slider { border-color: var(--satus-verda); }
 input:checked + .slider:before { 
   transform: translateX(14px); 
-  background-color: var(--satus-cyan); 
+  background-color: var(--satus-verda); 
 }
 
 .primary-btn {

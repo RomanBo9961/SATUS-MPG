@@ -3,7 +3,7 @@
     width: 300px;
     background: #0f0f0f;
     color: #f0f0f0;
-    border: 1px solid #00ff88;
+    border: 1px solid #c09e2fbe;
     border-radius: 10px;
     box-shadow: 0 10px 40px rgba(0,0,0,0.7);
     font-family: 'Segoe UI', Tahoma, sans-serif;
@@ -20,7 +20,7 @@
     padding-bottom: 5px;
 }
 
-.satus-logo { color: #00ff88; font-weight: bold; font-size: 13px; }
+.satus-logo { color: #c09e2fbe; font-weight: bold; font-size: 13px; }
 
 .satus-close { 
     background: none; border: none; color: #888; 

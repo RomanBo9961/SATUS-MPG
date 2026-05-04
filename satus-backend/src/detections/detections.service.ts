@@ -141,12 +141,13 @@ public aiModelName = 'llama-3.1-8b-instant';
       reputación del dominio y la ausencia (o presencia) de malware u otros. 
       Ademas ten en cuenta que terminos como "pishing" o "scammer" son desconocidos para el usuario normal en consecuencia debes explicar como, por ejemplo, "este sitio no 
       almacenara sus datos bancarios o contraseñas" o "este archivo no comprometera la integridad de los datos en su pc o robara contraseñas), segùn el caso. De detectar que si lo haría, debes explicar que y como.
-      Si el sitio es muy conocido, menciona su fiabilidad como fuente de información. Recuerda devolver el reporte con la URL traducida(que los caracteres sean equivalentes al lenguaje humano y no maquina)`;
+      Si el sitio es muy conocido, menciona su fiabilidad como fuente de información. Recuerda devolver el reporte con la URL traducida(que los caracteres sean equivalentes al lenguaje humano y no maquina)
+      Nota: En reputación al lado del numero que imprimas (0 u otros) entre [] pon si es seguro(si ves que lleva tiempo desde su creacion), medianamente segura(si es nuevo), proceder con precaucion, peligroso, altamente peligroso y no entrar bajo ninguna circusntancia SEGUN CORRESPONDA`;
 
         const response = await axios.post(
       //`https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash-lite-001:generateContent?key=${apiKey}`,
       apiUrl!,
-     /* {
+    /* {
         contents: [{ parts: [{ text: promptText }] }]
       }*/
 {

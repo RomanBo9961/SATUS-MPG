@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
         tabs.forEach(tab => {
           if (tab.url && tab.url.startsWith('http')) {
             chrome.tabs.sendMessage(tab.id, { 
-              action: "TOGGLE SHIELD", 
+              action: "TOGGLE_SHIELD", 
               status: isActive 
             }).catch(() => {});
           }
