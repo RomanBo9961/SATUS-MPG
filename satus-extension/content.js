@@ -43,7 +43,7 @@ function initSatusSensor() {
 
     if (!activeLink) return;
 
-    // 🚩 PRUEBA DE FUEGO 1: ¿Qué tiene la extensión en la mano antes de enviarlo?
+    // PRUEBA DE FUEGO 1: ¿Qué tiene la extensión en la mano antes de enviarlo?
     console.log("📝 URL EN CONTENT.JS (ANTES DE ENVIAR):", activeLink);
 
     // ACTIVACIÓN DEL PULSO
@@ -206,3 +206,59 @@ function syncAuth() {
 
 syncAuth();
 window.addEventListener("storage", syncAuth);
+
+//SCRIPT de bloque ACTIVO de URLS 
+
+let threatList = new Set();
+let userRole = 'GUEST';
+
+async function satusProactiveShield() {
+  chrome.storage.local.get(['satusUser'], async (result) => {
+    userRole = result.satusUser?.role || 'GUEST';
+    if (userRole !== 'PROLicense') return;
+
+    // Envio de la URL para analisis VT
+    chrome.runtime.sendMessage({ 
+      action: "CHECK_PAGE_INTEGRITY", 
+      url: window.location.href 
+    }, (response) => {
+      if (response?.isSafe) {
+        console.log("🔐 SATUS: Web Segura Confirmada. Sistema en Plano Secundario.");
+      } else {
+        console.log("⚠️ SATUS: Web Cuestionable. Inicializando Bloqueos...");
+      }
+
+      if (response?.blacklistedLinks) {
+        response.blacklistedLinks.forEach(link => threatList.add(link));
+      }
+    });
+  });
+}
+
+// INTERCEPCIÓN DE CLICS 
+document.addEventListener('click', (e) => {
+  if (userRole !== 'PROLicense') return;
+
+  const link = e.target.closest('a');
+  if (link && threatList.has(link.href)) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const warningHtml = `
+      <b style="color: #ff4444;">[ BLOQUEO DE SEGURIDAD ]</b><br><br>
+      El núcleo ha detectado que este enlace es una amenaza.<br><br>
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <button onclick="this.parentElement.parentElement.parentElement.remove()" 
+                style="background: #cd7f32; color: black; border: none; padding: 10px; cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 10px;">
+          [ REGRESAR AL NÚCLEO ]
+        </button>
+        <a href="${link.href}" target="_blank" style="color: #666; font-size: 8px; text-decoration: underline; text-align: center;">
+          [Entiendo el riesgo y deseo acceder]
+        </a>
+      </div>
+    `;
+    showSatusPopup(warningHtml, e.pageX, e.pageY);
+  }
+}, true);
+
+window.addEventListener('load', satusProactiveShield);

@@ -54,4 +54,44 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     });
     return true; // Mantiene el canal abierto para el fetch asíncrono
   }
+
+// C. [NIVEL PRO] VERIFICACIÓN DE INTEGRIDAD DEL SITIO (Al cargar la página)
+  if (request.action === "CHECK_PAGE_INTEGRITY") {
+    chrome.storage.local.get(['satusToken'], (result) => {
+      const token = result.satusToken || 'GUEST_TOKEN';
+
+      fetch("http://localhost:3000/api/detections/check-integrity", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ url: request.url })
+      })
+      .then(res => res.json())
+      .then(data => sendResponse(data))
+      .catch(err => sendResponse({ isSafe: false, error: err.message }));
+    });
+    return true; 
+  }
+
+  // D. [NIVEL PRO] ANÁLISIS DE ENLACES EXTERNOS (Modo Centinela)
+  if (request.action === "BULK_CHECK") {
+    chrome.storage.local.get(['satusToken'], (result) => {
+      const token = result.satusToken || 'GUEST_TOKEN';
+
+      fetch("http://localhost:3000/api/detections/bulk-check", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ links: request.links })
+      })
+      .then(res => res.json())
+      .then(data => sendResponse(data))
+      .catch(err => sendResponse({ threats: [] }));
+    });
+    return true;
+  }
 });

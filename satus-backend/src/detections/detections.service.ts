@@ -1,7 +1,7 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose'; 
-import { Model, Types } from 'mongoose';  
-import { Detection } from './entities/detection.entity';             
+import { InjectModel } from '@nestjs/mongoose';
+import { Model, Types } from 'mongoose';
+import { Detection } from './entities/detection.entity';
 import { HttpService } from '@nestjs/axios';
 import type { ConfigType } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
@@ -12,13 +12,13 @@ import axios from 'axios';
 @Injectable()
 export class DetectionsService {
   //private genAI: GoogleGenerativeAI;
-public aiModelName = 'llama-3.1-8b-instant';
+  public aiModelName = 'llama-3.1-8b-instant';
 
   constructor(
     private readonly httpService: HttpService,
     @Inject(config.KEY) private configService: ConfigType<typeof config>,
-  
-     @InjectModel(Detection.name) private detectionModel: Model<Detection>,
+
+    @InjectModel(Detection.name) private detectionModel: Model<Detection>,
   ) {
     //this.genAI = new GoogleGenerativeAI(this.configService.apiKeys.ai!);
   }
@@ -45,44 +45,44 @@ public aiModelName = 'llama-3.1-8b-instant';
       // 1. INTENTAR CONSULTA (GET)
       const vtReport = await this.fetchVTReport(urlBase64, apiKey);
       const aiAdvice = await this.getAiAdvice(cleanUrl, vtReport.details);
-      
-        const newRecord = new this.detectionModel({
-    url: cleanUrl,
-    riskLevel: vtReport.riskLevel,
-    message: aiAdvice,
-    details: vtReport.details,
-    owner: new Types.ObjectId(userId),
-    createdAt: new Date() 
-  });
-  
-  await newRecord.save(); 
-  console.log("✅ Análisis guardado en MongoDB");  
-  console.log("✅ Análisis guardado en MongoDB para el usuario:", userId);
+
+      const newRecord = new this.detectionModel({
+        url: cleanUrl,
+        riskLevel: vtReport.riskLevel,
+        message: aiAdvice,
+        details: vtReport.details,
+        owner: new Types.ObjectId(userId),
+        createdAt: new Date()
+      });
+
+      await newRecord.save();
+      console.log("✅ Análisis guardado en MongoDB");
+      console.log("✅ Análisis guardado en MongoDB para el usuario:", userId);
 
       return { ...vtReport, message: aiAdvice };
 
-  } catch (error: any) {
+    } catch (error: any) {
       if (error.response?.status === 404) {
         console.log("📡 Link nuevo detectado. Enviando a escaneo...");
         try {
           // RUTA API VT
           const vtEndpoint = 'https://www.virustotal.com/api/v3/urls';
-          
+
           const body = new URLSearchParams();
           body.append('url', cleanUrl);
 
           await firstValueFrom(
-            this.httpService.post(vtEndpoint, body.toString(), { 
-              headers: { 
-                'x-apikey': apiKey, 
-                'Content-Type': 'application/x-www-form-urlencoded' 
-              } 
+            this.httpService.post(vtEndpoint, body.toString(), {
+              headers: {
+                'x-apikey': apiKey,
+                'Content-Type': 'application/x-www-form-urlencoded'
+              }
             })
           );
-          
-          return { 
-            status: "processing", 
-            message: "🌀 Link nuevo. SATUS lo está analizando. ¡Reintenta en 10 segundos!" 
+
+          return {
+            status: "processing",
+            message: "🌀 Link nuevo. SATUS lo está analizando. ¡Reintenta en 10 segundos!"
           };
         } catch (postError: any) {
           console.error("❌ ERROR POST VT:", postError.response?.data || postError.message);
@@ -94,9 +94,9 @@ public aiModelName = 'llama-3.1-8b-instant';
   }
 
   private async fetchVTReport(urlBase64: string, apiKey: string) {
-    
+
     const response = await firstValueFrom(
-      this.httpService.get(`https://www.virustotal.com/api/v3/urls/${urlBase64}`, { 
+      this.httpService.get(`https://www.virustotal.com/api/v3/urls/${urlBase64}`, {
         headers: { 'x-apikey': apiKey }
       })
     );
@@ -115,17 +115,17 @@ public aiModelName = 'llama-3.1-8b-instant';
     };
   }
 
- private async getAiAdvice(url: string, details: any) {
-  try {
-    const apiKey = this.configService.apiKeys.ai;
-    const apiUrl = this.configService.apiKeys.aiUrl;
+  private async getAiAdvice(url: string, details: any) {
+    try {
+      const apiKey = this.configService.apiKeys.ai;
+      const apiUrl = this.configService.apiKeys.aiUrl;
 
-    const stats = details.stats;
-    const info = details.info;
-    const reputacion = info.reputation || 0;
-    const categorias = info.categories ? Object.values(info.categories).join(", ") : "General / Información";
+      const stats = details.stats;
+      const info = details.info;
+      const reputacion = info.reputation || 0;
+      const categorias = info.categories ? Object.values(info.categories).join(", ") : "General / Información";
 
-    const promptText = `Actúa como analista experto de un sistema denominado SATUS. 
+      const promptText = `Actúa como analista experto de un sistema denominado SATUS. 
     Analiza el enlace: ${url}
     DATOS TÉCNICOS:
     - Detecciones Maliciosas: ${stats.malicious} de ${stats.malicious + stats.harmless}
@@ -144,56 +144,194 @@ public aiModelName = 'llama-3.1-8b-instant';
       Si el sitio es muy conocido, menciona su fiabilidad como fuente de información. Recuerda devolver el reporte con la URL traducida(que los caracteres sean equivalentes al lenguaje humano y no maquina)
       Nota: En reputación al lado del numero que imprimas (0 u otros) entre [] pon si es seguro(si ves que lleva tiempo desde su creacion), medianamente segura(si es nuevo), proceder con precaucion, peligroso, altamente peligroso y no entrar bajo ninguna circusntancia SEGUN CORRESPONDA`;
 
-        const response = await axios.post(
-      //`https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash-lite-001:generateContent?key=${apiKey}`,
-      apiUrl!,
-    /* {
-        contents: [{ parts: [{ text: promptText }] }]
-      }*/
-{
-        model: this.aiModelName,
-        messages: [
-          { role: "system", content: "Eres un analista de ciberseguridad de la plataforma SATUS." },
-          { role: "user", content: promptText }
-        ],
-        temperature: 0.5
-      },
-      {
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json'
+      const response = await axios.post(
+        //`https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash-lite-001:generateContent?key=${apiKey}`,
+        apiUrl!,
+        /* {
+            contents: [{ parts: [{ text: promptText }] }]
+          }*/
+        {
+          model: this.aiModelName,
+          messages: [
+            { role: "system", content: "Eres un analista de ciberseguridad de la plataforma SATUS." },
+            { role: "user", content: promptText }
+          ],
+          temperature: 0.5
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${apiKey}`,
+            'Content-Type': 'application/json'
+          }
         }
+
+      );
+
+      const text = response.data.choices[0].message.content;
+      //const text = response.data.candidates[0].content.parts[0].text;
+
+      if (!text) throw new Error("No se pudo obtener el texto de la IA");
+
+      return text;
+
+    } catch (e: any) {
+      console.error("❌ Error directo en traducción:", e.response?.data || e.message);
+
+      const malicious = details.stats?.malicious || 0;
+      const harmless = details.stats?.harmless || 0;
+
+      if (malicious > 0) {
+        return `⚠️ ALERTA TÉCNICA: ${malicious} motores de seguridad detectaron amenazas. Evita ingresar a este sitio.`;
+      } else {
+        return `✅ VERIFICACIÓN TÉCNICA: Analizado por ${harmless} motores de seguridad. No se detectó malware, Sin embargo el reporte detallado no está disponible o no es accesible en este momento.`;
       }
-
-    );
-
-   const text = response.data.choices[0].message.content;
-    //const text = response.data.candidates[0].content.parts[0].text;
-
-    if (!text) throw new Error("No se pudo obtener el texto de la IA");
-    
-    return text;
-
-  } catch (e: any) {
-    console.error("❌ Error directo en traducción:", e.response?.data || e.message);
-    
-    const malicious = details.stats?.malicious || 0;
-    const harmless = details.stats?.harmless || 0;
-
-    if (malicious > 0) {
-      return `⚠️ ALERTA TÉCNICA: ${malicious} motores de seguridad detectaron amenazas. Evita ingresar a este sitio.`;
-    } else {
-      return `✅ VERIFICACIÓN TÉCNICA: Analizado por ${harmless} motores de seguridad. No se detectó malware, Sin embargo el reporte detallado no está disponible o no es accesible en este momento.`;
     }
   }
- }
 
-async findAll(userId: string) {
-  // Filtro para que devuelva lo del usuario logueado
-  return this.detectionModel
-    .find({ owner: new Types.ObjectId(userId) })
-    .sort({ createdAt: -1 })
-    .exec();
-}
+  async findAll(userId: string) {
+    // Filtro para que devuelva lo del usuario logueado
+    return this.detectionModel
+      .find({ owner: new Types.ObjectId(userId) })
+      .sort({ createdAt: -1 })
+      .exec();
+  }
 
+  //METODO de detecc auto en NAVEGACION nodo PRO
+
+  private async getBulkAiAdvice(links: string[]): Promise<string[]> {
+    try {
+      const apiKey = this.configService.apiKeys.ai;
+      const apiUrl = this.configService.apiKeys.aiUrl;
+
+      const promptText = `Actúa como un experto en ciberseguridad del sistema SATUS.
+    Analiza la siguiente lista de URLs y determina cuáles presentan patrones de PHISHING, SUPLANTACIÓN o son sospechosas por viajar en HTTP y pedir datos sensibles.
+    LISTA: ${links.join(', ')}
+    
+    INSTRUCCIONES:
+    1. Evalúa TLDs sospechosos (.xyz, .tk, .click, etc).
+    2. Busca suplantación de marcas (ej: g00gle, paypa1).
+    3. Identifica keywords de urgencia o engaño en la ruta.
+    
+    RESPUESTA: Devuelve ÚNICAMENTE un array de JSON con las URLs que consideres peligrosas. 
+    Ejemplo: ["http://url1.com", "http://url2.net"]. Si ninguna es peligrosa, devuelve [].`;
+
+      const response = await axios.post(apiUrl!, {
+        model: this.aiModelName,
+        messages: [
+          { role: "system", content: "Eres un detector de amenazas heurístico. Solo respondes con arrays JSON." },
+          { role: "user", content: promptText }
+        ],
+        temperature: 0.1 // 👈 Temperatura baja para que sea preciso y no alucine
+      }, {
+        headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' }
+      });
+
+      const content = (response.data as any).choices[0].message.content;
+      // Limpiamos la respuesta por si la IA añade texto extra
+      const jsonMatch = content.match(/\[.*\]/s);
+      return jsonMatch ? JSON.parse(jsonMatch[0]) : [];
+
+    } catch (e:any) {
+      console.error("❌ Error en análisis masivo IA:", e.message);
+      return []; // En caso de duda, no bloqueamos nada por error
+    }
+  }
+
+  async checkIntegrity(url: string, userId: string) {
+    const domain = new URL(url).hostname;
+    const unaSemanaAtras = new Date();
+    unaSemanaAtras.setDate(unaSemanaAtras.getDate() - 7);
+
+    // 1. INTENTO DE RECUPERACIÓN DE CACHÉ 
+    const cached = await this.detectionModel.findOne({
+      url: { $regex: domain },
+      updatedAt: { $gt: unaSemanaAtras }
+    }).lean();
+
+    if (cached) {
+      console.log(`--- [CACHÉ] NODO CONOCIDO: ${domain} | RIESGO: ${cached.riskLevel}`);
+      return {
+        isSafe: cached.riskLevel === 'BAJO',
+        blacklistedLinks: cached.details?.outbound_threats || []
+      };
+    }
+
+    // 2. SI ES NUEVO O EXPIRÓ: ANÁLISIS DE CASCADA
+    console.log(`--- [CASCADA] INVESTIGANDO NUEVO DOMINIO: ${domain}`);
+    const apiKey = this.configService.apiKeys.vt!;
+    const urlBase64 = Buffer.from(url).toString('base64').replace(/=/g, '');
+
+    try {
+      // P1: de VirusTotal se Obtiene stats y outbound_links
+      const vtReport = await this.fetchVTReport(urlBase64, apiKey);
+
+      // Extraer links maliciosos detectados por VT dentro de la web
+      const outboundThreats = [];
+      if (vtReport.details.info.outbound_links) {
+        // Filtrar solo los que VT ya conoce como maliciosos
+      }
+
+      // P2: IA de SATUS 
+      const aiAdvice = await this.getAiAdvice(url, vtReport.details);
+
+      // 3. GUARDAR EN [detections]
+      await this.detectionModel.create({
+        url: domain,
+        riskLevel: vtReport.riskLevel,
+        message: aiAdvice,
+        details: { ...vtReport.details, outbound_threats: outboundThreats },
+        owner: new Types.ObjectId(userId)
+      });
+
+      return {
+        isSafe: vtReport.riskLevel === 'BAJO',
+        blacklistedLinks: outboundThreats
+      };
+
+    } catch (error) {
+      // Si falla se asume que NO es zona segura
+      return { isSafe: false, blacklistedLinks: [] };
+    }
+  }
+
+
+  async bulkCheck(links: string[]) {
+    const threats = [];
+    const unknownLinks = [];
+
+    // 1. FILTRO DE CACHÉ: Verificamos qué links ya conocemos como Malware
+    for (const url of links) {
+      const existing = await this.detectionModel.findOne({ url, riskLevel: 'ALTO' });
+      if (existing) {
+        threats.push(url);
+      } else {
+        unknownLinks.push(url);
+      }
+    }
+
+    // 2. FILTRO HEURÍSTICO (Groq): Si hay links desconocidos, la IA decide si investigar
+    if (unknownLinks.length > 0) {
+      const aiIdentifiedThreats = await this.getBulkAiAdvice(unknownLinks);
+
+      if (aiIdentifiedThreats.length > 0) {
+        console.log(`⚠️ IA DETECTÓ ${aiIdentifiedThreats.length} AMENAZAS NUEVAS`);
+
+        for (const url of aiIdentifiedThreats) {
+          threats.push(url);
+
+          // 💾 PERSISTENCIA: Alimentamos la Inteligencia Colectiva
+          // Guardamos con un mensaje que indique que fue una detección proactiva
+          await this.detectionModel.create({
+            url: url,
+            riskLevel: 'ALTO',
+            message: '⚠️ BLOQUEO: Enlace identificado como amenaza potencial por el análisis heurístico del núcleo SATUS.',
+            owner: new Types.ObjectId('660000000000000000000000'), // ID de Sistema/Invitado
+            //createdAt: new Date()
+          });
+        }
+      }
+    }
+
+    return { threats };
+  }
 }
