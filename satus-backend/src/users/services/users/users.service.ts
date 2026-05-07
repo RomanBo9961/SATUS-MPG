@@ -13,47 +13,88 @@ export class UsersService {
         private rolesService: RolesService,
     ) { }
 
-    async findAll() {
+    private async inyectarRolManual(user: any) {
+        if (user && user.roles && user.roles.length > 0) {
+            const idCrudo = Array.isArray(user.roles) ? user.roles[0] : user.roles;
+            const idLimpio = idCrudo.toString().match(/[0-9a-fA-F]{24}/)?.[0];
 
-        return await this.userModel.find().populate('roles').exec();
-    }
-
-    async findByIdentifier(identifier: string) {
-    try {
-        // 1. Buscamos el usuario
-        const user = await this.userModel.findOne({
-            $or: [{ email: identifier }, { username: identifier }]
-        })
-        .select('+password')
-        .lean() // Lo traemos plano para manipularlo
-        .exec();
-
-        if (user && user.roles) {
-            // 2. ⚡ BÚSQUEDA MANUAL DE ROL (Plan de choque)
-            // En lugar de confiar en populate(), vamos nosotros mismos a la tabla de roles
-            const roleData = await this.userModel.db.collection('roles').findOne({
-                _id: new Types.ObjectId(user.roles[0].toString())
-            });
-
-            if (roleData) {
-                // Inyectamos el rol real encontrado (PROLicense, etc)
-                user.roles = [roleData as any]; 
-                console.log(`--- [DB_RECO] ROL IDENTIFICADO EN TABLA: ${roleData.name}`);
+            if (idLimpio) {
+                const roleData = await (this.userModel.db.collection('roles') as any).findOne({
+                    $or: [
+                        { _id: new Types.ObjectId(idLimpio) },
+                        { _id: idLimpio }
+                    ]
+                });
+                if (roleData) {
+                    user.roleName = roleData.name;
+                    user.roles = [roleData];
+                }
             }
         }
-
-        return user;
-    } catch (error: any) {
-        console.error('--- [ERROR_DB] ---', error.message);
-        throw error;
     }
-}
 
-    async findOne(userId: string) { // 🔹 OJO!!: En Mongo el ID es string (ObjectId)
-        const user = await this.userModel.findById(userId).populate('roles').exec();
-        if (!user) {
-            throw new NotFoundException(`User #${userId} not found`);
+    async findAll() {
+        const users = await this.userModel.find().lean().exec();
+        for (const user of users) {
+            await this.inyectarRolManual(user);
         }
+        return users;
+    }
+    async findByIdentifier(identifier: string) {
+        try {
+            // 1. Buscamos el usuario
+            const user = await this.userModel.findOne({
+                $or: [{ email: identifier }, { username: identifier }]
+            })
+                .select('+password')
+                .lean() // Lo traemos plano para manipularlo
+                .exec();
+
+            if (user && user.roles && user.roles.length > 0) {
+                const idCrudo = Array.isArray(user.roles) ? user.roles[0] : user.roles;
+
+                //Extrae los 24 caracteres hexadecimales para hacer coincidir id
+                const idLimpio = idCrudo.toString().match(/[0-9a-fA-F]{24}/)?.[0];
+
+                console.log("ID RESTAURADO:", idLimpio);
+
+                if (idLimpio) {
+                    console.log(`--- [DEBUG] BUSCANDO ID: |${idLimpio}| (Largo: ${idLimpio.length})`);
+
+                    // Usamos (as any) en el filtro para que TS no bloquee la compilación
+                    const roleData = await (this.userModel.db.collection('roles') as any).findOne({
+                        $or: [
+                            { _id: new Types.ObjectId(idLimpio) },
+                            { _id: idLimpio }
+                        ]
+                    });
+
+                    if (roleData) {
+                        (user as any).roleName = roleData.name;
+                        user.roles = [roleData as any];
+                        console.log(`--- [DB_RECO] ¡ÉXITO! ROL ENCONTRADO: ${roleData.name}`);
+                    } else {
+                        const todosLosRoles = await (this.userModel.db.collection('roles') as any).find().toArray();
+                        console.log("📋 IDs REALES EN TABLA ROLES:");
+                        todosLosRoles.forEach((r: any) => {
+                            const rid = r._id.toString();
+                            console.log(`- |${rid}| (Largo: ${rid.length})`);
+                        });
+                    }
+                }
+            }
+
+            return user;
+        } catch (error: any) {
+            console.error('--- [ERROR_DB] ---', error.message);
+            throw error;
+        }
+    }
+
+    async findOne(userId: string) {
+        const user = await this.userModel.findById(userId).lean().exec();
+        if (!user) throw new NotFoundException(`User #${userId} not found`);
+        await this.inyectarRolManual(user);
         return user;
     }
 

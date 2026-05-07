@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { DetectionsService } from '../../services/detections.service';
 import { AuthService } from '../../services/auth.service';
 
+declare const chrome: any; 
+
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -14,6 +16,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   detections: any[] = [];
   loading = true;
   userRole: string = 'GUEST';
+  userName: string = 'INVITADO';
 
   @ViewChild('bgVideo') videoRef!: ElementRef<HTMLVideoElement>;
 
@@ -27,6 +30,17 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   ngOnInit() {
     this.userRole = this.authService.getRole();
     console.log(`--- [NODO_DASHBOARD] RANGO DETECTADO: ${this.userRole} ---`);
+    this.userName = this.authService.getUsername();
+
+  // 📢 GRITO DE IDENTIDAD: Forzamos a la extensión a recibir los datos
+  if (typeof chrome !== 'undefined' && chrome.runtime?.id) {
+    chrome.runtime.sendMessage({
+      action: "SYNC_AUTH",
+      token: localStorage.getItem('satusToken'),
+      user: { username: this.userName, role: this.userRole }
+    });
+  }
+    
     setTimeout(() => {
       this.userRole = this.authService.getRole();
       this.cd.detectChanges();

@@ -1,3 +1,28 @@
+let userRole = "GUEST";
+let threatList = new Set();
+
+// 1. Recupera id al refrescar web
+function bootstrapIdentity() {
+  chrome.runtime.sendMessage({ action: "GET_IDENTITY" }, (response) => {
+    if (response) {
+      userRole = response.role;
+      console.log(`--- [CENTINELA] IDENTIDAD RECUPERADA: ${userRole} ---`);
+
+      // Si es PRO, dispara el análisis de integridad y el escaneo automático
+      if (userRole === "PROLicense") {
+        console.log(
+          "🛡️ MODO PRO DETECTADO: Iniciando protocolos de blindaje...",
+        );
+        checkPageIntegrity();
+        sentinelScan();
+      }
+    }
+  });
+}
+
+// 2. Ejecuta al nacer la pestaña
+bootstrapIdentity();
+
 const style = document.createElement("style");
 style.innerHTML = `
   @keyframes satus-pulse {
@@ -56,8 +81,7 @@ function initSatusSensor() {
         satusBadge.style.animation = "none";
         satusBadge.innerHTML = `<img src="${chrome.runtime.getURL("satus_shield.png")}" style="width: 24px;">`;
         satusBadge.style.transform = "scale(1)";
-        satusBadge.style.filter =
-          "drop-shadow(0 0 8px #c09e2fbe)";
+        satusBadge.style.filter = "drop-shadow(0 0 8px #c09e2fbe)";
         satusBadge.style.transition = "transform 0.2s";
 
         if (chrome.runtime.lastError || !response) {
@@ -65,23 +89,25 @@ function initSatusSensor() {
           alert("❌ Error: No se pudo contactar con la central SATUS.");
         } else {
           const fullMessage = response.status;
-    
-    let parts = fullMessage.split('**');
-    let shortMessage = fullMessage;
 
-    if (parts.length > 9) {
-        // Toma el final del bloque de "Resultado" y "Reputación"
-        shortMessage = parts.slice(0, 9).join('**').trim() + "...";
-    } else {
-        // Si el mensaje es corto queda entero
-        shortMessage = fullMessage.substring(0, 500).trim() + "...";
-    }
+          let parts = fullMessage.split("**");
+          let shortMessage = fullMessage;
 
-    const displayMessage = shortMessage + " <br><br><b style='color: #aaa697be;'>[ FIN DE MINUTA ]</b>";
+          if (parts.length > 9) {
+            // Toma el final del bloque de "Resultado" y "Reputación"
+            shortMessage = parts.slice(0, 9).join("**").trim() + "...";
+          } else {
+            // Si el mensaje es corto queda entero
+            shortMessage = fullMessage.substring(0, 500).trim() + "...";
+          }
 
-    const popupContent = `<div class="satus-info-box" style="font-size: 11px; line-height: 1.4; color: #e0e0e0;">${displayMessage}</div><div style="margin-top: 15px; border-top: 1px solid #c09e2fcc; padding-top: 10px;"><a href="http://localhost:4200/dashboard" target="_blank" style="color: #c09e2fbe; text-decoration: none; font-size: 10px; font-weight: bold; letter-spacing: 1px; display: block;">> REPORTE DETALLADO</a></div>`;
+          const displayMessage =
+            shortMessage +
+            " <br><br><b style='color: #aaa697be;'>[ FIN DE MINUTA ]</b>";
 
-    showSatusPopup(popupContent, e.pageX, e.pageY);
+          const popupContent = `<div class="satus-info-box" style="font-size: 11px; line-height: 1.4; color: #e0e0e0;">${displayMessage}</div><div style="margin-top: 15px; border-top: 1px solid #c09e2fcc; padding-top: 10px;"><a href="http://localhost:4200/dashboard" target="_blank" style="color: #c09e2fbe; text-decoration: none; font-size: 10px; font-weight: bold; letter-spacing: 1px; display: block;">> REPORTE DETALLADO</a></div>`;
+
+          showSatusPopup(popupContent, e.pageX, e.pageY);
         }
       },
     );
@@ -166,13 +192,16 @@ function showSatusPopup(message, x, y) {
   document.getElementById("close-satus").onclick = () => popup.remove();
 
   // Auto-cerrar con Scroll
-window.addEventListener("scroll", () => {
-    setTimeout(() => {
-        if (popup) popup.classList.add('satus-fade-out'); 
-        setTimeout(() => popup.remove(), 500); 
-    }, 7000); // 7 segundos de cortesía
-  }, { once: true });
-
+  window.addEventListener(
+    "scroll",
+    () => {
+      setTimeout(() => {
+        if (popup) popup.classList.add("satus-fade-out");
+        setTimeout(() => popup.remove(), 500);
+      }, 7000); // 7 segundos de cortesía
+    },
+    { once: true },
+  );
 }
 
 //Sincronizar automaticamente el token del ID de la extension
@@ -207,58 +236,91 @@ function syncAuth() {
 syncAuth();
 window.addEventListener("storage", syncAuth);
 
-//SCRIPT de bloque ACTIVO de URLS 
+//SCRIPT de bloque ACTIVO de URLS
 
 let threatList = new Set();
-let userRole = 'GUEST';
+let userRole = "GUEST";
 
 async function satusProactiveShield() {
-  chrome.storage.local.get(['satusUser'], async (result) => {
-    userRole = result.satusUser?.role || 'GUEST';
-    if (userRole !== 'PROLicense') return;
+  chrome.storage.local.get(["satusUser"], async (result) => {
+    userRole = result.satusUser?.role || "GUEST";
+    if (userRole !== "PROLicense") return;
 
     // Envio de la URL para analisis VT
-    chrome.runtime.sendMessage({ 
-      action: "CHECK_PAGE_INTEGRITY", 
-      url: window.location.href 
-    }, (response) => {
-      if (response?.isSafe) {
-        console.log("🔐 SATUS: Web Segura Confirmada. Sistema en Plano Secundario.");
-      } else {
-        console.log("⚠️ SATUS: Web Cuestionable. Inicializando Bloqueos...");
-      }
+    chrome.runtime.sendMessage(
+      {
+        action: "CHECK_PAGE_INTEGRITY",
+        url: window.location.href,
+      },
+      (response) => {
+        if (response?.isSafe) {
+          console.log(
+            "🔐 SATUS: Web Segura Confirmada. Sistema en Plano Secundario.",
+          );
+        } else {
+          console.log("⚠️ SATUS: Web Cuestionable. Inicializando Bloqueos...");
+        }
 
-      if (response?.blacklistedLinks) {
-        response.blacklistedLinks.forEach(link => threatList.add(link));
-      }
-    });
+        if (response?.blacklistedLinks) {
+          response.blacklistedLinks.forEach((link) => threatList.add(link));
+          if (threatList.size > 0) {
+            console.log(
+              `💀 SATUS: ${threatList.size} Amenazas Neutralizadas en esta página.`,
+            );
+            // 💀 CAMBIO DE FAVICON (Opcional)
+            changeFaviconToSkull();
+          }
+        }
+      },
+    );
   });
 }
 
-// INTERCEPCIÓN DE CLICS 
-document.addEventListener('click', (e) => {
-  if (userRole !== 'PROLicense') return;
+// INTERCEPCIÓN DE CLICS
+document.addEventListener(
+  "click",
+  (e) => {
+    if (userRole !== "PROLicense") return;
 
-  const link = e.target.closest('a');
-  if (link && threatList.has(link.href)) {
-    e.preventDefault();
-    e.stopPropagation();
+    const link = e.target.closest("a");
+    if (link && threatList.has(link.href)) {
+      e.preventDefault();
+      e.stopPropagation();
 
-    const warningHtml = `
-      <b style="color: #ff4444;">[ BLOQUEO DE SEGURIDAD ]</b><br><br>
-      El núcleo ha detectado que este enlace es una amenaza.<br><br>
+      const warningHtml = `
+      <b style="color: #ff4444;">💀 [ ACCESO BLOQUEADO POR SEGURIDAD ]</b><br><br>
+      El núcleo ha detectado que este enlace es un hilo de phishing o malware confirmado.<br><br>
       <div style="display: flex; flex-direction: column; gap: 8px;">
         <button onclick="this.parentElement.parentElement.parentElement.remove()" 
-                style="background: #cd7f32; color: black; border: none; padding: 10px; cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 10px;">
+                style="background: #c09e2fbe; color: black; border: none; padding: 10px; cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 10px;">
           [ REGRESAR AL NÚCLEO ]
         </button>
         <a href="${link.href}" target="_blank" style="color: #666; font-size: 8px; text-decoration: underline; text-align: center;">
-          [Entiendo el riesgo y deseo acceder]
+          Ignorar y acceder bajo mi propio riesgo
         </a>
       </div>
     `;
-    showSatusPopup(warningHtml, e.pageX, e.pageY);
-  }
-}, true);
+      showSatusPopup(warningHtml, e.pageX, e.pageY);
+    }
+  },
+  true,
+);
 
-window.addEventListener('load', satusProactiveShield);
+function changeFaviconToSkull() {
+  const link =
+    document.querySelector("link[rel*='icon']") ||
+    document.createElement("link");
+  link.type = "image/x-icon";
+  link.rel = "shortcut icon";
+  //emoji converso a img
+  const canvas = document.createElement("canvas");
+  canvas.width = 32;
+  canvas.height = 32;
+  const ctx = canvas.getContext("2d");
+  ctx.font = "28px serif";
+  ctx.fillText("💀", 0, 28);
+  link.href = canvas.toDataURL();
+  document.getElementsByTagName("head")[0].appendChild(link);
+}
+
+window.addEventListener("load", satusProactiveShield);

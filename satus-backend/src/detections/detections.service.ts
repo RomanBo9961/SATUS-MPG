@@ -17,7 +17,6 @@ export class DetectionsService {
   constructor(
     private readonly httpService: HttpService,
     @Inject(config.KEY) private configService: ConfigType<typeof config>,
-
     @InjectModel(Detection.name) private detectionModel: Model<Detection>,
   ) {
     //this.genAI = new GoogleGenerativeAI(this.configService.apiKeys.ai!);
