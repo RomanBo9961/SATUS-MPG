@@ -1,23 +1,63 @@
 let userRole = "GUEST";
 let threatList = new Set();
+let satusBadge = null;
+let isShieldActive = true;
+let activeLink = "";
+let mouseTimer = null;
 
-// 1. Recupera id al refrescar web
+//DEF Centinela
+async function sentinelScan() {
+  if (userRole !== "PROLicense") return;
+  console.log("🕵️ CENTINELA: Analizando hilos sucios en el DOM...");
+
+  const links = Array.from(document.querySelectorAll("a"))
+    .map((a) => a.href)
+    .filter((href) => href.startsWith("http://"));
+
+  if (links.length > 0) {
+    chrome.runtime.sendMessage(
+      { action: "BULK_CHECK", links: links.slice(0, 15) },
+      (res) => {
+        if (res?.threats) {
+          res.threats.forEach((t) => threatList.add(t));
+          if (threatList.size > 0) changeFaviconToSkull();
+        }
+      },
+    );
+  }
+}
+
+//Portal para ID
+window.addEventListener("message", (event) => {
+  if (
+    event.source !== window ||
+    !event.data ||
+    event.data.source !== "SATUS_DASHBOARD"
+  )
+    return;
+  if (event.data.action === "SYNC_AUTH") {
+    console.log("🔗 [PUENTE] Identidad captada, sincronizando...");
+    chrome.runtime.sendMessage(event.data);
+  }
+});
+
 function bootstrapIdentity() {
-  chrome.runtime.sendMessage({ action: "GET_IDENTITY" }, (response) => {
-    if (response) {
-      userRole = response.role;
-      console.log(`--- [CENTINELA] IDENTIDAD RECUPERADA: ${userRole} ---`);
+  // Delay para asegurar que Background y Storage sincronizen
+  setTimeout(() => {
+    chrome.runtime.sendMessage({ action: "GET_IDENTITY" }, (response) => {
+      if (response) {
+        userRole = response.role;
+        console.log(`--- [CENTINELA] IDENTIDAD RECUPERADA: ${userRole} ---`);
 
-      // Si es PRO, dispara el análisis de integridad y el escaneo automático
-      if (userRole === "PROLicense") {
-        console.log(
-          "🛡️ MODO PRO DETECTADO: Iniciando protocolos de blindaje...",
-        );
-        checkPageIntegrity();
-        sentinelScan();
+        if (userRole === "PROLicense") {
+          console.log("🛡️ MODO PRO DETECTADO: Protocolos activos.");
+
+          checkPageIntegrity();
+          sentinelScan();
+        }
       }
-    }
-  });
+    });
+  }, 150);
 }
 
 // 2. Ejecuta al nacer la pestaña
@@ -32,11 +72,6 @@ style.innerHTML = `
   }
 `;
 document.head.appendChild(style);
-
-let satusBadge = null;
-let isShieldActive = true;
-let activeLink = "";
-let mouseTimer = null;
 
 function initSatusSensor() {
   console.log("SATUS Shield: Sensor cargado...");
@@ -211,22 +246,14 @@ function syncAuth() {
     const userRole = localStorage.getItem("user_role");
     const username = localStorage.getItem("username");
 
-    if (chrome.runtime?.id) {
-      if (token) {
-        // Enviar credenciales reales
-        chrome.runtime.sendMessage({
-          action: "SYNC_AUTH",
-          token: token,
-          user: { username, role: userRole },
-        });
-      } else {
-        // LOGOUT / INVITADO
-        chrome.runtime.sendMessage({
-          action: "SYNC_AUTH",
-          token: "GUEST_TOKEN",
-          user: { username: "INVITADO", role: "GUEST" },
-        });
-      }
+    if (chrome.runtime?.id && token) {
+      // Msj solo si hay token que reportar
+      chrome.runtime.sendMessage({
+        action: "SYNC_AUTH",
+        token: token,
+        user: { username, role: userRole },
+      });
+      console.log("🛰️ [NÚCLEO] Identidad PRO proyectada desde el Dashboard.");
     }
   } catch (e) {
     // Silencio en páginas con Storage bloqueado
@@ -238,10 +265,7 @@ window.addEventListener("storage", syncAuth);
 
 //SCRIPT de bloque ACTIVO de URLS
 
-let threatList = new Set();
-let userRole = "GUEST";
-
-async function satusProactiveShield() {
+async function checkPageIntegrity() {
   chrome.storage.local.get(["satusUser"], async (result) => {
     userRole = result.satusUser?.role || "GUEST";
     if (userRole !== "PROLicense") return;
@@ -323,4 +347,22 @@ function changeFaviconToSkull() {
   document.getElementsByTagName("head")[0].appendChild(link);
 }
 
-window.addEventListener("load", satusProactiveShield);
+window.addEventListener("message", (event) => {
+  // Solo mjs de web y marca propios
+  if (
+    event.source !== window ||
+    !event.data ||
+    event.data.source !== "SATUS_DASHBOARD"
+  )
+    return;
+
+  if (event.data.action === "SYNC_AUTH") {
+    console.log(
+      "🔗 [PUENTE] Identidad captada vía PostMessage, sincronizando...",
+    );
+    chrome.runtime.sendMessage(event.data);
+  }
+});
+
+initSatusSensor();
+bootstrapIdentity();

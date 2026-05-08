@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { DetectionsService } from '../../services/detections.service';
 import { AuthService } from '../../services/auth.service';
 
-declare const chrome: any; 
+declare const chrome: any;
 
 @Component({
   selector: 'app-root',
@@ -29,18 +29,29 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.userRole = this.authService.getRole();
-    console.log(`--- [NODO_DASHBOARD] RANGO DETECTADO: ${this.userRole} ---`);
     this.userName = this.authService.getUsername();
+    console.log(`--- [NODO_DASHBOARD] RANGO DETECTADO: ${this.userRole} ---`);
 
-  // 📢 GRITO DE IDENTIDAD: Forzamos a la extensión a recibir los datos
-  if (typeof chrome !== 'undefined' && chrome.runtime?.id) {
-    chrome.runtime.sendMessage({
+    window.postMessage({
+      source: 'SATUS_DASHBOARD',
       action: "SYNC_AUTH",
       token: localStorage.getItem('satusToken'),
       user: { username: this.userName, role: this.userRole }
-    });
-  }
-    
+    }, "*");
+
+    // Fuerza a la extensión a recibir los datos
+    if (typeof chrome !== 'undefined' && chrome.runtime?.sendMessage) {
+      try {
+        chrome.runtime.sendMessage({
+          action: "SYNC_AUTH",
+          token: localStorage.getItem('satusToken'),
+          user: { username: this.userName, role: this.userRole }
+        });
+      } catch (e) {
+        console.log("ℹ️ Conexión directa no disponible, usando túnel PostMessage.");
+      }
+    }
+
     setTimeout(() => {
       this.userRole = this.authService.getRole();
       this.cd.detectChanges();

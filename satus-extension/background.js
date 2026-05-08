@@ -23,43 +23,40 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 
 // 2. RECEPTOR ÚNICO DE MENSAJES (Sincronización y Escaneo)
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  // A. Sincronización de Identidad (procedente del content.js)
+  // A. Sincronización de Id(procedente del content.js)
   if (request.action === "SYNC_AUTH") {
-    console.log(
-      "📥 BACKGROUND RECIBIÓ IDENTIDAD:",
-      request.user.username,
-      "|",
-      request.user.role,
-    );
+    if (request.token && request.token !== "GUEST_TOKEN") {
+      currentSatusUser = request.user;
 
-    const token = request.token || "GUEST_TOKEN";
-    currentSatusUser = request.user;
-    chrome.storage.local.set(
-      {
-        satusToken: request.token,
-        satusUser: request.user,
-      },
-      () => {
-        console.log(
-          "🔄 [SATUS] Identidad sincronizada con éxito.",
-          currentSatusUser.role,
-        );
-      },
-    );
+      // Guardado asíncrono
+      chrome.storage.local.set(
+        {
+          satusToken: request.token,
+          satusUser: request.user,
+        },
+        () => {
+          console.log("💾 [CENTRAL] Identidad PRO anclada en el búnker.");
+        },
+      );
+    }
     return false;
   }
 
   if (request.action === "GET_IDENTITY") {
-    // devuelve lo que tiene la memoria
-    if (currentSatusUser.role !== "GUEST") {
+    if (currentSatusUser && currentSatusUser.role !== "GUEST") {
       sendResponse(currentSatusUser);
+      return false;
     } else {
-      // Si no se busca en el storage
       chrome.storage.local.get(["satusUser"], (result) => {
-        sendResponse(result.satusUser || currentSatusUser);
+        if (result.satusUser && result.satusUser.role !== "GUEST") {
+          currentSatusUser = result.satusUser; // Sincronizamos la RAM
+          sendResponse(result.satusUser);
+        } else {
+          sendResponse(currentSatusUser);
+        }
       });
+      return true;
     }
-    return true; // Mantenemos el canal abierto para la respuesta asíncrona
   }
 
   // B. Orden de Escaneo (procedente del content.js en respuesta al click de 🛡️)
