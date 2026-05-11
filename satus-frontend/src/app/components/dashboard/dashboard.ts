@@ -59,6 +59,27 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     }, 800);
   }
 
+  formatReport(text: string): string {
+  if (!text) return '';
+
+  return text
+    // 1. Limpieza de negritas de IA (**) y separadores (==)
+    .replace(/\*\*/g, '')
+    .replace(/==+/g, '')
+    
+    // 2. Encabezados con Estilo de Consola
+    .replace(/Advertencia:/gi, '<br><span class="text-satus-alert font-bold tracking-widest"> ⚠️ [ ADVERTENCIA ]</span><br>')
+    .replace(/Análisis:/gi, '<br><span class="text-satus-neon font-bold tracking-widest"> 📡 ANÁLISIS </span><br>')
+    .replace(/Conclusión:/gi, '<br><span class="text-satus-neon font-bold tracking-widest">CONCLUSIÓN </span><br>')
+    .replace(/Conclusiones:/gi, '<br><span class="text-satus-neon font-bold tracking-widest">CONCLUSIÓN </span><br>')
+    .replace(/DATOS TÉCNICOS:/gi, '<br><span class="text-white/50 border-b border-white/10 block mb-1">■ DATOS TÉCNICOS</span>')
+    
+    // 3. Formateo de Listas y URL
+    .replace(/URL:/gi, '<br><span class="opacity-40">>> TARGET:</span>')
+    .replace(/\* /g, '<br>&nbsp;&nbsp;<span class="text-satus-neon">↳</span> ')
+    .trim();
+}
+
   ngAfterViewInit() {
     if (this.videoRef) {
       const video = this.videoRef.nativeElement;
@@ -110,9 +131,25 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   }
 
   onLogout() {
-    // Confirmación rápida estilo terminal
     if (confirm("¿TERMINAR SESIÓN Y CERRAR VÍNCULO?")) {
+      // Avisa a la extensión antes de borrar todo
+      if (typeof chrome !== 'undefined' && chrome.runtime) {
+        window.postMessage({
+          source: 'SATUS_DASHBOARD',
+          action: "SYNC_AUTH",
+          token: "GUEST_TOKEN",
+          user: { username: "INVITADO", role: "GUEST" }
+        }, "*");
+      }
+
+      // Hacer el borrado local
       this.authService.logout();
+      this.userRole = 'GUEST'; // Actualización visual inmediata
+      this.userName = 'INVITADO';
+      this.cd.detectChanges();
+
+      // Redirigir al login 
+      // this.router.navigate(['/login']);
     }
   }
 }

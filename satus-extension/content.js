@@ -312,19 +312,28 @@ document.addEventListener(
       e.stopPropagation();
 
       const warningHtml = `
-      <b style="color: #ff4444;">💀 [ ACCESO BLOQUEADO POR SEGURIDAD ]</b><br><br>
-      El núcleo ha detectado que este enlace es un hilo de phishing o malware confirmado.<br><br>
-      <div style="display: flex; flex-direction: column; gap: 8px;">
-        <button onclick="this.parentElement.parentElement.parentElement.remove()" 
-                style="background: #c09e2fbe; color: black; border: none; padding: 10px; cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 10px;">
-          [ REGRESAR AL NÚCLEO ]
-        </button>
-        <a href="${link.href}" target="_blank" style="color: #666; font-size: 8px; text-decoration: underline; text-align: center;">
-          Ignorar y acceder bajo mi propio riesgo
-        </a>
-      </div>
-    `;
+  <div style="text-align: center;">
+    <b class="satus-threat-alert">💀 [ ACCESO BLOQUEADO ]</b><br><br>
+    <p style="color: #ccc; font-size: 11px;">El núcleo ha detectado este hilo contenedor de phishing o malware y a impedido el acceso para su seguridad.</p>
+    <div id="btn-container"></div>
+    <a href="${link.href}" target="_blank" style="color: #444; font-size: 9px; display: block; margin-top: 15px;">
+        Entiendo el riesgo y aun asi deseo acceder...
+    </a>
+  </div>
+`;
+
       showSatusPopup(warningHtml, e.pageX, e.pageY);
+
+      setTimeout(() => {
+        const container = document.getElementById("btn-container");
+        if (container) {
+          const btn = document.createElement("button");
+          btn.innerText = "[ REGRESAR AL NÚCLEO ]";
+          btn.className = "satus-main-btn"; // 👈 Usa el estilo unificado
+          btn.onclick = () => document.querySelector(".satus-popup")?.remove();
+          container.appendChild(btn);
+        }
+      }, 50);
     }
   },
   true,

@@ -81,7 +81,7 @@ export class DetectionsService {
 
           return {
             status: "processing",
-            message: "🌀 Link nuevo. SATUS lo está analizando. ¡Reintenta en 10 segundos!"
+            message: "¡Link nuevo identificado! SATUS lo está analizando. ¡Reintente en 10 segundos!"
           };
         } catch (postError: any) {
           console.error("❌ ERROR POST VT:", postError.response?.data || postError.message);
@@ -230,7 +230,7 @@ export class DetectionsService {
       const jsonMatch = content.match(/\[.*\]/s);
       return jsonMatch ? JSON.parse(jsonMatch[0]) : [];
 
-    } catch (e:any) {
+    } catch (e: any) {
       console.error("❌ Error en análisis masivo IA:", e.message);
       return []; // En caso de duda, no bloqueamos nada por error
     }
@@ -321,7 +321,7 @@ export class DetectionsService {
           // 💾 PERSISTENCIA: Alimentamos la Inteligencia Colectiva
           // Guardamos con un mensaje que indique que fue una detección proactiva
           await this.detectionModel.create({
-            url: url,
+            url: this.sanitizeAiResult(url),
             riskLevel: 'ALTO',
             message: '⚠️ BLOQUEO: Enlace identificado como amenaza potencial por el análisis heurístico del núcleo SATUS.',
             owner: new Types.ObjectId('660000000000000000000000'), // ID de Sistema/Invitado
@@ -333,4 +333,13 @@ export class DetectionsService {
 
     return { threats };
   }
+
+  private sanitizeAiResult(rawResult: any): string {
+    if (typeof rawResult === 'object' && rawResult !== null) {
+      // Si la IA mandó un objeto, intentamos sacar la URL o lo convertimos a texto
+      return rawResult.url || JSON.stringify(rawResult);
+    }
+    return String(rawResult);
+  }
+
 }

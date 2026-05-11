@@ -73,9 +73,12 @@
           <p class="text-sm text-white mb-2 truncate font-mono">{{ scan.url }}</p>
 
           <div class="bg-black/40 p-3 text-xs leading-relaxed border-l-2 border-satus-neon italic text-gray-400">
-
             <ng-container *ngIf="userRole !== 'FREE' && userRole !== 'GUEST'; else lockedMessage">
-              {{ scan.expanded ? scan.message : getShortMessage(scan.message) }}
+
+              <div
+                [innerHTML]="scan.expanded ? formatReport(scan.message) : formatReport(getShortMessage(scan.message))"
+                class="font-mono tracking-tight">
+              </div>
 
               <button (click)="scan.expanded = !scan.expanded"
                 class="block mt-2 text-satus-neon hover:underline cursor-pointer uppercase text-[9px] tracking-widest">

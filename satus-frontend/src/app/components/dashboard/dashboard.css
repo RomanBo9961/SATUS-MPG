@@ -1,0 +1,14 @@
+.italic.text-gray-400 {
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), 
+                linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+    background-size: 100% 2px, 3px 100%;
+    border-radius: 2px;
+    position: relative;
+    font-style: normal !important; /* El look de terminal es mejor sin itálica */
+}
+
+/* GLOW en reportes de alto riesgo */
+.border-satus-alert + .bg-black\/40 {
+    border-left-color: #ff4444 !important;
+    box-shadow: inset 5px 0 15px -5px rgba(255, 68, 68, 0.3);
+}

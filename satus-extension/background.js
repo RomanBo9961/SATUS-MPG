@@ -4,7 +4,7 @@ let currentSatusUser = { username: "INVITADO", role: "GUEST" };
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
     id: "analyzeWithSatus",
-    title: "🛡️ Analizar link con SATUS",
+    title: "Analizar link con SATUS",
     contexts: ["link"],
   });
 });
@@ -36,6 +36,19 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         },
         () => {
           console.log("💾 [CENTRAL] Identidad PRO anclada en el búnker.");
+        },
+      );
+    }
+    // LOGOUT / Bajar a GUEST (peticion del Dash)
+    else if (request.token === "GUEST_TOKEN") {
+      currentSatusUser = { username: "INVITADO", role: "GUEST" };
+      chrome.storage.local.set(
+        {
+          satusToken: "GUEST_TOKEN",
+          satusUser: currentSatusUser,
+        },
+        () => {
+          console.log("🔌 [CENTRAL] Vínculo cerrado. GUEST por defecto.");
         },
       );
     }
