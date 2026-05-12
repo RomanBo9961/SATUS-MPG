@@ -11,6 +11,7 @@ module.exports = {
         'satus-dark': '#0f0f0f',
         'satus-alert': '#d83d3de3',
         'satus-on': '#94c229c4',
+        'satus-report': '#ffffff88', 
       },
       fontFamily: {
         

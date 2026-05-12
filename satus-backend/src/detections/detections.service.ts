@@ -187,11 +187,31 @@ export class DetectionsService {
     }
   }
 
-  async findAll(userId: string) {
+  async findAll(userId: string,
+    page: number = 1,
+    limit: number = 10,
+    search: string = '',
+    risk: string = 'ALL') {
+    const skip = (page - 1) * limit;
+
+    // 2. filtro base 
+    const query: any = { owner: new Types.ObjectId(userId) };
+
+    // Si el Dashboard envía texto, activa búsqueda por URL
+    if (search && search.trim() !== '') {
+      query.url = { $regex: search, $options: 'i' }; // Búsqueda parcial e insensible a mayúsculas
+    }
+
+    // Filtro de Riesgo (Si no es ALL, filtra por ALTO/BAJO)
+    if (risk !== 'ALL') {
+      query.riskLevel = risk;
+    }
     // Filtro para que devuelva lo del usuario logueado
     return this.detectionModel
-      .find({ owner: new Types.ObjectId(userId) })
+      .find(query)
       .sort({ createdAt: -1 })
+      .skip(skip)              //  Salta registros de sectores anteriores
+      .limit(limit)            // Trae tamaño del sector (10)
       .exec();
   }
 

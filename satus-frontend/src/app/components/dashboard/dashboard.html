@@ -95,6 +95,25 @@
         </div>
         <!--/div-->
 
+        <div *ngIf="detections.length > 0 || currentPage > 1"
+          class="flex justify-between items-center mt-4 p-4 bg-black/20 border-t border-white/5"
+          [class.opacity-10]="userRole === 'FREE' || userRole === 'GUEST'">
+
+          <button (click)="prevPage()" [disabled]="currentPage === 1 || userRole === 'GUEST'"
+            class="text-[10px] text-gray-500 hover:text-satus-neon disabled:opacity-20 uppercase tracking-widest transition-all">
+            [ << SECTOR ANTERIOR ] </button>
+
+              <div class="text-center">
+                <div class="text-[8px] text-gray-600 uppercase tracking-widest mb-1">Localización Archivo</div>
+                <div class="text-[10px] text-satus-neon font-mono">SECTOR 0{{currentPage}}</div>
+              </div>
+
+              <button (click)="nextPage()" [disabled]="detections.length < pageSize || userRole === 'GUEST'"
+                class="text-[10px] text-gray-500 hover:text-satus-neon disabled:opacity-20 uppercase tracking-widest transition-all">
+                [ SECTOR SIGUIENTE >> ]
+              </button>
+        </div>
+
         <div *ngIf="userRole === 'FREE' || userRole === 'GUEST'"
           class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm">
 
@@ -122,6 +141,34 @@
           </div>
         </div>
       </div>
+
+      <div class="bg-satus-dark/60 border border-satus-neon/20 p-4 backdrop-blur-md">
+        <h3 class="text-[10px] uppercase text-gray-500 mb-4 tracking-widest flex items-center gap-2">
+          <span class="w-2 h-2 bg-satus-neon rounded-full animate-pulse"></span>
+          Filtro Dinámico
+        </h3>
+
+        <div class="space-y-4">
+          <!-- Input de Búsqueda -->
+          <div class="relative">
+            <input type="text" [(ngModel)]="searchQuery" (input)="onSearch()" placeholder="FILTRAR URL / TARGET..."
+              class="w-full bg-black/40 border border-white/10 p-2 text-[10px] text-satus-neon focus:border-satus-neon outline-none font-mono">
+          </div>
+
+          <!-- Filtro de Riesgo -->
+          <div class="flex gap-2">
+            <button (click)="setFilter('ALL')" [class.border-satus-neon]="filter === 'ALL'"
+              class="flex-1 border border-white/10 p-1 text-[8px] uppercase hover:bg-white/5 transition-all">
+              [ TODOS ]
+            </button>
+            <button (click)="setFilter('ALTO')" [class.border-satus-alert]="filter === 'ALTO'"
+              class="flex-1 border border-white/10 p-1 text-[8px] uppercase text-satus-alert hover:bg-satus-alert/10 transition-all">
+              [ CRÍTICOS ]
+            </button>
+          </div>
+        </div>
+      </div>
+
     </aside>
   </main>
 </div>

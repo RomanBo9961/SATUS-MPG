@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, UseGuards, Request } from '@nestjs/common';
+import { Controller, Post, Body, Get, UseGuards, Request, Query } from '@nestjs/common';
 import { DetectionsService } from './detections.service';
 import { CreateDetectionDto } from './dto/create-detection.dto';
 import { JwtAuthGuard } from '../auth/guards/auth.guard';
@@ -9,21 +9,23 @@ export class DetectionsController {
 
   @UseGuards(JwtAuthGuard)
   @Get()
-  async getAll(@Request() req: any) {
+  async getAll(@Request() req: any,
+    @Query('page') page: number = 1,      //  Captura página
+    @Query('limit') limit: number = 10,   // Captura límite
+    @Query('search') search: string = '', //  Captura búsqueda
+    @Query('risk') risk: string = 'ALL'   // Captura filtro
+  ) {
     const userId = req.user._id;
 
     // ID al servicio para que filtre la búsqueda
-    return this.detectionsService.findAll(userId);
+    return this.detectionsService.findAll(userId,
+      Number(page),
+      Number(limit),
+      search,
+      risk);
   }
-  /*@Post()
-  async handleExtensionAnalysis(@Body() createDetectionDto: CreateDetectionDto) {
-  
-    const cleanUrl = String(createDetectionDto.url).trim();
-    
-    return this.detectionsService.analyzeUrl(cleanUrl);
-  } */
 
- @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Post('scan')
   async handleExtensionAnalysis(@Body() body: any, @Request() req: any) {
     const rawUrl = body.url;
@@ -57,6 +59,6 @@ export class DetectionsController {
     // Aquí podrías llamar al método bulkCheck que procesa con Groq + VT
     return this.detectionsService.bulkCheck(body.links);
 
-}
+  }
 
 }
