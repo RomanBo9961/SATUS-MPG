@@ -239,7 +239,7 @@ function showSatusPopup(message, x, y) {
   );
 }
 
-//Sincronizar automaticamente el token del ID de la extension
+/*Sincronizar automaticamente el token del ID de la extension
 function syncAuth() {
   try {
     const token = localStorage.getItem("satusToken");
@@ -258,7 +258,7 @@ function syncAuth() {
   } catch (e) {
     // Silencio en páginas con Storage bloqueado
   }
-}
+}*/
 
 syncAuth();
 window.addEventListener("storage", syncAuth);

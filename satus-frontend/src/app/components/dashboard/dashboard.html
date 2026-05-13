@@ -28,11 +28,14 @@
       </button>
 
       <ng-template #loginBtn>
-        <button routerLink="/login"
-          class="text-[10px] border border-satus-neon/40 text-satus-neon px-3 py-1 hover:bg-satus-neon hover:text-black transition-all uppercase tracking-tighter">
-          [ ACCEDER]
-        </button>
+        <div class="flex flex-col items-end gap-1 font-mono">
+          <a routerLink="/login"
+            class="text-[10px] tracking-[0.2em] uppercase border border-satus-neon/40 px-3 py-1 text-satus-neon hover:bg-satus-neon hover:text-black transition-all cursor-pointer">
+            [ ACCEDER AL NÚCLEO ]
+          </a>
+        </div>
       </ng-template>
+
     </div>
   </header>
 
@@ -104,7 +107,8 @@
             [ << SECTOR ANTERIOR ] </button>
 
               <div class="text-center">
-                <div class="text-[8px] text-gray-600 uppercase tracking-widest mb-1">Localización Archivo</div>
+                <div class="text-[8px] text-gray-600 uppercase tracking-widest mb-1">Localización Actual en Archivo
+                </div>
                 <div class="text-[10px] text-satus-neon font-mono">SECTOR 0{{currentPage}}</div>
               </div>
 
@@ -167,6 +171,50 @@
             </button>
           </div>
         </div>
+      </div>
+
+      <!-- PANEL DE STATS AMENAZAS HUD -->
+      <div class="bg-satus-dark/60 border border-satus-neon/20 p-4 backdrop-blur-md mt-6 relative overflow-hidden">
+        <h3 class="text-[10px] uppercase text-gray-500 mb-4 tracking-widest flex justify-between">
+          <span>Distribución de Amenazas</span>
+          <span class="text-satus-neon animate-pulse">LIVE DATA</span>
+        </h3>
+
+        <!-- Container del Gráfico -->
+        <div style="height: 180px; 
+            transform: rotateX(64deg) rotateY(-8deg) rotateZ(4deg); 
+            perspective: 1200px; 
+            filter: drop-shadow(0px 4px 0px rgba(15, 15, 15, 0.9))
+                    drop-shadow(0px 8px 0px rgba(15, 15, 15, 0.8))
+                    drop-shadow(0px 12px 1px rgba(0, 0, 0, 0.85))
+                    drop-shadow(0px 18px 25px rgba(0, 242, 255, 0.15));"
+          class="relative transition-transform duration-500 hover:scale-105">
+
+          <canvas baseChart [data]="pieChartData" [options]="pieChartOptions" [type]="pieChartType">
+          </canvas>
+        </div>
+
+        <!-- Telemetría -->
+        <div class="grid grid-cols-2 gap-2 mt-4 pt-4 border-t border-white/5 font-mono text-center">
+          <div class="border-r border-white/5">
+            <div class="text-[8px] text-gray-500 uppercase tracking-wider">Alertas // Multimotor</div>
+            <!-- 🚨 Muestra el total de detecciones de malware acumuladas en el sector actual -->
+            <div class="text-satus-alert text-xl font-bold tracking-tighter">
+              {{ neutralizedCount }}
+            </div>
+          </div>
+          <div>
+            <div class="text-[8px] text-gray-500 uppercase tracking-wider">Eficiencia // Blindaje</div>
+            <!-- 🛡️ Muestra la Tasa de Integridad en formato % de forma segura -->
+            <div class="text-satus-on text-xl font-bold tracking-tighter">
+              {{ detections.length > 0 ? (pieChartData.datasets[0].data[1]) : 100 }}%
+            </div>
+          </div>
+        </div>
+
+        <p class="text-[7px] text-center text-gray-600 mt-3 uppercase tracking-widest">
+          Análisis Heurístico Activo // SATUS CORE
+        </p>
       </div>
 
     </aside>
