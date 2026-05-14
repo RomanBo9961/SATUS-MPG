@@ -62,9 +62,18 @@
         </div>
 
         <!-- Tarjetas de Escaneo -->
-        <div *ngFor="let scan of detections"
+        <div *ngFor="let scan of detections; let i = index"
           class="bg-satus-dark/60 border border-white/10 p-4 backdrop-blur-md hover:border-satus-neon/40 transition-all mb-4">
           <div class="flex justify-between items-start mb-2">
+
+            <div class="flex items-center gap-2 font-mono">
+              <span
+                class="text-satus-neon font-bold text-[10px] bg-satus-neon/10 border border-satus-neon/20 px-1 py-0.5 rounded tracking-tighter">
+                [E{{ i + 1 }}]
+              </span>
+              <span class="text-satus-neon text-[10px] uppercase">{{ scan.createdAt | date:'dd/MM HH:mm' }}</span>
+            </div>
+
             <span class="text-satus-neon text-[10px] uppercase">{{ scan.createdAt | date:'dd/MM HH:mm' }}</span>
             <span
               [class]="scan.riskLevel === 'ALTO' ? 'text-satus-alert border-satus-alert' : 'text-satus-on border-satus-on'"
@@ -176,45 +185,84 @@
       <!-- PANEL DE STATS AMENAZAS HUD -->
       <div class="bg-satus-dark/60 border border-satus-neon/20 p-4 backdrop-blur-md mt-6 relative overflow-hidden">
         <h3 class="text-[10px] uppercase text-gray-500 mb-4 tracking-widest flex justify-between">
-          <span>Distribución de Amenazas</span>
+          <span>Severidad en Escaneo Multimotor del Sector Actual</span>
           <span class="text-satus-neon animate-pulse">LIVE DATA</span>
         </h3>
 
-        <!-- Container del Gráfico -->
-        <div style="height: 180px; 
-            transform: rotateX(64deg) rotateY(-8deg) rotateZ(4deg); 
-            perspective: 1200px; 
-            filter: drop-shadow(0px 4px 0px rgba(15, 15, 15, 0.9))
-                    drop-shadow(0px 8px 0px rgba(15, 15, 15, 0.8))
-                    drop-shadow(0px 12px 1px rgba(0, 0, 0, 0.85))
-                    drop-shadow(0px 18px 25px rgba(0, 242, 255, 0.15));"
-          class="relative transition-transform duration-500 hover:scale-105">
+        <!-- PANEL ASIMÉTRICO DUAL -->
+        <div class="grid grid-cols-5 gap-2 items-center" style="height: 165px;">
+          <!-- CD graph -->
+          <div style="transform: rotateX(62deg) rotateY(-8deg) rotateZ(3deg) !important; 
+              perspective: 1200px !important; 
+              /* 🧱 Extrusión por sombras + Resplandor Cian Holográfico */
+              filter: drop-shadow(0px 3px 0px #0a0a0a) 
+                      drop-shadow(0px 6px 0px #050505) 
+                      drop-shadow(0px 12px 20px rgba(0, 242, 255, 0.4)) !important;"
+            class="relative col-span-3 h-full flex items-center justify-center">
+            <canvas baseChart [data]="pieChartData" [options]="pieChartOptions" [type]="pieChartType">
+            </canvas>
+          </div>
 
-          <canvas baseChart [data]="pieChartData" [options]="pieChartOptions" [type]="pieChartType">
-          </canvas>
+          <!-- LISTA CON CONTADORES DE INCIDENCIA -->
+          <div
+            class="col-span-2 font-mono text-[8px] space-y-2 border-l border-white/5 pl-3 h-full flex flex-col justify-center">
+            <div class="text-gray-600 tracking-wider mb-1 uppercase border-b border-white/5 pb-1">Motores Destacados en
+              Alerta
+            </div>
+
+            <ng-container *ngIf="motoresActivos.length > 0; else sinAlertas">
+              <div *ngFor="let motor of motoresActivos" class="flex justify-between items-center text-gray-400">
+                <span class="truncate pr-1 text-satus-alert">❗ {{ motor.name.toUpperCase() }}</span>
+                <span class="bg-satus-alert/10 text-satus-alert px-1 rounded font-bold border border-satus-alert/20">
+                  [{{ motor.count }}]
+                </span>
+              </div>
+            </ng-container>
+
+            <ng-template #sinAlertas>
+              <div class="text-satus-on opacity-60 animate-pulse tracking-wide">
+                ↳ NINGUNA <br>DETECTADA
+              </div>
+            </ng-template>
+          </div>
         </div>
 
-        <!-- Telemetría -->
-        <div class="grid grid-cols-2 gap-2 mt-4 pt-4 border-t border-white/5 font-mono text-center">
+        <!-- Telemetría Numérica -->
+        <div class="grid grid-cols-2 gap-2 mt-2 pt-3 border-t border-white/5 font-mono text-center">
           <div class="border-r border-white/5">
-            <div class="text-[8px] text-gray-500 uppercase tracking-wider">Alertas // Multimotor</div>
-            <!-- 🚨 Muestra el total de detecciones de malware acumuladas en el sector actual -->
-            <div class="text-satus-alert text-xl font-bold tracking-tighter">
-              {{ neutralizedCount }}
-            </div>
+            <div class="text-[8px] text-gray-500 uppercase tracking-wider">Máxima de Vector</div>
+            <div class="text-satus-alert text-xl font-bold tracking-tighter">{{ neutralizedCount }}</div>
           </div>
           <div>
-            <div class="text-[8px] text-gray-500 uppercase tracking-wider">Eficiencia // Blindaje</div>
-            <!-- 🛡️ Muestra la Tasa de Integridad en formato % de forma segura -->
-            <div class="text-satus-on text-xl font-bold tracking-tighter">
-              {{ detections.length > 0 ? (pieChartData.datasets[0].data[1]) : 100 }}%
-            </div>
+            <div class="text-[8px] text-gray-500 uppercase tracking-wider">Navegación No Comprometida </div>
+            <div class="text-satus-on text-xl font-bold tracking-tighter">{{ blindajePercentage }}%</div>
           </div>
         </div>
 
-        <p class="text-[7px] text-center text-gray-600 mt-3 uppercase tracking-widest">
-          Análisis Heurístico Activo // SATUS CORE
-        </p>
+        <!-- OSCILOSCOPIO BIAXIAL -->
+        <div class="mt-5 pt-4 border-t border-white/5">
+          <h4 class="text-[8px] uppercase text-gray-500 mb-2 tracking-wider flex justify-between font-mono">
+            <span>Histórico de Exposición</span>
+            <span class="opacity-40 text-satus-neon">TENDENCIA NODO</span>
+          </h4>
+          <!-- Expandimos la altura a 75px para darle un colchón cómodo a las etiquetas del Eje X -->
+          <div style="height: 75px;" class="relative">
+            <canvas baseChart *ngIf="lineChartData.datasets[0].data.length > 0" [data]="lineChartData"
+              [options]="lineChartOptions" [type]="lineChartType">
+            </canvas>
+          </div>
+        </div>
+
+        <!-- Panel de Convenciones -->
+        <div
+          class="grid grid-cols-3 gap-1 mt-3 pt-2 border-t border-white/5 font-mono text-[7px] text-gray-500 uppercase tracking-tight">
+          <div class="flex items-center gap-1.5"><span
+              class="w-1.5 h-1.5 rounded-full bg-[#ff4444] animate-pulse"></span><span>[ PICOS DE MALWARE ]</span></div>
+          <div class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 bg-[#9ba37d] opacity-60"></span><span>[
+              TRAZA DEL SECTOR ]</span></div>
+          <div class="flex items-center gap-1.5 justify-end"><span class="text-satus-neon opacity-40">>> GRID_OK</span>
+          </div>
+        </div>
       </div>
 
     </aside>
