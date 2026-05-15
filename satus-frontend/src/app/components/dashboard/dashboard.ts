@@ -52,9 +52,14 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   ) { }
 
   ngOnInit() {
-    this.userRole = this.authService.getRole();
-    this.userName = this.authService.getUsername();
+    this.userRole = this.authService.getRole() || 'GUEST';
+    this.userName = this.authService.getUsername() || 'INVITADO';
     console.log(`--- [NODO_DASHBOARD] RANGO DETECTADO: ${this.userRole} ---`);
+
+    if (this.userRole === 'FREE' || this.userRole === 'GUEST') {
+      this.blindajePercentage = 100;
+      this.neutralizedCount = 0;
+    }
 
     // --- CONFIG DEL RADAR (filtrado & busqeuda) ---
     this.searchSubject.pipe(
@@ -149,13 +154,14 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         titleFont: { family: 'monospace', size: 15 },
         bodyFont: { family: 'monospace', size: 15 },
         borderColor: '#c09e2fbe',
-        borderWidth: 1
+        borderWidth: 1,
+        displayColors: false,
       }
     }
   };
 
   public pieChartData: any = {
-    labels: ['CRÍTICOS', 'SOSPECHOSOS', 'INTEGRIDAD'],
+    labels: ['CRÍTICOS', 'SOSPECHOSOS', 'ESTABLE'],
     datasets: [{
       data: [0, 0, 100], // Estado inicial limpio
       backgroundColor: ['rgba(255, 68, 68, 0.95)', 'rgba(255, 136, 0, 0.95)', '#9ba37d'],
@@ -248,28 +254,60 @@ export class DashboardComponent implements OnInit, AfterViewInit {
             expanded: false // controla el "Ver más"
           }));
 
-          const conteoMotores: { [key: string]: number } = {};
+          const mapeoPosiciones: { [key: string]: number[] } = {};
           let totalDeteccionesMotores = 0;
 
-          // Recorre las tarjetas actuales en pantalla 
-          this.detections.forEach(scan => {
-            const motores = scan.details?.lastAnalysis || scan.details?.last_analysis_results;
+          // Recorre las tarjetas actuales 
+          this.detections.forEach((scan, index) => {
+            const motores = scan.details?.last_analysis_results ||
+              scan.details?.lastAnalysis?.last_analysis_results ||
+              scan.details?.lastAnalysis;
+
             if (scan.details && motores) {
+              const posicionVisual = index + 1; // E1, E2, E3...
+
               Object.keys(motores).forEach(nombreMotor => {
-                if (motores[nombreMotor].result === 'malicious' || motores[nombreMotor].category === 'malicious') {
-                  
-                  conteoMotores[nombreMotor] = (conteoMotores[nombreMotor] || 0) + 1;
+                const resultadoMotor = motores[nombreMotor];
+
+
+                // Si la tarjeta actual es una amenaza (ALTO) o el motor detectó malware directo
+                const esTarjetaPeligrosa = scan.riskLevel === 'ALTO';
+                const esMotorMalicioso = resultadoMotor && (
+                  resultadoMotor.result === 'malicious' ||
+                  resultadoMotor.category === 'malicious'
+                );
+
+                if (resultadoMotor && (esMotorMalicioso || esTarjetaPeligrosa)) {
+                  if (!mapeoPosiciones[nombreMotor]) {
+                    mapeoPosiciones[nombreMotor] = [];
+                  }
+
+                  if (!mapeoPosiciones[nombreMotor].includes(posicionVisual)) {
+                    mapeoPosiciones[nombreMotor].push(posicionVisual);
+                  }
                   totalDeteccionesMotores++;
                 }
               });
             }
           });
 
-          // LISTADO  ordenado de mayor a menor activo
-          this.motoresActivos = Object.keys(conteoMotores)
-            .map(name => ({ name, count: conteoMotores[name] }))
+          // Re-mapeo del listado con el truncado manual de 6 renglones que configuró
+          this.motoresActivos = Object.keys(mapeoPosiciones)
+            .map(name => {
+              const targets = mapeoPosiciones[name]
+                .sort((a, b) => a - b)
+                .map(pos => `E${pos}`)
+                .join(', ');
+
+              return {
+                name: name,
+                targets: targets,
+                count: mapeoPosiciones[name].length
+              };
+            })
+            // Ordenamos para que los que tienen más presencia en pantallas salten arriba
             .sort((a, b) => b.count - a.count)
-            .slice(0, 6); // Limita n- de motores diag
+            .slice(0, 6);// Limita n- de motores diag
 
           // Cálculos de severidad 
           let criticos = 0;
@@ -292,18 +330,33 @@ export class DashboardComponent implements OnInit, AfterViewInit {
           this.blindajePercentage = porcIntegridad;
 
           const tieneCortes = totalPeligros > 0;
+
           this.pieChartData = {
-            labels: ['CRÍTICOS', 'SOSPECHOSOS', 'INTEGRIDAD'],
+            labels: ['CRÍTICOS', 'SOSPECHOSOS', 'INOCUO'],
             datasets: [{
               data: [porcCritico, porcSospechoso, porcIntegridad],
-              backgroundColor: ['rgba(255, 68, 68, 0.95)', 'rgba(255, 136, 0, 0.95)', '#97a073'],
-              borderColor: 'transparent',
-              borderWidth: 0,
+              backgroundColor: [
+                'rgba(255, 68, 68, 0.21)',
+                'rgba(255, 136, 0, 0.22)',
+                'rgba(155, 163, 125, 0.21)'
+              ],
+              borderColor: [
+                'rgba(255, 68, 68, 1)',
+                'rgba(255, 136, 0, 1)',
+                'rgba(155, 163, 125, 1)'
+              ],
+              borderWidth: 2,
               cutout: '10%',
               spacing: tieneCortes ? 4 : 0,
               offset: tieneCortes ? 18 : 0
             }]
-          };
+          }
+
+
+
+
+
+
 
           // Clonar e invertir para avanzar en el tiempo (izquierda a derecha)
           const historialCronologico = [...this.detections].reverse();
@@ -365,15 +418,14 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   onLogout() {
     if (confirm("¿TERMINAR SESIÓN Y CERRAR VÍNCULO?")) {
-      // Avisa a la extensión antes de borrar todo
-      if (typeof chrome !== 'undefined' && chrome.runtime) {
-        window.postMessage({
-          source: 'SATUS_DASHBOARD',
-          action: "SYNC_AUTH",
-          token: "GUEST_TOKEN",
-          user: { username: "INVITADO", role: "GUEST" }
-        }, "*");
-      }
+
+      // Le avisamos al Centinela (extensión) su nueva identidad FREE mediante PostMessage
+      window.postMessage({
+        source: 'SATUS_DASHBOARD',
+        action: "SYNC_AUTH",
+        token: "GUEST_TOKEN",
+        user: { username: "INVITADO", role: "GUEST" }
+      }, "*");
 
       // Hacer el borrado local
       this.authService.logout();
@@ -381,8 +433,26 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       this.userName = 'INVITADO';
       this.cd.detectChanges();
 
-      // Redirigir al login 
-      // this.router.navigate(['/login']);
+      // Delay de 150ms al navegador para que procese el PostMessage 
+      setTimeout(() => {
+        console.log("forzando refresco...");
+        window.location.reload();
+      }, 150);
+
+      try {
+        (this.authService as any).loginAsGuest().subscribe({
+          next: (res: any) => {
+            console.log("Cuenta FREE default inyectada con éxito.");
+          },
+          error: (err: any) => {
+            console.error("⚠️ No se pudo generar cuenta default:", err);
+          }
+        });
+      } catch (e) {
+        // Contención de seguridad en hilos muertos
+      }
     }
   }
+
+
 }

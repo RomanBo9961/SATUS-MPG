@@ -22,7 +22,7 @@
       </div>
 
       <!-- BOTÓN DINÁMICO -->
-      <button *ngIf="userRole !== 'GUEST'; else loginBtn" (click)="onLogout()"
+      <button *ngIf="userRole !== 'GUEST'; else loginBtn" (click)="onLogout();"
         class="text-[10px] border border-satus-alert/40 text-satus-alert px-3 py-1 hover:bg-satus-alert hover:text-white transition-all uppercase tracking-tighter">
         [ DESCONECTAR ]
       </button>
@@ -74,7 +74,6 @@
               <span class="text-satus-neon text-[10px] uppercase">{{ scan.createdAt | date:'dd/MM HH:mm' }}</span>
             </div>
 
-            <span class="text-satus-neon text-[10px] uppercase">{{ scan.createdAt | date:'dd/MM HH:mm' }}</span>
             <span
               [class]="scan.riskLevel === 'ALTO' ? 'text-satus-alert border-satus-alert' : 'text-satus-on border-satus-on'"
               class="text-[10px] border px-2 py-0.5 uppercase">
@@ -194,10 +193,11 @@
           <!-- CD graph -->
           <div style="transform: rotateX(62deg) rotateY(-8deg) rotateZ(3deg) !important; 
               perspective: 1200px !important; 
-              /* 🧱 Extrusión por sombras + Resplandor Cian Holográfico */
-              filter: drop-shadow(0px 3px 0px #0a0a0a) 
-                      drop-shadow(0px 6px 0px #050505) 
-                      drop-shadow(0px 12px 20px rgba(0, 242, 255, 0.4)) !important;"
+        
+              filter: drop-shadow(0px 3px 0px #090909) 
+                    drop-shadow(0px 7px 0px #050505) 
+                    drop-shadow(0px 13px 2px #020202)
+                      drop-shadow(0px 15px 20px rgba(0, 242, 255, 0.4)) !important;"
             class="relative col-span-3 h-full flex items-center justify-center">
             <canvas baseChart [data]="pieChartData" [options]="pieChartOptions" [type]="pieChartType">
             </canvas>
@@ -206,23 +206,26 @@
           <!-- LISTA CON CONTADORES DE INCIDENCIA -->
           <div
             class="col-span-2 font-mono text-[8px] space-y-2 border-l border-white/5 pl-3 h-full flex flex-col justify-center">
-            <div class="text-gray-600 tracking-wider mb-1 uppercase border-b border-white/5 pb-1">Motores Destacados en
-              Alerta
+            <div class="text-gray-600 tracking-wider mb-1 uppercase border-b border-white/5 pb-1">
+              Origen
             </div>
 
             <ng-container *ngIf="motoresActivos.length > 0; else sinAlertas">
               <div *ngFor="let motor of motoresActivos" class="flex justify-between items-center text-gray-400">
+
+                <!-- Nombre AV -->
                 <span class="truncate pr-1 text-satus-alert">❗ {{ motor.name.toUpperCase() }}</span>
-                <span class="bg-satus-alert/10 text-satus-alert px-1 rounded font-bold border border-satus-alert/20">
-                  [{{ motor.count }}]
+
+                <span
+                  class="bg-satus-alert/10 text-satus-alert px-1 rounded font-bold border border-satus-alert/20 font-mono tracking-tighter">
+                  [{{ motor.targets }}]
                 </span>
+
               </div>
             </ng-container>
 
             <ng-template #sinAlertas>
-              <div class="text-satus-on opacity-60 animate-pulse tracking-wide">
-                ↳ NINGUNA <br>DETECTADA
-              </div>
+              <div class="text-satus-on opacity-60 animate-pulse tracking-wide">↳ NINGUNA <br>DETECTADA_</div>
             </ng-template>
           </div>
         </div>
