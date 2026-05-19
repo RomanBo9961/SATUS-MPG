@@ -46,67 +46,131 @@
 
         <!-- Hero Section -->
         <main class="relative grid grid-cols-12 min-h-screen border-b border-satus-bronce/10">
-    <div class="hidden lg:flex col-span-1 border-r border-satus-bronce/10 items-center justify-center">
-        <span class="rotate-180 text-[10px] tracking-[1em] uppercase text-gray-600 [writing-mode:vertical-lr]">
-            Evolution of Security
-        </span>
-    </div>
+            <div class="hidden lg:flex col-span-1 border-r border-satus-bronce/10 items-center justify-center">
+                <span class="rotate-180 text-[10px] tracking-[1em] uppercase text-gray-600 [writing-mode:vertical-lr]">
+                    Evolution of Security
+                </span>
+            </div>
 
-    <!-- Info del Producto -->
-    <div class="col-span-11 lg:col-span-5 p-10 flex flex-col justify-center space-y-12">
-        <div>
-            <h2 class="text-7xl lg:text-[120px] font-bold leading-[0.8] tracking-tighter">
-                SATUS<br><span class="text-satus-bronce">01</span>
-            </h2>
-            <p class="mt-10 max-w-sm text-xs leading-relaxed text-gray-500 uppercase tracking-widest">
-                Cobertura en navegación de Vanguardia. Rastree amenazas antes de que toquen su sistema.
-        <!--Sistema de análisis heurístico y protección proactiva basado en núcleos de IA descentralizados.-->
-            </p>
-        </div>
+            <!-- Info del Producto -->
+            <div class="col-span-11 lg:col-span-5 p-10 flex flex-col justify-center space-y-12">
+                <div>
+                    <!-- CABECERA PRINCIPAL (Siempre arriba y centrada/izquierda) -->
+                    <div class="text-center lg:text-left mb-6 lg:mb-10">
+                        <h2 class="text-7xl lg:text-[120px] font-bold leading-[0.8] tracking-tighter">
+                            SATUS<br><span class="text-satus-bronce">01</span>
+                        </h2>
+                    </div>
 
-        <ul class="space-y-4">
-            <li class="flex items-center gap-3 text-[10px] tracking-widest text-gray-300 uppercase">
-                <span class="w-1 h-1 bg-satus-bronce shadow-[0_0_5px_#cd7f32]"></span> Análisis Heurístico Asistido
-            </li>
-            <li class="flex items-center gap-3 text-[10px] tracking-widest text-gray-300 uppercase">
-                <span class="w-1 h-1 bg-satus-bronce shadow-[0_0_5px_#cd7f32]"></span> Reportes Descriptivos y Precisos
-            </li>
-            <li class="flex items-center gap-3 text-[10px] tracking-widest text-gray-300 uppercase">
-                <span class="w-1 h-1 bg-satus-bronce shadow-[0_0_5px_#cd7f32]"></span> Sincronización Global de Amenazas
-            </li>
-        </ul>
-    </div>
+                    <!-- CONTENEDOR BI-MODAL RESPONSIVE -->
+                    <div
+                        class="flex flex-col gap-6 md:grid md:grid-cols-2 md:gap-8 md:items-center lg:flex lg:flex-col lg:space-y-6 lg:gap-0">
 
-    <!-- BLOQUE DE ACCIÓN -->
-    <div class="col-span-11 lg:col-span-5 p-10 flex items-center justify-center bg-satus-bronce/[0.007] hover:bg-satus-bronce/[0.012] border-l border-satus-bronce/10 transition-all duration-700 group cursor-default">
-    <div class="text-center space-y-10 w-full max-w-sm lg:mr-auto lg:ml-10">
-        
-        <div class="relative inline-block">
-            <img src="render-3d.png"
-                class="w-full max-w-[280px] h-auto 
+                        <div class="text-left max-w-sm border-l-2 border-satus-bronce/20 pl-4 mx-auto md:mx-0">
+                            <p class="max-w-sm text-xs leading-relaxed text-gray-500 uppercase tracking-widest">
+                                Cobertura en navegación de Vanguardia. Rastree amenazas antes de que toquen su sistema.
+                            </p>
+                        </div>
+
+                        <ul class="space-y-3 w-full max-w-xs md:max-w-full mx-auto md:mx-0">
+
+                            <!-- DESCRIPTOR ANÁLISIS HEURÍSTICO -->
+                            <li
+                                class="flex items-center justify-between p-3 bg-satus-bronce/[0.003] border border-white/5 hover:border-satus-bronce/30 hover:bg-satus-bronce/[0.015] transition-all duration-500 group">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="w-1.5 h-1.5 rounded-full bg-satus-bronce animate-pulse shadow-[0_0_8px_#cd7f32]"></span>
+                                    <span
+                                        class="text-[9px] tracking-[0.18em] text-gray-400 uppercase group-hover:text-white transition-colors duration-300">
+                                        Análisis Heurístico
+                                    </span>
+                                </div>
+                                <span
+                                    class="text-[7px] text-satus-bronce/40 tracking-widest group-hover:text-satus-bronce transition-colors duration-300 ml-2">
+                                    [ Asistido por IA ]
+                                </span>
+                            </li>
+
+                            <!-- DESCRIPTOR REPORTES DESCRIPTIVOS -->
+                            <li
+                                class="flex items-center justify-between p-3 bg-satus-bronce/[0.003] border border-white/5 hover:border-satus-bronce/30 hover:bg-satus-bronce/[0.015] transition-all duration-500 group">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="w-1.5 h-1.5 rounded-full bg-satus-bronce animate-pulse shadow-[0_0_8px_#cd7f32]"></span>
+                                    <span
+                                        class="text-[9px] tracking-[0.18em] text-gray-400 uppercase group-hover:text-white transition-colors duration-300">
+                                        Reportes Profesionales
+                                    </span>
+                                </div>
+                                <span
+                                    class="text-[7px] text-satus-bronce/40 tracking-widest group-hover:text-satus-bronce transition-colors duration-300 ml-2">
+                                    [ Precisos y Descritos]
+                                </span>
+                            </li>
+
+                            <!-- DESCRIPTOR SINCRONIZACIÓN GLOBAL -->
+                            <li
+                                class="flex items-center justify-between p-3 bg-satus-bronce/[0.003] border border-white/5 hover:border-satus-bronce/30 hover:bg-satus-bronce/[0.015] transition-all duration-500 group">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="w-1.5 h-1.5 rounded-full bg-satus-bronce animate-pulse shadow-[0_0_8px_#cd7f32]"></span>
+                                    <span
+                                        class="text-[9px] tracking-[0.18em] text-gray-400 uppercase group-hover:text-white transition-colors duration-300">
+                                        Sincronización & Protección
+                                    </span>
+                                </div>
+                                <span
+                                    class="text-[7px] text-satus-bronce/40 tracking-widest group-hover:text-satus-bronce transition-colors duration-300 ml-2">
+                                    [ Global y Activa ]
+                                </span>
+                            </li>
+                        </ul>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- BLOQUE DE ACCIÓN -->
+            <div
+                class="col-span-11 lg:col-span-5 p-10 flex items-center justify-center bg-satus-bronce/[0.007] hover:bg-satus-bronce/[0.012] border-l border-satus-bronce/10 transition-all duration-700 group cursor-default">
+
+                <!-- CONTENEDOR MULTI-MODAL RESPONSIVE -->
+
+                <div class="flex flex-row items-center justify-start gap-8 w-full max-w-xl 
+                lg:flex-col lg:text-center lg:space-y-10 lg:w-full lg:max-w-sm lg:mr-auto lg:ml-10">
+
+                    <!-- Logo EXTENSION Web -->
+                    <div class="relative inline-block flex-shrink-0">
+                        <img src="render-3d.png" class="w-full max-w-[200px] sm:max-w-[240px] lg:max-w-[280px] h-auto 
                     filter grayscale group-hover:grayscale-0 
                     drop-shadow-[0_0_15px_rgba(205,127,50,0.1)] 
                     group-hover:drop-shadow-[0_0_50px_rgba(205,127,50,0.4)] 
-                    transition-all duration-1000 ease-in-out"
-                alt="SATUS Core Render">
-        </div>
+                    transition-all duration-1000 ease-in-out" alt="SATUS Core Render">
+                    </div>
 
-        <!-- Llamado a la Acción -->
-        <div class="space-y-6">
-            <div class="space-y-2">
-                <h3 class="text-white/80 text-3xl font-bold tracking-tighter uppercase italic group-hover:text-white transition-colors duration-500">DESCARGAR YA</h3>
-                <p class="text-[9px] text-satus-bronce/60 tracking-[0.3em] uppercase group-hover:text-satus-bronce transition-colors">V 1.0 // NODO DISPONIBLE</p>
+                    <!-- LLAMADO A LA ACCIÓN -->
+
+                    <div class="space-y-5 flex-1 text-left lg:text-center lg:space-y-6 w-full max-w-xs sm:max-w-sm">
+                        <div class="space-y-1 lg:space-y-2">
+                            <h3
+                                class="text-white/80 text-2xl sm:text-3xl font-bold tracking-tighter uppercase italic group-hover:text-white transition-colors duration-500">
+                                DESCARGAR YA!!</h3>
+                            <p
+                                class="text-[9px] text-satus-bronce/60 tracking-[0.3em] uppercase group-hover:text-satus-bronce transition-colors">
+                                V 1.0 // NODO DISPONIBLE</p>
+                        </div>
+
+                        <button
+                            class="w-full py-4 bg-satus-bronce/20 border border-satus-bronce/40 text-satus-bronce font-bold uppercase tracking-[0.4em] text-[10px] group-hover:bg-satus-bronce group-hover:text-black group-hover:border-transparent transition-all duration-500 shadow-xl">
+                            [ Obtener Extensión ]
+                        </button>
+
+                        <p class="text-[8px] text-gray-600 uppercase tracking-widest block mt-2">Optimizado para
+                            entornos Chromium</p>
+                    </div>
+                </div>
             </div>
-            
-            <button class="w-full py-4 bg-satus-bronce/20 border border-satus-bronce/40 text-satus-bronce font-bold uppercase tracking-[0.4em] text-[10px] group-hover:bg-satus-bronce group-hover:text-black group-hover:border-transparent transition-all duration-500 shadow-xl">
-                [ Obtener Extensión ]
-            </button>
-            
-            <p class="text-[8px] text-gray-600 uppercase tracking-widest">Optimizado para entornos Chromium</p>
-        </div>
-    </div>
-</div>
-</main>
+        </main>
 
         <section class="grid grid-cols-12 bg-black/20">
             <div class="col-span-1"></div>
@@ -116,7 +180,7 @@
                 <div class="p-10 space-y-4 group">
                     <div class="flex items-center gap-2">
                         <div class="w-1.5 h-1.5 bg-satus-bronce animate-ping"></div>
-                        <span class="text-satus-bronce text-[10px] tracking-widest">ANALISIS DE LATENCIA</span>
+                        <span class="text-satus-bronce text-[10px] tracking-widest">MEDIDOR DE LATENCIA</span>
                     </div>
                     <p class="text-4xl font-light tracking-tighter">{{ latency }}</p>
                     <p class="text-[9px] text-gray-500 uppercase tracking-tight">Velocidad de procesamiento en núcleo
@@ -126,10 +190,10 @@
                 <!-- Bloque 02: VT -->
                 <div class="p-10 space-y-4">
                     <div class="flex items-center gap-2">
-                        <span class="text-satus-bronce text-[10px] tracking-widest">INTELLIGENCIA EXTERNA</span>
+                        <span class="text-satus-bronce text-[10px] tracking-widest">HISTORICO DE EFICIENCIA</span>
                     </div>
                     <p class="text-4xl font-light tracking-tighter">{{ vtStatus }}</p>
-                    <p class="text-[9px] text-gray-500 uppercase tracking-tight">Sincronización activa con nodos VT.</p>
+                    <p class="text-[9px] text-gray-500 uppercase tracking-tight">Amenazas detectadas y en Sincronización activa con nodos VT.</p>
                 </div>
 
                 <!-- Bloque 03: Modelo IA -->

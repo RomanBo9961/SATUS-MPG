@@ -40,7 +40,7 @@ export class Landing implements OnInit, AfterViewInit {
       const guestId = 'GUEST_' + Math.random().toString(36).substring(2, 8).toUpperCase();
 
       // Datos FREE
-      localStorage.setItem('user_role', 'GUEST'); 
+      localStorage.setItem('user_role', 'GUEST');
       localStorage.setItem('username', guestId);
       localStorage.setItem('satusToken', 'GUEST_TOKEN');
 
@@ -68,9 +68,25 @@ export class Landing implements OnInit, AfterViewInit {
 
     this.aiModel = this.detectionsService.currentModel.toUpperCase();
 
-    this.latency = (Math.random() * (0.45 - 0.12) + 0.12).toFixed(2) + 'ms';
+    const tiempoInicio = performance.now();
 
-    this.vtStatus = 'NODO ACTIVO';
+    this.detectionsService.getGlobalStats().subscribe({
+      next: (stats: any) => {
+        // Calcula milisegundos de retraso en DB
+        const tiempoFin = performance.now();
+        this.latency = Math.round(tiempoFin - tiempoInicio) + ' MS';
+
+        const totalVirus = stats?.totalDanger || 0;
+        this.vtStatus = totalVirus > 0
+          ? `${totalVirus} REGISTROS`
+          : 'SISTEMA INTACTO';
+      },
+      error: (err: any) => {
+        console.error("ℹ️ Modo contingencia pasiva - Usando lecturas base.");
+        this.latency = '0.00 MS';
+        this.vtStatus = 'NODO OFFLINE';
+      }
+    });
   }
 
   systemBoot() {
@@ -81,9 +97,17 @@ export class Landing implements OnInit, AfterViewInit {
       if (this.progress >= 100) {
         this.progress = 100;
         clearInterval(interval);
+
         setTimeout(() => {
           this.loadingSystem = false;
           this.cd.detectChanges();
+
+          this.getLiveSpecs();
+
+          setInterval(() => {
+            this.getLiveSpecs();
+          }, 4000);
+
           setTimeout(() => this.playVideo(), 100);
         }, 800);
       }

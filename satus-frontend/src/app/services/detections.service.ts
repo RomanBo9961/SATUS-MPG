@@ -33,4 +33,8 @@ export class DetectionsService {
   analyzeUrl(url: string): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/scan`, { url });
   }
+
+  getGlobalStats(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/stats/global`);
+  }
 }

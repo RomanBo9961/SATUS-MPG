@@ -362,4 +362,9 @@ export class DetectionsService {
     return String(rawResult);
   }
 
+  async countGlobalDanger() {
+    const totalDanger = await this.detectionModel.countDocuments({ riskLevel: 'ALTO' });
+    return { totalDanger };
+  }
+
 }
