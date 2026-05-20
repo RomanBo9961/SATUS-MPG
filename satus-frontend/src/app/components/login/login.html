@@ -1,53 +1,52 @@
 <div class="min-h-screen bg-black flex items-center justify-center font-mono relative overflow-hidden">
 
-<!-- Video de fondo -->
-<video autoplay muted loop playsinline class="absolute inset-0 w-full h-full object-cover opacity-10 grayscale sepia">
-    <source src="bg-cyber.mp4" type="video/mp4">
-</video>
+    <!-- Video de fondo -->
+    <video autoplay muted loop playsinline
+        class="absolute inset-0 w-full h-full object-cover opacity-10 grayscale sepia">
+        <source src="bg-cyber.mp4" type="video/mp4">
+    </video>
 
-<!-- Tarjeta Login -->
-<div class="relative z-10 w-full max-w-md p-8 border border-satus-bronce/20 bg-black/80 backdrop-blur-xl">
-    <div class="text-center mb-8">
-    <span class="text-[10px] text-satus-bronce tracking-[0.5em] uppercase">Security Gateway</span>
-    <h2 class="text-2xl font-bold text-white mt-2">ACCESO A NODO</h2>
+    <!-- Tarjeta Login -->
+    <div class="relative z-10 w-full max-w-md p-8 border border-satus-bronce/20 bg-black/80 backdrop-blur-xl">
+        <div class="text-center mb-8">
+            <span class="text-[10px] text-satus-bronce tracking-[0.5em] uppercase">Security Gateway</span>
+            <h2 class="text-2xl font-bold text-white mt-2">ACCESO A NODO</h2>
+        </div>
+
+        <form class="space-y-6">
+            <!-- Campo Usuario / ID -->
+            <div class="space-y-1">
+                <label class="text-[9px] text-gray-500 uppercase tracking-widest">Identificador Usuario</label>
+                <input type="text" name="email" [(ngModel)]="userCredentials.email" placeholder="USER_ID"
+                    class="w-full bg-transparent border-b border-white/10 p-2 text-satus-bronce outline-none focus:border-satus-bronce transition-all">
+            </div>
+
+            <!-- Campo Password -->
+            <div class="space-y-1">
+                <label class="text-[9px] text-gray-500 uppercase tracking-widest">Contraseña</label>
+                <input type="password" name="password" [(ngModel)]="userCredentials.password" placeholder="********"
+                    class="w-full bg-transparent border-b border-white/10 p-2 text-satus-bronce outline-none focus:border-satus-bronce transition-all">
+            </div>
+
+            <!-- Botón de Ingreso -->
+            <button type="button" (click)="onLogin()"
+                class="w-full bg-satus-bronce/20 border border-satus-bronce py-3 text-xs uppercase tracking-[0.3em] text-satus-bronce hover:bg-satus-bronce hover:text-black transition-all cursor-pointer font-mono">
+                [ Ingresar ]
+            </button>
+        </form>
+
+        <div class="mt-1.5 pt-1 flex flex-col items-center justify-center border-t border-white/5 pt-4 font-mono w-full">
+
+            <!-- Contenedor para inyectar el botón oficial de GOOG por software -->
+            <div id="googleBtnAnchor"></div>
+
+        </div>
+
+        <div class="mt-8 text-center">
+            <a routerLink="/"
+                class="text-[8px] text-gray-600 hover:text-satus-bronce transition-all uppercase tracking-widest">
+                &lt; Volver al Inicio
+            </a>
+        </div>
     </div>
-
-    <form class="space-y-6">
-<!-- Campo Usuario / ID -->
-<div class="space-y-1">
-    <label class="text-[9px] text-gray-500 uppercase tracking-widest">Identificador Usuario</label>
-    <input 
-    type="text" 
-    name="email" 
-    [(ngModel)]="userCredentials.email" 
-    placeholder="USER_ID" 
-    class="w-full bg-transparent border-b border-white/10 p-2 text-satus-bronce outline-none focus:border-satus-bronce transition-all">
-</div>
-
-<!-- Campo Password -->
-<div class="space-y-1">
-    <label class="text-[9px] text-gray-500 uppercase tracking-widest">Contraseña</label>
-    <input 
-    type="password" 
-    name="password" 
-    [(ngModel)]="userCredentials.password" 
-    placeholder="********" 
-    class="w-full bg-transparent border-b border-white/10 p-2 text-satus-bronce outline-none focus:border-satus-bronce transition-all">
-</div>
-
-<!-- Botón de Acción -->
-<button 
-    type="button"
-    (click)="onLogin()" 
-    class="w-full border border-satus-bronce py-3 text-xs uppercase tracking-[0.3em] hover:bg-satus-bronce hover:text-black transition-all">
-    [ Ingresar ]
-</button>
-</form>
-
-    <div class="mt-8 text-center">
-    <a routerLink="/" class="text-[8px] text-gray-600 hover:text-satus-bronce transition-all uppercase tracking-widest">
-        &lt; Volver al Inicio
-    </a>
-    </div>
-</div>
 </div>

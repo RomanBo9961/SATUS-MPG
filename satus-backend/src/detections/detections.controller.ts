@@ -63,7 +63,7 @@ export class DetectionsController {
 
   @Get('stats/global')
   async getGlobalStats() {
-    console.log('📡 [NÚCLEO] Extrayendo telemetría histórica global de MongoDB...');
+    //console.log('📡 [NÚCLEO] Extrayendo telemetría histórica global de MongoDB...');
     return this.detectionsService.countGlobalDanger();
   }
 

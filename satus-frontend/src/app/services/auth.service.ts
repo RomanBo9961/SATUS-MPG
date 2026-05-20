@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
+
 
 declare const chrome: any;
 
@@ -51,4 +53,22 @@ export class AuthService {
 
         this.router.navigate(['/login']);
     }
+
+    loginWithGoogle(tokenCifrado: string): Observable<any> {
+        // envia el JWT en paquete POST  hacia  NestJS
+        return this.http.post(`${this.apiUrl}/auth/google`, { token: tokenCifrado }).pipe(
+            tap((res: any) => {
+                // Al aprobarse desde el búnker, guarda las credenciales
+                if (res && res.token) {
+                    localStorage.setItem('satusToken', res.token);
+                    localStorage.setItem('user_role', res.role || 'PROLicense');
+                    localStorage.setItem('username', res.username || 'Analista_Satus');
+
+                    //Avisarle al Centinela 
+                    window.dispatchEvent(new Event('storage'));
+                }
+            })
+        );
+    }
+
 }
