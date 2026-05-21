@@ -120,6 +120,21 @@ export class AuthService {
         }
     }
 
+
+    async validateOrCreateGuestNode(guestId: string) {
+        //console.log(`🕵️‍♂️ [ADUANA] Evaluando credencial de hardware del terminal: ${guestId}`);
+
+        const guestUser = await this.usersService.findOrCreateGuest(guestId);
+
+        const mappedUser = {
+            username: (guestUser as any).username || guestId,
+            _id: guestUser._id,
+            roleName: (guestUser as any).roleName || 'FREEDefault'
+        };
+
+        // Reutilizar el generador de tokens JWT nativo
+        return this.login(mappedUser);
+    }
 }
 
 

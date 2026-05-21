@@ -100,10 +100,15 @@ export class UsersService {
 
     async create(createUserDto: CreateUserDto) {
         const { roleIds, password, ...userData } = createUserDto;
+
+        console.log(`🕵️‍♂️ [LOG-CREATE 1] IDs recibidos en el DTO:`, roleIds);
         const hashedPassword = await bcrypt.hash(password, 10);
 
         // Buscamos los roles (ahora por ObjectId)
         const roles = await this.rolesService.findByIds(roleIds);
+
+        console.log(`🕵️‍♂️ [LOG-CREATE 2] Roles encontrados físicamente en la DB por el servicio:`, roles);
+        console.log(`🕵️‍♂️ [LOG-CREATE 3] Comparando largos -> Encontrados: ${roles.length} | Esperados: ${roleIds.length}`);
 
         if (roles.length !== roleIds.length) {
             throw new NotFoundException('Some roles were not found');
@@ -146,5 +151,43 @@ export class UsersService {
         const result = await this.userModel.findByIdAndDelete(idUser).exec();
         if (!result) throw new NotFoundException(`User #${idUser} not found`);
         return result;
+    }
+
+    async findOrCreateGuest(guestId: string) {
+        const technicalEmail = `${guestId.toLowerCase()}@satus.local`;
+
+        console.log(`🔍 [LOG-GUEST 1] Buscando identificador en DB para: ${technicalEmail}`);
+        let guestUser = await this.findByIdentifier(technicalEmail);
+
+        // 2. Si no existe, se usa 'create'para registrarlo
+        if (!guestUser) {
+            console.log(`📡 [NÚCLEO] Inicializando nodo persistente en MongoDB para invitado: ${guestId}`);
+
+            const hashedPassword = await bcrypt.hash('GUEST_PASSPORT_' + Math.random().toString(36).substring(2, 10), 10);
+
+            console.log(`🔍 [LOG-GUEST 2] Disparando this.create con roleIds: ['660000000000000000000001']`);
+
+            const newUserDoc = await this.userModel.create({
+                name: 'Invitado',
+                lastName: 'SATUS',
+                username: guestId,
+                docType: 'GUEST',
+                docNumber: guestId,
+                email: technicalEmail,
+                password: hashedPassword,
+                isActive: true,
+                roles: ['660000000000000000000001']
+            });
+
+            console.log(`🔍 [LOG-GUEST 3] Objeto creado en memoria, procediendo a guardar...`);
+            const savedUser = await newUserDoc.save();
+
+            guestUser = newUserDoc.toObject ? newUserDoc.toObject() : newUserDoc;
+            if (guestUser) {
+                await this.inyectarRolManual(guestUser);
+            }
+        }
+
+        return guestUser;
     }
 }

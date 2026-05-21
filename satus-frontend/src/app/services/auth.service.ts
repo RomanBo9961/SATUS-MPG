@@ -71,4 +71,21 @@ export class AuthService {
         );
     }
 
+    //SINCRONIZACION para NODOS Invitado
+    syncGuestSession(guestId: string): Observable<any> {
+        // Peticion al controlador del Backend
+        return this.http.post<any>('http://localhost:3000/api/auth/guest-sync', { guestId }).pipe(
+            tap(res => {
+                // Con la rta de NestJS del token de MongoDB refuerza el LocalStorage
+                if (res && res.access_token) {
+                    localStorage.setItem('satusToken', res.access_token);
+                    localStorage.setItem('user_role', res.role || 'FREEDefault');
+                    localStorage.setItem('username', res.username || guestId);
+
+                    // Envio de la señal para actualización al Centinela de la extensión
+                    window.dispatchEvent(new Event('storage'));
+                }
+            })
+        );
+    }
 }

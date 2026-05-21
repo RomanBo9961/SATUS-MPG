@@ -20,6 +20,8 @@ async function bootstrap() {
   app.use(bodyParser.json({ limit: '10mb' }));
   app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
 
+  //console.log('📋 --- [TELEMETRÍA SATUS] MAPA DE COMPUERTAS ACTIVAS ---');
+    
   const config = new DocumentBuilder()
     .setTitle('API')
     .setDescription('The SATUS API description')
@@ -29,6 +31,8 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);
 
+  //console.log('⚠️ [TELEMETRÍA] El router nativo de Express no está accesible directamente.');
+  
   await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
 }
 bootstrap();

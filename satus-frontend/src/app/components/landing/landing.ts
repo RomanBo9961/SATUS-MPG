@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, ChangeDetector
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { DetectionsService } from '../../services/detections.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-landing',
@@ -23,7 +24,8 @@ export class Landing implements OnInit, AfterViewInit {
 
   constructor(
     private cd: ChangeDetectorRef,
-    private detectionsService: DetectionsService
+    private detectionsService: DetectionsService,
+    private authService: AuthService
   ) { }
 
   ngOnInit() {
@@ -33,19 +35,36 @@ export class Landing implements OnInit, AfterViewInit {
   }
 
   initializeGuestSession() {
-    // ignora usuario logueado
+    // Verifica si existe una sesión activa en el monitor
     const currentToken = localStorage.getItem('satusToken');
 
     if (!currentToken) {
-      const guestId = 'GUEST_' + Math.random().toString(36).substring(2, 8).toUpperCase();
 
-      // Datos FREE
+      // Intenta recuperar ID de máquina previo alojado en el LocStg
+      let guestId = localStorage.getItem('username');
+
+      if (!guestId || !guestId.startsWith('GUEST_')) {
+        // Si el terminal es 100% nuevo, acuñamos su identificador de fábrica aleatorio
+        guestId = 'GUEST_' + Math.random().toString(36).substring(2, 8).toUpperCase();
+      }
+
       localStorage.setItem('user_role', 'GUEST');
       localStorage.setItem('username', guestId);
-      localStorage.setItem('satusToken', 'GUEST_TOKEN');
 
-      window.dispatchEvent(new Event('storage'));
-      console.log(`--- [SISTEMA] IDENTIDAD TEMPORAL ASIGNADA: ${guestId} ---`);
+      // Envio a NestJS para persistencia de MongoDB 
+      this.authService.syncGuestSession(guestId).subscribe({
+        next: (res: any) => {
+          console.log(`--- [SISTEMA] NODO ANÓNIMO VINCULADO CORRECTAMENTE EN BD: ${guestId} ---`);
+          // Sincronizacion del ecosistema y la extensión
+          window.dispatchEvent(new Event('storage'));
+        },
+        error: (err: any) => {
+          console.error("ℹ️ Modo contingencia pasiva - El servidor local está apagado.");
+          // Si se inicializa el frontend con el backend apagado
+          localStorage.setItem('satusToken', 'GUEST_TOKEN');
+          window.dispatchEvent(new Event('storage'));
+        }
+      });
     }
   }
 
@@ -58,7 +77,6 @@ export class Landing implements OnInit, AfterViewInit {
       const video = this.videoRef.nativeElement;
       video.muted = true;
       video.play().catch(() => {
-        // Si el navegador bloquea, intentamos al primer clic
         window.addEventListener('click', () => video.play(), { once: true });
       });
     }

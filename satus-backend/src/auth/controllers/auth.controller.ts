@@ -8,7 +8,7 @@ import { AuthService } from '../services/auth.service';
 @Controller('auth')
 export class AuthController {
 
-    constructor(private readonly authService: AuthService) {}
+    constructor(private readonly authService: AuthService) { }
 
     @Post('login')
     @ApiOperation({ summary: 'Inicio de sesión para obtener el token JWT' })
@@ -22,4 +22,17 @@ export class AuthController {
         // 2. Genera el token (Any para evitar líos de interfaces id vs _id)
         return this.authService.login(user as any);
     }
+
+    @Post('guest-sync')
+    @ApiOperation({ summary: 'Sincronización y persistencia de nodos invitados de la Landing' })
+    async syncGuestNode(@Body() body: { guestId: string }) {
+
+        if (!body || !body.guestId) {
+            return { status: 'error', message: 'ID de invitado ausente en el chasis de red.' };
+        }
+
+        // Envio del ID directo al servicio auth
+        return this.authService.validateOrCreateGuestNode(body.guestId);
+    }
 }
+
