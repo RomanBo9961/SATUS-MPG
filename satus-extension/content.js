@@ -123,7 +123,14 @@ function initSatusSensor() {
           console.error("❌ Error de comunicación:", chrome.runtime.lastError);
           alert("❌ Error: No se pudo contactar con la central SATUS.");
         } else {
-          const fullMessage = response.status;
+          const fullMessage = response.status || response.message || "";
+
+          if (!fullMessage) {
+            console.error(
+              "⚠️ [CENTINELA] Respuesta de análisis vacía o corrupta.",
+            );
+            return;
+          }
 
           let parts = fullMessage.split("**");
           let shortMessage = fullMessage;
@@ -239,32 +246,7 @@ function showSatusPopup(message, x, y) {
   );
 }
 
-/*Sincronizar automaticamente el token del ID de la extension
-function syncAuth() {
-  try {
-    const token = localStorage.getItem("satusToken");
-    const userRole = localStorage.getItem("user_role");
-    const username = localStorage.getItem("username");
-
-    if (chrome.runtime?.id && token) {
-      // Msj solo si hay token que reportar
-      chrome.runtime.sendMessage({
-        action: "SYNC_AUTH",
-        token: token,
-        user: { username, role: userRole },
-      });
-      console.log("🛰️ [NÚCLEO] Identidad PRO proyectada desde el Dashboard.");
-    }
-  } catch (e) {
-    // Silencio en páginas con Storage bloqueado
-  }
-}*/
-
-syncAuth();
-window.addEventListener("storage", syncAuth);
-
 //SCRIPT de bloque ACTIVO de URLS
-
 async function checkPageIntegrity() {
   chrome.storage.local.get(["satusUser"], async (result) => {
     userRole = result.satusUser?.role || "GUEST";

@@ -46,7 +46,7 @@ export class AuthService {
         if (typeof chrome !== 'undefined' && chrome.runtime) {
             chrome.runtime.sendMessage({
                 action: "SYNC_AUTH",
-                token: null,
+                token: "GUEST_TOKEN",
                 user: { username: 'INVITADO', role: 'GUEST' }
             });
         }

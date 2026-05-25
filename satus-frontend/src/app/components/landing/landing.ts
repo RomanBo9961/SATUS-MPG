@@ -4,6 +4,8 @@ import { RouterLink } from '@angular/router';
 import { DetectionsService } from '../../services/detections.service';
 import { AuthService } from '../../services/auth.service';
 
+declare const google: any;
+
 @Component({
   selector: 'app-landing',
   standalone: true,
@@ -32,6 +34,64 @@ export class Landing implements OnInit, AfterViewInit {
     this.initializeGuestSession();
     this.systemBoot();
     this.getLiveSpecs();
+    this.igniteGoogleOneTap();
+  }
+
+  // DISPARO DEL GOOGLE ONE TAP 
+  igniteGoogleOneTap() {
+    try {
+      // 🪐 CARGADOR PROACTIVO DINÁMICO: Si el script no está en la RAM, lo inyectamos al vuelo [google:5]
+      if (typeof google === 'undefined' || !google.accounts?.id) {
+        console.log('📡 [NÚCLEO] Inyectando script de Google Identity Services de forma proactiva...');
+
+        const script = document.createElement('script');
+        script.src = 'https://accounts.google.com/gsi/client';
+        script.async = true;
+        script.defer = true;
+
+        // Cuando el script termine de descargarse en la RAM, ejecuta la inicialización [google:5]
+        script.onload = () => this.executeGooglePrompt();
+        document.head.appendChild(script);
+      } else {
+        // Si ya existía en la RAM de la pestaña anterior, arranca directo
+        this.executeGooglePrompt();
+      }
+    } catch (e) {
+      console.error('❌ Error al inyectar Google One Tap:', e);
+    }
+  }
+
+  // Lógica aislada de disparo estándar [google:5]
+  private executeGooglePrompt() {
+    if (typeof google !== 'undefined' && google.accounts?.id) {
+      google.accounts.id.initialize({
+        client_id: '231382826392-s8tv5kiimpuc2j27lafdlli6hit51vlb.apps.googleusercontent.com',
+        callback: (response: any) => this.handleGoogleCredential(response),
+        auto_select: false
+      });
+
+      google.accounts.id.prompt((notification: any) => {
+        if (notification.isNotDisplayed()) {
+          console.log('⚠️ GOT no se mostró:', notification.getNotDisplayedReason());
+        }
+      });
+    }
+  }
+
+  // PROCESADOR DEL PAQUETE JWT DE GOOGLE
+  handleGoogleCredential(response: any) {
+    if (response && response.credential) {
+      console.log('📡 [NÚCLEO] JWT de Google capturado en la Landing Page, enviando al búnker...');
+
+      // Le enviamos el dardo cifrado al AuthService para que NestJS lo apruebe
+      this.authService.loginWithGoogle(response.credential).subscribe({
+        next: (res: any) => {
+          console.log('✅ Autenticación Google exitosa vía One Tap.');
+          // Su AuthService se encargará de redirigir al /dashboard de forma nativa
+        },
+        error: (err: any) => console.error('❌ El búnker rechazó la firma de Google:', err)
+      });
+    }
   }
 
   initializeGuestSession() {

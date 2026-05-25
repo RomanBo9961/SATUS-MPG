@@ -90,8 +90,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             throw new Error("Nodo no autorizado. Inicie sesión en la web.");
           return res.json();
         })
-        .then((data) => sendResponse({ status: data.message }))
-        .catch((err) => sendResponse({ status: err.message }));
+        .then((data) => sendResponse(data))
+        .catch((err) => sendResponse({ error: true, message: err.message }));
     });
     return true; // Mantiene el canal abierto para el fetch asíncrono
   }

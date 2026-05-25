@@ -320,8 +320,16 @@ export class DetectionsService {
 
     // 1. FILTRO DE CACHÉ: Verificamos qué links ya conocemos como Malware
     for (const url of links) {
-      const existing = await this.detectionModel.findOne({ url, riskLevel: 'ALTO' });
+
+      const sanitizedUrl = url.replace(/\/$/, '');
+
+      const existing = await this.detectionModel.findOne({
+        url: { $in: [sanitizedUrl, `${sanitizedUrl}/`] },
+        riskLevel: 'ALTO'
+      }).lean();
+
       if (existing) {
+        console.log(`🚨 [CENTINELA BACK] Amenaza confirmada en caché local: ${url}`);
         threats.push(url);
       } else {
         unknownLinks.push(url);
@@ -344,7 +352,7 @@ export class DetectionsService {
             url: this.sanitizeAiResult(url),
             riskLevel: 'ALTO',
             message: '⚠️ BLOQUEO: Enlace identificado como amenaza potencial por el análisis heurístico del núcleo SATUS.',
-            owner: new Types.ObjectId('660000000000000000000000'), // ID de Sistema/Invitado
+            owner: new Types.ObjectId('660000000000000000000001'), // ID de Sistema/Invitado
             //createdAt: new Date()
           });
         }

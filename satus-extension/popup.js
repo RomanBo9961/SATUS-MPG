@@ -1,71 +1,82 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const toggle = document.getElementById("shield-toggle");
-  const statusText = document.getElementById("status-text");
-  const btnDashboard = document.getElementById("go-dashboard");
+  const toggle = document.getElementById("shield-toggle"),
+    statusText = document.getElementById("status-text");
+  const authBtn = document.getElementById("auth-action-btn"),
+    dashLink = document.getElementById("go-dashboard-link");
   const userRoleDisplay = document.getElementById("user-role");
 
   function updateDisplay(user) {
-    if (user) {
-      const name = user.username || "INVITADO";
-      const role = user.role || "GUEST";
-      userRoleDisplay.innerText = `${name.toUpperCase()} | ${role}`;
+    const name = user?.username || "INVITADO",
+      role = user?.role || "GUEST",
+      isGuest = role === "GUEST" || name === "INVITADO";
+    userRoleDisplay.innerText = `${name.toUpperCase()} | ${role}`;
+    userRoleDisplay.classList.toggle("online", !isGuest);
 
-      if (role === "GUEST" || name === "INVITADO") {
-        userRoleDisplay.classList.remove("online");
-      } else {
-        userRoleDisplay.classList.add("online");
-      }
-    }
+    // Intercambiar estados y acciones según MongoDB
+    authBtn.innerText = isGuest ? "[ INICIAR SESIÓN ]" : "[ CERRAR SESIÓN ]";
+    authBtn.onclick = () =>
+      isGuest
+        ? chrome.tabs.create({ url: "http://localhost:4200/login" })
+        : logoutSession();
+
+    dashLink.innerText = isGuest
+      ? "// SATUS ENGINE //"
+      : "> ACCEDER DASHBOARD <";
+    dashLink.style.color = isGuest ? "#444" : "#c09e2fbe";
+    dashLink.onclick = isGuest
+      ? null
+      : () => chrome.tabs.create({ url: "http://localhost:4200/dashboard" });
   }
 
-  // 🛰️ PREGUNTA AL BACKGROUND AL ABRIR
-  chrome.runtime.sendMessage({ action: "GET_IDENTITY" }, (response) => {
-    console.log("🕵️ POPUP RECIBIÓ DEL BG:", response);
+  // Degrada el token en background.js y refresca la pestaña activa
+  const logoutSession = () =>
+    chrome.runtime.sendMessage(
+      {
+        action: "SYNC_AUTH",
+        token: "GUEST_TOKEN",
+        user: { username: "INVITADO", role: "GUEST" },
+      },
+      () => {
+        updateDisplay({ username: "INVITADO", role: "GUEST" });
+        chrome.tabs.query(
+          { active: true, currentWindow: true },
+          (t) => t[0]?.id && chrome.tabs.reload(t[0].id),
+        );
+      },
+    );
 
-    if (response && response.role !== "GUEST") {
-      updateDisplay(response);
-    } else {
-      // 2. Si el background no sabe, mirar el Storage (Lo que antes funcionaba)
-      chrome.storage.local.get(["satusUser"], (result) => {
-        console.log("🕵️ POPUP RECIBIÓ DEL STORAGE:", result.satusUser);
-        updateDisplay(result.satusUser);
-      });
-    }
+  // Recupera la identidad real de la sesión
+  chrome.runtime.sendMessage({ action: "GET_IDENTITY" }, (res) =>
+    res?.role
+      ? updateDisplay(res)
+      : chrome.storage.local.get(["satusUser"], (s) =>
+          updateDisplay(s.satusUser),
+        ),
+  );
+
+  // Recupera el estado actual en la interfaz
+  chrome.storage.local.get(["satusActive"], (s) => {
+    toggle.checked = s.satusActive !== false;
+    statusText.innerText = toggle.checked ? "Activa" : "Inactiva";
+    statusText.className = toggle.checked ? "value online" : "value";
   });
 
-  // 1. Chrome devuelve el estado del switch
-  chrome.storage.local.get(["satusActive"], (result) => {
-    const isActive = result.satusActive !== false;
-    toggle.checked = isActive;
-    actualizarInterfaz(isActive);
-  });
-
-  // 2. Guarda el estado => si el usuario mueve el switch
-  toggle.addEventListener("change", () => {
-    const isActive = toggle.checked;
-    chrome.storage.local.set({ satusActive: isActive }, () => {
-      actualizarInterfaz(isActive);
-      chrome.tabs.query({}, (tabs) => {
-        tabs.forEach((tab) => {
-          if (tab.url && tab.url.startsWith("http")) {
+  // Comunica el apagado del escudo a todas las pestañas
+  toggle.onchange = () =>
+    chrome.storage.local.set({ satusActive: toggle.checked }, () => {
+      statusText.innerText = toggle.checked ? "Activa" : "Inactiva";
+      statusText.className = toggle.checked ? "value online" : "value";
+      chrome.tabs.query({}, (tabs) =>
+        tabs.forEach(
+          (t) =>
+            t.url?.startsWith("http") &&
             chrome.tabs
-              .sendMessage(tab.id, {
+              .sendMessage(t.id, {
                 action: "TOGGLE_SHIELD",
-                status: isActive,
+                status: toggle.checked,
               })
-              .catch(() => {});
-          }
-        });
-      });
+              .catch(() => {}),
+        ),
+      );
     });
-  });
-
-  function actualizarInterfaz(isActive) {
-    statusText.innerText = isActive ? "Activa" : "Inactiva";
-    statusText.className = isActive ? "value online" : "value";
-  }
-
-  btnDashboard.onclick = () => {
-    chrome.tabs.create({ url: "http://localhost:4200" });
-  };
 });

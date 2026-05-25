@@ -42,19 +42,21 @@ export class DetectionsController {
     return this.detectionsService.analyzeUrl(rawUrl, userId);
   }
 
-  @UseGuards(JwtAuthGuard)
+  //@UseGuards(JwtAuthGuard)
   @Post('check-integrity')
   async checkIntegrity(@Body() body: { url: string }, @Request() req: any) {
-    const userId = req.user._id;
+    const userId = req.user?._id || null;
     console.log(`🛡️ VERIFICANDO INTEGRIDAD: ${body.url}`);
     return this.detectionsService.checkIntegrity(body.url, userId);
   }
 
   // [NIVEL PRO] ANÁLISIS DE ENLACES EXTERNOS (MODO CENTINELA)
-  @UseGuards(JwtAuthGuard)
+  //@UseGuards(JwtAuthGuard)
   @Post('bulk-check')
-  async bulkCheck(@Body() body: { links: string[] }, @Request() req: any) {
-    const userId = req.user._id;
+  async bulkCheck(@Body() body: { links: string[] }
+    //, @Request() req: any
+  ) {
+    //const userId = req.user._id;
     console.log(`🕵️ MODO CENTINELA: Analizando ${body.links.length} enlaces.`);
     // Aquí podrías llamar al método bulkCheck que procesa con Groq + VT
     return this.detectionsService.bulkCheck(body.links);

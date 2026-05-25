@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <link rel="stylesheet" href="popup.css">
 </head>
+
 <body>
   <div class="container">
     <header>
@@ -28,13 +30,15 @@
         </label>
       </div>
 
-      <button id="go-dashboard" class="primary-btn">[ ACCEDER DASHBOARD ]</button>
+      <button id="auth-action-btn" class="primary-btn">[ CARGANDO ]</button>
     </main>
 
     <footer>
-      <p>// SATUS ENGINE //</p>
+      <!-- Varia o se oculta según los privilegios del analista -->
+      <p id="go-dashboard-link" style="cursor: pointer; transition: color 0.2s;">// SATUS ENGINE //</p>
     </footer>
   </div>
   <script src="popup.js"></script>
 </body>
+
 </html>
