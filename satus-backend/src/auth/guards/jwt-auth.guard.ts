@@ -10,7 +10,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
 
         if (authHeader === 'Bearer GUEST_TOKEN') {
             return {
-                _id: '660000000000000000000000',
+                _id: '660000000000000000000001',
                 username: 'INVITADO',
                 roles: [{
                     name: 'GUEST',

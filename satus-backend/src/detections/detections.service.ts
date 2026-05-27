@@ -37,6 +37,17 @@ export class DetectionsService {
 
     //-----------------------------------------------------------------//
 
+    const sanitizedUrl = cleanUrl.replace(/\/$/, '');
+    const placeholderThreat = await this.detectionModel.findOne({
+      url: { $in: [sanitizedUrl, `${sanitizedUrl}/`] }
+    }).lean();
+
+    // Si el Centinela lo guardó vacío (sin detalles de VirusTotal), lo purgamos para forzar la reescritura nativa [google:1]
+    if (placeholderThreat && (!placeholderThreat.details || !placeholderThreat.details.stats)) {
+      console.log(`🗑️ [REESCRITURA] Registro automático incompleto detectado para: ${cleanUrl}. Purgando para análisis profundo...`);
+      await this.detectionModel.deleteOne({ _id: placeholderThreat._id });
+    }
+
     const apiKey = this.configService.apiKeys.vt!;
     const urlBase64 = Buffer.from(cleanUrl).toString('base64').replace(/=/g, '');
 
@@ -58,7 +69,7 @@ export class DetectionsService {
       console.log("✅ Análisis guardado en MongoDB");
       console.log("✅ Análisis guardado en MongoDB para el usuario:", userId);
 
-      return { ...vtReport, message: aiAdvice };
+      return { ...vtReport, status: aiAdvice, message: aiAdvice };
 
     } catch (error: any) {
       if (error.response?.status === 404) {
@@ -252,7 +263,7 @@ export class DetectionsService {
 
     } catch (e: any) {
       console.error("❌ Error en análisis masivo IA:", e.message);
-      return []; // En caso de duda, no bloqueamos nada por error
+      return []; // En caso de duda, no bloquea nada por error
     }
   }
 
@@ -293,7 +304,7 @@ export class DetectionsService {
       // P2: IA de SATUS 
       const aiAdvice = await this.getAiAdvice(url, vtReport.details);
 
-      // 3. GUARDAR EN [detections]
+      // 3. GUARDAR EN collec [detections]
       await this.detectionModel.create({
         url: domain,
         riskLevel: vtReport.riskLevel,
@@ -314,11 +325,11 @@ export class DetectionsService {
   }
 
 
-  async bulkCheck(links: string[]) {
+  async bulkCheck(links: string[], userId: string | null = null) {
     const threats = [];
     const unknownLinks = [];
 
-    // 1. FILTRO DE CACHÉ: Verificamos qué links ya conocemos como Malware
+    // Verifica qué links ya conoce como Malware
     for (const url of links) {
 
       const sanitizedUrl = url.replace(/\/$/, '');
@@ -343,16 +354,16 @@ export class DetectionsService {
       if (aiIdentifiedThreats.length > 0) {
         console.log(`⚠️ IA DETECTÓ ${aiIdentifiedThreats.length} AMENAZAS NUEVAS`);
 
+        const finalOwnerId = userId ? new Types.ObjectId(userId) : new Types.ObjectId('660000000000000000000001');
+
         for (const url of aiIdentifiedThreats) {
           threats.push(url);
 
-          // 💾 PERSISTENCIA: Alimentamos la Inteligencia Colectiva
-          // Guardamos con un mensaje que indique que fue una detección proactiva
           await this.detectionModel.create({
             url: this.sanitizeAiResult(url),
             riskLevel: 'ALTO',
             message: '⚠️ BLOQUEO: Enlace identificado como amenaza potencial por el análisis heurístico del núcleo SATUS.',
-            owner: new Types.ObjectId('660000000000000000000001'), // ID de Sistema/Invitado
+            owner: finalOwnerId, // ID de Sistema/Invitado
             //createdAt: new Date()
           });
         }
@@ -364,7 +375,7 @@ export class DetectionsService {
 
   private sanitizeAiResult(rawResult: any): string {
     if (typeof rawResult === 'object' && rawResult !== null) {
-      // Si la IA mandó un objeto, intentamos sacar la URL o lo convertimos a texto
+      // Si la IA mretornó un objeto, intentamos extraer la URL o convertirlo a texto
       return rawResult.url || JSON.stringify(rawResult);
     }
     return String(rawResult);

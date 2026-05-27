@@ -122,17 +122,26 @@ export class AuthService {
 
 
     async validateOrCreateGuestNode(guestId: string) {
-        //console.log(`🕵️‍♂️ [ADUANA] Evaluando credencial de hardware del terminal: ${guestId}`);
+        const technicalEmail = `${guestId.toLowerCase()}@satus.local`;
 
-        const guestUser = await this.usersService.findOrCreateGuest(guestId);
+        // Busca el ID en DB 
+        let guestUser = await this.usersService.findByIdentifier(technicalEmail);
+
+        if (guestUser) {
+            console.log(`📡 [ADUANA GUEST] Nodo existente detectado. Reutilizando expediente para: ${guestId}`);
+        } else {
+            // Si el ID no es coincidente al 100%, autoriza su creación en DB 
+            console.log(`✨ [ADUANA GUEST] Creando canal persistente para: ${guestId}`);
+            guestUser = await this.usersService.findOrCreateGuest(guestId);
+        }
 
         const mappedUser = {
             username: (guestUser as any).username || guestId,
             _id: guestUser._id,
-            roleName: (guestUser as any).roleName || 'FREEDefault'
+            roleName: (guestUser as any).roleName || 'FREEDefault' // Mantiene la consistencia de rango 
         };
 
-        // Reutilizar el generador de tokens JWT nativo
+        // Reutiliza el generador de tokens JWT 
         return this.login(mappedUser);
     }
 }

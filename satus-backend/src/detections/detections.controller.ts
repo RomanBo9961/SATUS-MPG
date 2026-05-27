@@ -2,15 +2,18 @@ import { Controller, Post, Body, Get, UseGuards, Request, Query } from '@nestjs/
 import { DetectionsService } from './detections.service';
 import { CreateDetectionDto } from './dto/create-detection.dto';
 import { JwtAuthGuard } from '../auth/guards/auth.guard';
+import { JwtService } from '@nestjs/jwt';
 
 @Controller('detections')
 export class DetectionsController {
-  constructor(private readonly detectionsService: DetectionsService) { }
+  constructor(
+    private readonly detectionsService: DetectionsService,
+    private readonly jwtService: JwtService) { }
 
   @UseGuards(JwtAuthGuard)
   @Get()
   async getAll(@Request() req: any,
-    @Query('page') page: number = 1,      //  Captura página
+    @Query('page') page: number = 1,      //  Captura pág
     @Query('limit') limit: number = 10,   // Captura límite
     @Query('search') search: string = '', //  Captura búsqueda
     @Query('risk') risk: string = 'ALL'   // Captura filtro
@@ -45,28 +48,39 @@ export class DetectionsController {
   //@UseGuards(JwtAuthGuard)
   @Post('check-integrity')
   async checkIntegrity(@Body() body: { url: string }, @Request() req: any) {
-    const userId = req.user?._id || null;
-    console.log(`🛡️ VERIFICANDO INTEGRIDAD: ${body.url}`);
+    const userId = this.extractUserIdFromHeader(req); // Extracción manual blindada
+    console.log(`🛡️ VERIFICANDO INTEGRIDAD PERIMETRAL: ${body.url}`);
     return this.detectionsService.checkIntegrity(body.url, userId);
   }
 
   // [NIVEL PRO] ANÁLISIS DE ENLACES EXTERNOS (MODO CENTINELA)
   //@UseGuards(JwtAuthGuard)
   @Post('bulk-check')
-  async bulkCheck(@Body() body: { links: string[] }
-    //, @Request() req: any
-  ) {
-    //const userId = req.user._id;
-    console.log(`🕵️ MODO CENTINELA: Analizando ${body.links.length} enlaces.`);
-    // Aquí podrías llamar al método bulkCheck que procesa con Groq + VT
-    return this.detectionsService.bulkCheck(body.links);
-
+  async bulkCheck(@Body() body: { links: string[] }, @Request() req: any) {
+    const userId = this.extractUserIdFromHeader(req); // Extracción manual blindada
+    console.log(`🕵️ MODO CENTINELA ACTIVO: Analizando ráfaga de ${body.links.length} enlaces.`);
+    return this.detectionsService.bulkCheck(body.links, userId);
   }
 
   @Get('stats/global')
   async getGlobalStats() {
     //console.log('📡 [NÚCLEO] Extrayendo telemetría histórica global de MongoDB...');
     return this.detectionsService.countGlobalDanger();
+  }
+
+  private extractUserIdFromHeader(req: any): string | null {
+    try {
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith('Bearer ') || authHeader === 'Bearer GUEST_TOKEN') {
+        return null;
+      }
+
+      const token = authHeader.split(' ')[1];
+      const decoded = this.jwtService.decode(token) as any;
+      return decoded?._id || decoded?.sub || null; // Extrae el ID real de satusBG de la firma [google:1]
+    } catch {
+      return null; // En caso de token corrupto o expirado, no colapsa; cae a modo invitado de forma segura
+    }
   }
 
 }

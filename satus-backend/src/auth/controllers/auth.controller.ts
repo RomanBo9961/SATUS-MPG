@@ -1,19 +1,22 @@
 /* eslint-disable prettier/prettier */
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards, Request } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { LoginDto } from '../dtos/login.dto';
 import { AuthService } from '../services/auth.service';
+import { JwtAuthGuard } from '../guards/auth.guard';
+import { UsersService } from '../../users/services/users/users.service';
 
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
 
-    constructor(private readonly authService: AuthService) { }
+    constructor(private readonly authService: AuthService,
+        private readonly usersService: UsersService) { }
 
     @Post('login')
     @ApiOperation({ summary: 'Inicio de sesión para obtener el token JWT' })
     async login(@Body() body: LoginDto) {
-        // 1. Validacion de credenciales (devuelve el usuario de Mongo)
+        // 1. Validacion de credenciales 
         const user = await this.authService.validateUser(
             body.email,
             body.password,
@@ -33,6 +36,38 @@ export class AuthController {
 
         // Envio del ID directo al servicio auth
         return this.authService.validateOrCreateGuestNode(body.guestId);
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Post('upgrade-license')
+    @ApiOperation({ summary: 'Escalamiento de rango a PROLicense y migración masiva de escaneos históricos' })
+    async upgradeToProAccount(
+        @Request() req: any,
+        @Body() body: { guestId: string }
+    ) {
+        const userId = req.user._id;
+        const { guestId } = body;
+
+        if (!guestId) {
+            return { success: false, message: 'Aduana SATUS: Identificador de terminal ausente.' };
+        }
+
+        console.log(`📥 [COMPRA DETECTADA] Solicitud de escalamiento enviada por analista: ${userId}`);
+
+        // Invoca el reactor UPGRADE del UsersService 
+        const migrationResult = await this.usersService.upgradeToPro(userId, guestId);
+
+        // Firma de nueva credencial PRO 
+        const newSessionToken = await this.authService.login({
+            _id: userId,
+            username: migrationResult.user.username,
+            roleName: migrationResult.user.role
+        });
+
+        return {
+            ...migrationResult,
+            token: newSessionToken.access_token
+        };
     }
 }
 

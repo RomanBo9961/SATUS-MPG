@@ -190,4 +190,44 @@ export class UsersService {
 
         return guestUser;
     }
+
+    //metodo UPGRADE para roles / MIGRACION escaneos entre roles
+
+    async upgradeToPro(userId: string, guestId: string) {
+        console.log(`🚀 [REACTOR MUTACIÓN] Iniciando escalamiento seguro a PROLicense para el usuario: ${userId}`);
+        console.log(`🛰️ [REACTOR MUTACIÓN] Se heredarán los escaneos del dispositivo: ${guestId}`);
+
+        // Actualizar el rol del usuario real a PROLicense 
+        const proRoleId = '660000000000000000000003';
+        const userUpdated = await this.userModel.findByIdAndUpdate(
+            userId,
+            { $set: { roles: [proRoleId] } },
+            { new: true }
+        ).lean().exec();
+
+        if (!userUpdated) throw new NotFoundException('El analista objetivo no existe en la base de datos.');
+
+        // Migracion de los registros 
+        const technicalGuestId = new Types.ObjectId('660000000000000000000001');
+        const userObjectId = new Types.ObjectId(userId);
+
+        const migrationResult = await this.userModel.db.collection('detections').updateMany(
+            { owner: technicalGuestId },
+            { $set: { owner: userObjectId, updatedAt: new Date() } }
+        );
+
+        console.log(`📝 [MongoDB] Migración completa. ${migrationResult.modifiedCount} escaneos heredados al usuario real.`);
+
+        // Restaurar el rol en memoria 
+        await this.inyectarRolManual(userUpdated);
+
+        return {
+            success: true,
+            message: 'Aduana SATUS: Rango escalado a PROLicense y escaneos vinculados con éxito.',
+            user: {
+                username: (userUpdated as any).username || (userUpdated as any).email,
+                role: (userUpdated as any).roleName || 'PROLicense'
+            }
+        };
+    }
 }
