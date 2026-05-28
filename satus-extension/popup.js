@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Degrada el token en background.js y refresca la pestaña activa
-  const logoutSession = () =>
+  const logoutSession = () => {
     chrome.runtime.sendMessage(
       {
         action: "SYNC_AUTH",
@@ -38,12 +38,23 @@ document.addEventListener("DOMContentLoaded", () => {
       },
       () => {
         updateDisplay({ username: "INVITADO", role: "GUEST" });
-        chrome.tabs.query(
-          { active: true, currentWindow: true },
-          (t) => t[0]?.id && chrome.tabs.reload(t[0].id),
-        );
+
+        // DISPARADOR AL CONTEXTO DE LA WEB A TRAVES DEL EVENTLIST DEL CONTENT
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+          const activeTab = tabs && tabs[0];
+          if (activeTab && activeTab.id) {
+            console.log(
+              `🔌 [POPUP] Envio de orden de destrcc de sesion directa a la pestaña: ${activeTab.id}`,
+            );
+
+            chrome.tabs
+              .sendMessage(activeTab.id, { action: "FORCE_WEB_LOGOUT" })
+              .catch(() => {});
+          }
+        });
       },
     );
+  };
 
   // Recupera la identidad real de la sesión
   chrome.runtime.sendMessage({ action: "GET_IDENTITY" }, (res) =>

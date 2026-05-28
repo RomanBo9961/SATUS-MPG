@@ -22,7 +22,7 @@
       </div>
 
       <!-- BOTÓN DINÁMICO -->
-      <button *ngIf="userRole !== 'GUEST'; else loginBtn" (click)="onLogout();"
+      <button *ngIf="userRole !== 'GUEST'&& userRole !== 'FREEDefault'; else loginBtn" (click)="onLogout();"
         class="text-[10px] border border-satus-alert/40 text-satus-alert px-3 py-1 hover:bg-satus-alert hover:text-white transition-all uppercase tracking-tighter">
         [ DESCONECTAR ]
       </button>
@@ -126,7 +126,7 @@
               </button>
         </div>
 
-        <div *ngIf="userRole === 'FREE' || userRole === 'GUEST'"
+        <div *ngIf="userRole === 'FREE' || userRole === 'GUEST' || userRole === 'FREEDefault'"
           class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm">
 
           <span class="text-satus-neon text-[10px] tracking-[0.5em] mb-4">ACCESO RESTRINGIDO</span>

@@ -97,8 +97,9 @@ export class Landing implements OnInit, AfterViewInit {
   initializeGuestSession() {
     // Verifica si existe una sesión activa en el monitor
     const currentToken = localStorage.getItem('satusToken');
+    const currentRole = localStorage.getItem('user_role');
 
-    if (!currentToken) {
+    if (!currentToken || currentToken === 'GUEST_TOKEN' || currentRole === 'GUEST') {
 
       // Intenta recuperar ID de máquina previo alojado en el LocStg
       let guestId = localStorage.getItem('username');
@@ -108,6 +109,7 @@ export class Landing implements OnInit, AfterViewInit {
         guestId = 'GUEST_' + Math.random().toString(36).substring(2, 8).toUpperCase();
       }
 
+      localStorage.setItem('satusToken', 'GUEST_TOKEN');
       localStorage.setItem('user_role', 'GUEST');
       localStorage.setItem('username', guestId);
 

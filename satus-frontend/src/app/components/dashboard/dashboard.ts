@@ -78,19 +78,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       user: { username: this.userName, role: this.userRole }
     }, "*");
 
-    /* Forzar a la extensión a recibir los datos
-    if (typeof chrome !== 'undefined' && chrome.runtime?.sendMessage) {
-      try {
-        chrome.runtime.sendMessage({
-          action: "SYNC_AUTH",
-          token: localStorage.getItem('satusToken'),
-          user: { username: this.userName, role: this.userRole }
-        });
-      } catch (e) {
-        console.log("ℹ️ Conexión directa no disponible, usando túnel PostMessage.");
-      }
-    }*/
-
     setTimeout(() => {
       this.userRole = this.authService.getRole();
       this.cd.detectChanges();
@@ -351,12 +338,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
               offset: tieneCortes ? 18 : 0
             }]
           }
-
-
-
-
-
-
 
           // Clonar e invertir para avanzar en el tiempo (izquierda a derecha)
           const historialCronologico = [...this.detections].reverse();

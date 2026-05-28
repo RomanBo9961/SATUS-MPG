@@ -122,26 +122,29 @@ export class AuthService {
 
 
     async validateOrCreateGuestNode(guestId: string) {
-        const technicalEmail = `${guestId.toLowerCase()}@satus.local`;
+        // Forzamos el ID técnico a minúsculas para machear perfectamente el findByIdentifier [INDEX]
+        const cleanGuestId = guestId.trim();
+        const technicalEmail = `${cleanGuestId.toLowerCase()}@satus.local`;
 
-        // Busca el ID en DB 
+        console.log(`🕵️‍♂️ [ADUANA GUEST] Auditando persistencia física para: ${technicalEmail}`);
+
+        // Busca el descriptor único en la base de datos de MongoDB [INDEX]
         let guestUser = await this.usersService.findByIdentifier(technicalEmail);
 
         if (guestUser) {
-            console.log(`📡 [ADUANA GUEST] Nodo existente detectado. Reutilizando expediente para: ${guestId}`);
+            console.log(`📡 [ADUANA GUEST] Nodo existente detectado. Reutilizando expediente para: ${cleanGuestId}`);
         } else {
-            // Si el ID no es coincidente al 100%, autoriza su creación en DB 
-            console.log(`✨ [ADUANA GUEST] Creando canal persistente para: ${guestId}`);
-            guestUser = await this.usersService.findOrCreateGuest(guestId);
+            // Solo si el correo técnico da falso negativo absoluto, se autoriza su inserción en el disco
+            console.log(`✨ [ADUANA GUEST] Inserción autorizada para canal inédito: ${cleanGuestId}`);
+            guestUser = await this.usersService.findOrCreateGuest(cleanGuestId);
         }
 
         const mappedUser = {
-            username: (guestUser as any).username || guestId,
+            username: (guestUser as any).username || cleanGuestId,
             _id: guestUser._id,
-            roleName: (guestUser as any).roleName || 'FREEDefault' // Mantiene la consistencia de rango 
+            roleName: (guestUser as any).roleName || 'FREEDefault'
         };
 
-        // Reutiliza el generador de tokens JWT 
         return this.login(mappedUser);
     }
 }

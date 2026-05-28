@@ -355,5 +355,25 @@ window.addEventListener("message", (event) => {
   }
 });
 
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === "FORCE_WEB_LOGOUT") {
+    console.log(
+      "🔌 [PUENTE] Recibida orden de purga desde la calavera. Destruyendo variables web...",
+    );
+
+    // Limpia los tokens exactos que Angular lee en su LocalStorage
+    localStorage.removeItem("satusToken");
+    localStorage.removeItem("user_role");
+    localStorage.removeItem("username");
+
+    // Si la vista actual esta en el Dashboard, lo expulsa nativamente a la Landing
+    if (window.location.pathname.includes("dashboard")) {
+      window.location.href = "http://localhost:4200/login";
+    } else {
+      window.location.reload(); //refresca si es externa al pj
+    }
+  }
+});
+
 initSatusSensor();
 bootstrapIdentity();

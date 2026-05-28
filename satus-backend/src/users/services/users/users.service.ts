@@ -154,38 +154,38 @@ export class UsersService {
     }
 
     async findOrCreateGuest(guestId: string) {
-        const technicalEmail = `${guestId.toLowerCase()}@satus.local`;
+        const fixedGuestObjectId = '660000000000000000000001';
+        const technicalEmail = `${guestId.toLowerCase().trim()}@satus.local`;
 
-        console.log(`🔍 [LOG-GUEST 1] Buscando identificador en DB para: ${technicalEmail}`);
-        let guestUser = await this.findByIdentifier(technicalEmail);
+        console.log(`📡 [NÚCLEO] Sintonizando persistencia para el terminal invitado: ${guestId}`);
 
-        // 2. Si no existe, se usa 'create'para registrarlo
+        // 1. INTENTAR RESCATE DIRECTO: Buscamos por la clave primaria hexadecimal rígida [google:1]
+        let guestUser = await this.userModel.findById(fixedGuestObjectId).lean().exec();
+
+        // 2. ADUANA DE CREACIÓN ÚNICA: Si la base de datos está vacía, se estampa el nodo raíz [INDEX]
         if (!guestUser) {
-            console.log(`📡 [NÚCLEO] Inicializando nodo persistente en MongoDB para invitado: ${guestId}`);
+            console.log(`✨ [MongoDB] Grabando nodo raíz físico '${fixedGuestObjectId}' asignado a: ${guestId}`);
 
-            const hashedPassword = await bcrypt.hash('GUEST_PASSPORT_' + Math.random().toString(36).substring(2, 10), 10);
+            const hashedPassword = await bcrypt.hash(`GUEST_KEY_${guestId}`, 10);
 
-            console.log(`🔍 [LOG-GUEST 2] Disparando this.create con roleIds: ['660000000000000000000001']`);
-
-            const newUserDoc = await this.userModel.create({
+            // Creamos e insertamos el documento en un solo ciclo utilizando Mongoose create() plano [google:1]
+            guestUser = await this.userModel.create({
+                _id: new Types.ObjectId(fixedGuestObjectId), // 🚀 CANDADO FÍSICO CONTRA EL SPAWNEO [INDEX]
                 name: 'Invitado',
                 lastName: 'SATUS',
-                username: guestId,
+                username: guestId, // Mantiene el nombre dinámico GUEST_ZS8RW4 visible en su monitor [INDEX]
                 docType: 'GUEST',
                 docNumber: guestId,
                 email: technicalEmail,
                 password: hashedPassword,
                 isActive: true,
-                roles: ['660000000000000000000001']
+                roles: ['660000000000000000000001'] // Rol FREEDefault indexado
             });
+        }
 
-            console.log(`🔍 [LOG-GUEST 3] Objeto creado en memoria, procediendo a guardar...`);
-            const savedUser = await newUserDoc.save();
-
-            guestUser = newUserDoc.toObject ? newUserDoc.toObject() : newUserDoc;
-            if (guestUser) {
-                await this.inyectarRolManual(guestUser);
-            }
+        // Inyectamos el rol en caliente sobre el objeto de la RAM antes de retornarlo [google:1]
+        if (guestUser) {
+            await this.inyectarRolManual(guestUser);
         }
 
         return guestUser;
