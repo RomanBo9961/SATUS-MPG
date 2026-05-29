@@ -56,10 +56,11 @@ export class DetectionsController {
   // [NIVEL PRO] ANÁLISIS DE ENLACES EXTERNOS (MODO CENTINELA)
   //@UseGuards(JwtAuthGuard)
   @Post('bulk-check')
-  async bulkCheck(@Body() body: { links: string[] }, @Request() req: any) {
-    const userId = this.extractUserIdFromHeader(req); // Extracción manual blindada
+  async bulkCheck(@Body() body: { links: string[], guestId?: string }, @Request() req: any) {
+    const userId = this.extractUserIdFromHeader(req);
+    const guestId = body.guestId || null; // Extracción manual blindada
     console.log(`🕵️ MODO CENTINELA ACTIVO: Analizando ráfaga de ${body.links.length} enlaces.`);
-    return this.detectionsService.bulkCheck(body.links, userId);
+    return this.detectionsService.bulkCheck(body.links, userId, guestId);
   }
 
   @Get('stats/global')

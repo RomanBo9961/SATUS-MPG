@@ -325,7 +325,7 @@ export class DetectionsService {
   }
 
 
-  async bulkCheck(links: string[], userId: string | null = null) {
+  async bulkCheck(links: string[], userId: string | null = null, guestId: string | null = null) {
     const threats = [];
     const unknownLinks = [];
 
@@ -364,7 +364,7 @@ export class DetectionsService {
             riskLevel: 'ALTO',
             message: '⚠️ BLOQUEO: Enlace identificado como amenaza potencial por el análisis heurístico del núcleo SATUS.',
             owner: finalOwnerId, // ID de Sistema/Invitado
-            //createdAt: new Date()
+            terminalId: userId ? null : guestId,
           });
         }
       }

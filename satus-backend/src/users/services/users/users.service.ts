@@ -168,12 +168,12 @@ export class UsersService {
 
             const hashedPassword = await bcrypt.hash(`GUEST_KEY_${guestId}`, 10);
 
-            // Creamos e insertamos el documento en un solo ciclo utilizando Mongoose create() plano [google:1]
+            // Creamos e insertamos el documento en un solo ciclo 
             guestUser = await this.userModel.create({
-                _id: new Types.ObjectId(fixedGuestObjectId), // 🚀 CANDADO FÍSICO CONTRA EL SPAWNEO [INDEX]
+                _id: new Types.ObjectId(fixedGuestObjectId),
                 name: 'Invitado',
                 lastName: 'SATUS',
-                username: guestId, // Mantiene el nombre dinámico GUEST_ZS8RW4 visible en su monitor [INDEX]
+                username: guestId, // Mantiene el nombre dinámico GUEST_ZS8RW4 
                 docType: 'GUEST',
                 docNumber: guestId,
                 email: technicalEmail,
@@ -183,7 +183,7 @@ export class UsersService {
             });
         }
 
-        // Inyectamos el rol en caliente sobre el objeto de la RAM antes de retornarlo [google:1]
+        // Inyectamos el rol a la RAM 
         if (guestUser) {
             await this.inyectarRolManual(guestUser);
         }
@@ -194,8 +194,8 @@ export class UsersService {
     //metodo UPGRADE para roles / MIGRACION escaneos entre roles
 
     async upgradeToPro(userId: string, guestId: string) {
-        console.log(`🚀 [REACTOR MUTACIÓN] Iniciando escalamiento seguro a PROLicense para el usuario: ${userId}`);
-        console.log(`🛰️ [REACTOR MUTACIÓN] Se heredarán los escaneos del dispositivo: ${guestId}`);
+        console.log(` [ASCENSO A PRO] Iniciando escalamiento seguro a PROLicense para el usuario: ${userId}`);
+        console.log(` [MUDA DE ESCANEOS] Se heredarán los escaneos del dispositivo: ${guestId}`);
 
         // Actualizar el rol del usuario real a PROLicense 
         const proRoleId = '660000000000000000000003';
@@ -212,8 +212,8 @@ export class UsersService {
         const userObjectId = new Types.ObjectId(userId);
 
         const migrationResult = await this.userModel.db.collection('detections').updateMany(
-            { owner: technicalGuestId },
-            { $set: { owner: userObjectId, updatedAt: new Date() } }
+            { owner: technicalGuestId, terminalId: guestId },
+            { $set: { owner: userObjectId, terminalId: null, updatedAt: new Date() } }
         );
 
         console.log(`📝 [MongoDB] Migración completa. ${migrationResult.modifiedCount} escaneos heredados al usuario real.`);

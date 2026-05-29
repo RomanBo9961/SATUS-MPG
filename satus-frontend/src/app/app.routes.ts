@@ -4,6 +4,7 @@ import { LoginComponent } from './components/login/login';
 import { DashboardComponent } from './components/dashboard/dashboard';
 import { RegisterComponent } from './components/register/register';
 import { Pricing } from './components/pricing/pricing';
+import { AdminControl } from './components/admin-control/admin-control';
 
 export const routes: Routes = [
   { path: '', component: Landing },
@@ -11,5 +12,6 @@ export const routes: Routes = [
   { path: 'register', component: RegisterComponent },
   { path: 'dashboard', component: DashboardComponent },
   { path: 'pricing', component: Pricing },
+  { path: 'admin-control', component: AdminControl },
   { path: '**', redirectTo: '' }
 ];

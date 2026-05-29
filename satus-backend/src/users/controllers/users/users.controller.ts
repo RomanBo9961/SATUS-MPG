@@ -46,4 +46,26 @@ export class UsersController {
         const defaultRole = ['660000000000000000000002'];
         return this.usersService.create({ ...createUserDto, roleIds: defaultRole });
     }
+
+    @Post('admin/mutate-role')
+    async mutateUserRoleInCaliente(@Body() payload: { userId: string, targetTier: 'FREE' | 'PRO' }) {
+        const { userId, targetTier } = payload;
+
+        console.log(`⚡ [TORRE CONTROL] Comando de escalada recibido para el usuario: ${userId} -> Destino: ${targetTier}`);
+
+        // Converte el string de la interfaz en ids de roles 
+        let targetRoleId = '660000000000000000000001';
+        if (targetTier === 'PRO') {
+            targetRoleId = '660000000000000000000003';
+        }
+
+        // Ejecuta la inyección directa desde el updateUser
+        const userUpdated = await this.usersService.updateUser(userId, { roleIds: [targetRoleId] } as any);
+
+        return {
+            success: true,
+            message: `Aduana SATUS: Rango alterado correctamente a nivel de infraestructura.`,
+            user: userUpdated
+        };
+    }
 }

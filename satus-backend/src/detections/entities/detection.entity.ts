@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 
-@Schema({ timestamps: true }) 
+@Schema({ timestamps: true })
 export class Detection extends Document {
   @Prop({ required: true })
   url: string;
@@ -16,7 +16,10 @@ export class Detection extends Document {
   details: any;
 
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
-  owner: Types.ObjectId; 
+  owner: Types.ObjectId;
+
+  @Prop({ required: false, default: null })
+  terminalId: string;
 }
 
 export const DetectionSchema = SchemaFactory.createForClass(Detection);
