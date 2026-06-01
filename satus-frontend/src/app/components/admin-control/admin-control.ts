@@ -39,20 +39,36 @@ export class AdminControl implements OnInit {
     }
   }
 
-  // 📥 EXTRACCIÓN MASIVA: Succiona el catálogo completo de usuarios desde el Backend
+  // tRAE usuarios desde el Backend
   public fetchGlobalUsers() {
-    const token = localStorage.getItem('satusToken');
+    const token = localStorage.getItem('satusToken') || localStorage.getItem('access_token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
     console.log("📥 [MongoDB] Extrayendo inventario de usuarios...");
 
     // Apuntaremos a la nueva ruta administrativa que expondremos en NestJS
     this.http.get<any[]>('/api/users', { headers }).subscribe({
-      next: (res: any[]) => {
-        this.usersList = res;
+      next: (res: any) => {
+        console.log("🛰️ [TORRE CONTROL] Respuesta cruda del Backend recibida:", res);
+
+        //extraccion del array
+        if (Array.isArray(res)) {
+          this.usersList = res;
+        } else if (res && Array.isArray(res.data)) {
+          this.usersList = res.data;
+        } else if (res && Array.isArray(res.users)) {
+          this.usersList = res.users;
+        } else {
+          // Respaldo de contingencia por si es obj plano
+          this.usersList = res ? Object.values(res) : [];
+        }
+
+        console.log(`✅ [MongoDB] ${this.usersList.length} expedientes inyectados en la memoria del cliente.`);
+
+        // Fuerza la recarga sobre el renderizado
         this.cd.detectChanges();
-        console.log(`✅ [MongoDB] ${this.usersList.length} expedientes cargados con éxito.`);
       },
+
       error: (err) => {
         console.error("❌ Falla crítica al succionar telemetría del Backend:", err);
       }

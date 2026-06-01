@@ -7,7 +7,7 @@ let mouseTimer = null;
 
 //DEF Centinela
 async function sentinelScan() {
-  if (userRole !== "PROLicense") return;
+  if (userRole !== "PROLicense" && userRole !== "SUPAdmin") return;
   console.log("🕵️ CENTINELA: Analizando hilos sucios en el DOM...");
 
   const links = Array.from(document.querySelectorAll("a"))
@@ -49,7 +49,7 @@ function bootstrapIdentity() {
         userRole = response.role;
         console.log(`--- [CENTINELA] IDENTIDAD RECUPERADA: ${userRole} ---`);
 
-        if (userRole === "PROLicense") {
+        if (userRole === "PROLicense" || userRole === "SUPAdmin") {
           console.log("🛡️ MODO PRO DETECTADO: Protocolos activos.");
 
           checkPageIntegrity();
@@ -250,7 +250,7 @@ function showSatusPopup(message, x, y) {
 async function checkPageIntegrity() {
   chrome.storage.local.get(["satusUser"], async (result) => {
     userRole = result.satusUser?.role || "GUEST";
-    if (userRole !== "PROLicense") return;
+    if (userRole !== "PROLicense" && userRole !== "SUPAdmin") return;
 
     // Envio de la URL para analisis VT
     chrome.runtime.sendMessage(
@@ -273,7 +273,7 @@ async function checkPageIntegrity() {
             console.log(
               `💀 SATUS: ${threatList.size} Amenazas Neutralizadas en esta página.`,
             );
-            // 💀 CAMBIO DE FAVICON (Opcional)
+            // CAMBIO DE FAVICON
             changeFaviconToSkull();
           }
         }
@@ -286,7 +286,7 @@ async function checkPageIntegrity() {
 document.addEventListener(
   "click",
   (e) => {
-    if (userRole !== "PROLicense") return;
+    if (userRole !== "PROLicense" && userRole !== "SUPAdmin") return;
 
     const link = e.target.closest("a");
     if (link && threatList.has(link.href)) {
@@ -311,7 +311,7 @@ document.addEventListener(
         if (container) {
           const btn = document.createElement("button");
           btn.innerText = "[ REGRESAR AL NÚCLEO ]";
-          btn.className = "satus-main-btn"; // 👈 Usa el estilo unificado
+          btn.className = "satus-main-btn";
           btn.onclick = () => document.querySelector(".satus-popup")?.remove();
           container.appendChild(btn);
         }
@@ -361,16 +361,41 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       "🔌 [PUENTE] Recibida orden de purga desde la calavera. Destruyendo variables web...",
     );
 
-    // Limpia los tokens exactos que Angular lee en su LocalStorage
     localStorage.removeItem("satusToken");
     localStorage.removeItem("user_role");
     localStorage.removeItem("username");
 
     // Si la vista actual esta en el Dashboard, lo expulsa nativamente a la Landing
-    if (window.location.pathname.includes("dashboard")) {
-      window.location.href = "http://localhost:4200/login";
+    if (window.location.origin.includes("localhost:4200")) {
+      window.location.href = "http://localhost:4200/login"; // Expulsión nativa directa
     } else {
-      window.location.reload(); //refresca si es externa al pj
+      console.log(
+        "🔄 [EXTERNO] Detectada pestaña de auditoría. Sincronizando degradación pasiva...",
+      );
+      window.location.reload(); // Si es Wicar, refresca para apagar la calavera
+    }
+  }
+});
+
+window.addEventListener("storage", (event) => {
+  // Si este sensor detecta que otra pestaña web vació las credenciales del sistema
+  if (
+    event.key === "satusToken" &&
+    (event.newValue === null || event.newValue === "GUEST_TOKEN")
+  ) {
+    console.log(
+      "🛰️ [NÚCLEO CENTINELA] Sensor detectó purga de sesión remota. Analizando path...",
+    );
+
+    // Si esta pestaña pasiva de fondo se encuentra en el Dashboard o la Central de Control, se auto-expulsa
+    if (
+      window.location.pathname.includes("dashboard") ||
+      window.location.pathname.includes("admin-control")
+    ) {
+      console.log(
+        "🔄 Evacuando búnker pasivo de fondo de forma automatizada...",
+      );
+      window.location.href = "http://localhost:4200/login"; // Destruye el estado zombie
     }
   }
 });

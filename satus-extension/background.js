@@ -39,6 +39,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         },
       );
     }
+
     // LOGOUT / Bajar a GUEST (peticion del Dash)
     else if (request.token === "GUEST_TOKEN") {
       currentSatusUser = { username: "INVITADO", role: "GUEST" };
@@ -49,8 +50,33 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         },
         () => {
           console.log("🔌 [CENTRAL] Vínculo cerrado. GUEST por defecto.");
+          chrome.tabs.query({}, (tabs) => {
+            if (tabs && tabs.length > 0) {
+              tabs.forEach((tab) => {
+                if (tab.url && tab.url.includes("localhost:4200")) {
+                  console.log(
+                    `🛰️ [CENTRAL] Forzando purga de localStorage en: ${tab.id}`,
+                  );
+
+                  chrome.scripting
+                    .executeScript({
+                      target: { tabId: tab.id },
+                      func: () => {
+                        console.log(
+                          "🔌 [SATUS SHIELD] Purga atómica ejecutada desde la central.",
+                        );
+                        localStorage.clear();
+                        window.location.href = "http://localhost:4200/login";
+                      },
+                    })
+                    .catch(() => {});
+                }
+              });
+            }
+          });
         },
       );
+      return false;
     }
     return false;
   }
