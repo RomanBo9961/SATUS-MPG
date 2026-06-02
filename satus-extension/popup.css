@@ -8,13 +8,15 @@
 }
 
 body {
-  width: 280px; /* Un pelín más ancho para el look Theseus */
+  width: 280px; 
   background-color: var(--bg-black);
   color: var(--text-main);
-  font-family: 'JetBrains Mono', 'Courier New', monospace; /* Tipografía técnica */
+  font-family: 'JetBrains Mono', 'Courier New', monospace; 
   margin: 0;
   padding: 15px;
-  border: 1px solid var(--satus-bronce-low);
+  border: 1px solid var(--satus-bronce); 
+  box-shadow: inset 0 0 10px rgba(205, 182, 50, 0.15), 0 0 14px rgba(205, 182, 50, 0.45);
+
 }
 
 header {
