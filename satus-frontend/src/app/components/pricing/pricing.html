@@ -1,99 +1,120 @@
 <div class="min-h-screen bg-satus-bg text-satus-report font-mono px-4 py-16 flex flex-col items-center">
 
-    <header class="text-center mb-12 max-w-3xl">
-        <h1
-            class="text-2xl font-bold tracking-widest text-satus-bronce drop-shadow-[0_0_12px_rgba(205,182,50,0.3)] mb-4">
-            SELECCIONE SU PLAN
-        </h1>
-        <p class="text-xs text-gray-500 max-w-md mx-auto">
-            Sincronice el chasis de hardware perimetral con los reactores de SATUS CORE
-        </p>
-    </header>
+    <div
+        class="relative min-h-screen bg-[#050505] text-satus-report font-mono px-4 py-16 flex flex-col items-center overflow-x-hidden">
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-5xl items-stretch">
+        <div class="absolute top-0 left-0 w-full h-full bg-cover bg-center pointer-events-none opacity-15 grayscale mix-blend-luminosity z-0"
+            style="background-image: url('/register.png');"></div>
 
-        <!-- TARJETA 1: GUEST / FREE -->
         <div
-            class="relative bg-satus-dark border border-zinc-800 rounded-sm p-8 flex flex-col justify-between transition-transform duration-300 hover:-translate-y-1 shadow-2xl overflow-hidden before:content-[''] before:absolute before:top-0 before:left-0 before:w-full before:height-[2px] before:bg-zinc-600">
-            <div>
-                <span
-                    class="text-[9px] font-bold tracking-wider text-gray-500 bg-zinc-900 px-2 py-1 rounded-sm border border-zinc-800 inline-block mb-4">NODO
-                    BASE</span>
-                <h2 class="text-lg tracking-wide text-white font-bold">FREEDefault</h2>
-                <p class="text-3xl font-bold text-white mt-4 mb-6">$0 <span
-                        class="text-[10px] text-zinc-600 tracking-wider font-normal">/ PERPETUO</span></p>
-                <ul class="space-y-3 text-xs text-zinc-400">
-                    <li class="flex items-center gap-2"><span class="text-satus-neon font-bold">✓</span> Escudo
-                        Heurístico Manual</li>
-                    <li class="flex items-center gap-2"><span class="text-satus-neon font-bold">✓</span> Telemetría de
-                        Red Local</li>
-                    <li class="flex items-center gap-2 text-zinc-700"><span class="font-bold">✗</span> <del>Cortafuegos
-                            Automático Perimetral</del></li>
-                    <li class="flex items-center gap-2 text-zinc-700"><span class="font-bold">✗</span> <del>Modo
-                            Centinela en Ráfaga Pasiva</del></li>
-                </ul>
-            </div>
-            <button
-                class="w-full border border-zinc-800 text-zinc-700 font-bold text-[11px] tracking-wider py-3 mt-8 rounded-sm cursor-not-allowed"
-                disabled>
-                [ RANGO_ACTUAL ]
-            </button>
+            class="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-[#050505] via-transparent to-[#050505] pointer-events-none z-10">
         </div>
 
-        <!-- TARJETA 2: AVZ / BUSINESS -->
         <div
-            class="relative bg-satus-dark border border-zinc-800 rounded-sm p-8 flex flex-col justify-between transition-transform duration-300 hover:-translate-y-1 shadow-2xl overflow-hidden before:content-[''] before:absolute before:top-0 before:left-0 before:w-full before:height-[2px] before:bg-satus-bronce-dark">
-            <div>
-                <span
-                    class="text-[9px] font-bold tracking-wider text-satus-bronce bg-zinc-900 px-2 py-1 rounded-sm border border-zinc-800 inline-block mb-4">NODO
-                    AVZ</span>
-                <h2 class="text-lg tracking-wide text-white font-bold">AVZAccount</h2>
-                <p class="text-3xl font-bold text-white mt-4 mb-6">$5 <span
-                        class="text-[10px] text-zinc-600 tracking-wider font-normal">/ MENSUAL</span></p>
-                <ul class="space-y-3 text-xs text-zinc-400">
-                    <li class="flex items-center gap-2"><span class="text-satus-bronce font-bold">✓</span> Escudo
-                        Heurístico Ampliado</li>
-                    <li class="flex items-center gap-2"><span class="text-satus-bronce font-bold">✓</span> Cortafuegos
-                        Automático Activo</li>
-                    <li class="flex items-center gap-2"><span class="text-satus-bronce font-bold">✓</span> Historial en
-                        Panel (Hasta 50 entradas de escaneo)</li>
-                    <li class="flex items-center gap-2 text-zinc-700"><span class="font-bold">✗</span> <del>Modo
-                            Centinela en Ráfaga Global</del></li>
-                </ul>
-            </div>
-            <button
-                class="w-full bg-transparent border border-satus-bronce text-satus-bronce font-bold text-[11px] tracking-wider py-3 mt-8 rounded-sm transition-all duration-200 hover:bg-satus-bronce hover:text-satus-bg hover:shadow-[0_0_15px_rgba(205,182,50,0.4)]">
-                [ ADQUIRIR BUSINESS ]
-            </button>
+            class="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-[#050505] via-transparent to-[#050505] pointer-events-none z-10">
         </div>
 
-        <!-- TARJETA 3: PRO / ENTERPRISE -->
-        <div
-            class="relative bg-zinc-950 border border-satus-bronce rounded-sm p-8 flex flex-col justify-between transition-transform duration-300 hover:-translate-y-1 hover:shadow-[0_0_25px_rgba(205,182,50,0.15)] overflow-hidden before:content-[''] before:absolute before:top-0 before:left-0 before:w-full before:height-[2px] before:bg-satus-bronce before:shadow-[0_0_10px_#cdb632]">
-            <div>
-                <span
-                    class="text-[9px] font-bold tracking-wider text-satus-bronce bg-[rgba(205,182,50,0.08)] px-2 py-1 rounded-sm border border-[rgba(205,182,50,0.3)] inline-block mb-4">NODO
-                    PRO NÚCLEO</span>
-                <h2 class="text-lg tracking-wide text-white font-bold">PROLicense</h2>
-                <p class="text-3xl font-bold text-white mt-4 mb-6">$7 <span
-                        class="text-[10px] text-zinc-600 tracking-wider font-normal">/ MENSUAL</span></p>
-                <ul class="space-y-3 text-xs text-zinc-400">
-                    <li class="flex items-center gap-2"><span class="text-satus-bronce font-bold">✓</span> Sensor
-                        Ininterrumpido de Navegación</li>
-                    <li class="flex items-center gap-2"><span class="text-satus-bronce font-bold">✓</span> Modo
-                        Centinela Masivo en el DOM</li>
-                    <li class="flex items-center gap-2"><span class="text-satus-bronce font-bold">✓</span> Conexión
-                        Inteligencia Colectiva</li>
-                    <li class="flex items-center gap-2"><span class="text-satus-bronce font-bold">✓</span> Historial
-                        Paginado Sin Límite</li>
-                </ul>
-            </div>
-            <button
-                class="w-full bg-[rgba(205,182,50,0.03)] border border-satus-bronce text-satus-bronce font-bold text-[11px] tracking-wider py-3 mt-8 rounded-sm transition-all duration-200 hover:bg-satus-bronce hover:text-satus-bg hover:shadow-[0_0_15px_rgba(205,182,50,0.4)]"
-                (click)="triggerProUpgrade()">
-                [ ESCALAR A PRO ]
-            </button>
-        </div>
+        <div class="relative z-20 w-full max-w-5xl flex flex-col items-center">
 
-    </div>
-</div>
+            <header class="text-center mb-12 max-w-3xl">
+                <h1
+                    class="text-2xl font-bold tracking-widest text-satus-bronce drop-shadow-[0_0_12px_rgba(205,182,50,0.3)] mb-4">
+                    SELECCIONE SU PLAN
+                </h1>
+                <p class="text-xs text-gray-500 max-w-md mx-auto">
+                    Obtenga privilegios al escalar dentro del esquema de nodos del CORE de SATUS.
+                </p>
+            </header>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-5xl items-stretch">
+
+                <!-- TARJETA 1: GUEST / FREE -->
+                <div
+                    class="relative bg-satus-dark border border-zinc-800 rounded-sm p-8 flex flex-col justify-between transition-transform duration-300 hover:-translate-y-1 shadow-2xl overflow-hidden before:content-[''] before:absolute before:top-0 before:left-0 before:w-full before:height-[2px] before:bg-zinc-600">
+                    <div>
+                        <span
+                            class="text-[9px] font-bold tracking-wider text-gray-500 bg-zinc-900 px-2 py-1 rounded-sm border border-zinc-800 inline-block mb-4">NODO
+                            BASE</span>
+                        <h2 class="text-lg tracking-wide text-white font-bold">FREEDefault</h2>
+                        <p class="text-3xl font-bold text-white mt-4 mb-6">$0 <span
+                                class="text-[10px] text-zinc-600 tracking-wider font-normal">/ ESTANDAR</span></p>
+                        <ul class="space-y-3 text-xs text-zinc-400">
+                            <li class="flex items-center gap-2"><span class="text-satus-neon font-bold">✓</span> Escudo
+                                Heurístico</li>
+                            <li class="flex items-center gap-2"><span class="text-satus-neon font-bold">✓</span>
+                                Despliegue Unificado de Reporte </li>
+                            <li class="flex items-center gap-2 text-zinc-700"><span class="font-bold">✗</span>
+                                <del>Telemetría Local</del>
+                            </li>
+                            <li class="flex items-center gap-2 text-zinc-700"><span class="font-bold">✗</span> <del>Modo
+                                    Centinela en Ráfaga Pasiva</del></li>
+                        </ul>
+                    </div>
+                    <button
+                        class="w-full border border-zinc-800 text-zinc-700 font-bold text-[11px] tracking-wider py-3 mt-8 rounded-sm cursor-not-allowed"
+                        disabled>
+                        [ RANGO ACTUAL ]
+                    </button>
+                </div>
+
+                <!-- TARJETA 2: AVZ / BUSINESS -->
+                <div
+                    class="relative bg-zinc-950 border border-zinc-800 rounded-sm p-8 flex flex-col justify-between transition-transform duration-300 hover:-translate-y-1 hover:shadow-[0_0_25px_rgba(205,182,50,0.15)] overflow-hidden before:content-[''] before:absolute before:top-0 before:left-0 before:w-full before:height-[2px] before:bg-satus-bronce before:shadow-[0_0_10px_#cdb632]">
+                    <div>
+                        <span
+                            class="text-[9px] font-bold tracking-wider text-satus-bronce bg-zinc-900 px-2 py-1 rounded-sm border border-zinc-800 inline-block mb-4">NODO
+                            AVZ</span>
+                        <h2 class="text-lg tracking-wide text-white font-bold">AVZAccount</h2>
+                        <p class="text-3xl font-bold text-white mt-4 mb-6">$3.2 <span
+                                class="text-[10px] text-zinc-600 tracking-wider font-normal">/ MENSUAL</span></p>
+                        <ul class="space-y-3 text-xs text-zinc-400">
+                            <li class="flex items-center gap-2"><span class="text-satus-bronce font-bold">✓</span>
+                                Escudo
+                                Heurístico</li>
+                            <li class="flex items-center gap-2"><span class="text-satus-bronce font-bold">✓</span>
+                                Historial de Reportes en
+                                Panel</li>
+                            <li class="flex items-center gap-2"><span class="text-satus-bronce font-bold">✓</span>
+                                Telemetría Local (De hasta 3 registros por sector)</li>
+                            <li class="flex items-center gap-2 text-zinc-700"><span class="font-bold">✗</span> <del>Modo
+                                    Centinela en Ráfaga Global</del></li>
+                        </ul>
+                    </div>
+                    <button
+                        class="w-full bg-transparent border border-satus-bronce text-satus-bronce font-bold text-[11px] tracking-wider py-3 mt-8 rounded-sm transition-all duration-200 hover:bg-satus-bronce hover:text-satus-bg hover:shadow-[0_0_15px_rgba(205,182,50,0.4)]">
+                        [ ADQUIRIR BUSINESS ]
+                    </button>
+                </div>
+
+                <!-- TARJETA 3: PRO / ENTERPRISE -->
+                <div
+                    class="relative bg-zinc-950 border border-satus-bronce rounded-sm p-8 flex flex-col justify-between transition-transform duration-300 hover:-translate-y-1 hover:shadow-[0_0_25px_rgba(205,182,50,0.15)] overflow-hidden before:content-[''] before:absolute before:top-0 before:left-0 before:w-full before:height-[2px] before:bg-satus-bronce before:shadow-[0_0_10px_#cdb632]">
+                    <div>
+                        <span
+                            class="text-[9px] font-bold tracking-wider text-satus-bronce bg-[rgba(205,182,50,0.08)] px-2 py-1 rounded-sm border border-[rgba(205,182,50,0.3)] inline-block mb-4">NODO
+                            PRO</span>
+                        <h2 class="text-lg tracking-wide text-white font-bold">PROLicense</h2>
+                        <p class="text-3xl font-bold text-white mt-4 mb-6">$5.73 <span
+                                class="text-[10px] text-zinc-600 tracking-wider font-normal">/ MENSUAL</span></p>
+                        <ul class="space-y-3 text-xs text-zinc-400">
+                            <li class="flex items-center gap-2"><span class="text-satus-bronce font-bold">✓</span>
+                                Escudo
+                                Heurístico</li>
+                            <li class="flex items-center gap-2"><span class="text-satus-bronce font-bold">✓</span> Modo
+                                Historial
+                                Paginado Sin Límite</li>
+                            <li class="flex items-center gap-2"><span class="text-satus-bronce font-bold">✓</span>
+                                Telemetría Local y Sincronización</li>
+                            <li class="flex items-center gap-2"><span class="text-satus-bronce font-bold">✓</span>
+                                Centinela Masivo en el DOM</li>
+                        </ul>
+                    </div>
+                    <button
+                        class="w-full bg-[rgba(205,182,50,0.03)] border border-satus-bronce text-satus-bronce font-bold text-[11px] tracking-wider py-3 mt-8 rounded-sm transition-all duration-200 hover:bg-satus-bronce hover:text-satus-bg hover:shadow-[0_0_15px_rgba(205,182,50,0.4)]"
+                        (click)="triggerProUpgrade()">
+                        [ ADQUIRIR EJECUTIVO ]
+                    </button>
+                </div>
+
+            </div>
+        </div>

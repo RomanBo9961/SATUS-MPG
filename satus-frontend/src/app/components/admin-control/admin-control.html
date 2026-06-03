@@ -1,106 +1,126 @@
 <div class="min-h-screen bg-satus-bg text-satus-report font-mono p-8 flex flex-col items-center">
 
-    <!-- CABECERA DE LA TORRE DE MANDO -->
-    <header
-        class="w-full max-w-6xl mb-10 flex flex-col md:flex-row justify-between items-start md:items-center border-b border-zinc-800 pb-6 gap-4">
-        <div>
-            <h1 class="text-xl font-bold tracking-widest text-satus-bronce drop-shadow-[0_0_10px_rgba(205,182,50,0.3)]">
-                CENTRAL DE CONTROL  📡
-            </h1>
-            <p class="text-[11px] text-gray-500 mt-1">Monitoreo global de infraestructura relacional y adjudicación de
-                licencias en ráfaga</p>
+    <div
+        class="relative min-h-screen bg-[#050505] text-satus-report font-mono px-4 py-16 flex flex-col items-center overflow-x-hidden">
+
+        <div class="absolute top-0 left-0 w-full h-full bg-cover bg-center pointer-events-none opacity-15 grayscale mix-blend-luminosity z-0"
+            style="background-image: url('/register.png');"></div>
+
+        <div
+            class="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-[#050505] via-transparent to-[#050505] pointer-events-none z-10">
         </div>
 
-        <!-- CONTADORES DE TELEMETRÍA GLOBAL -->
-        <div class="flex gap-4 text-xs">
-            <div class="bg-satus-dark border border-zinc-800 px-4 py-2 rounded-sm">
-                <span class="text-gray-500 block text-[9px] tracking-wider">TOTAL USUARIOS</span>
-                <span class="text-gray-500 block text-sm">{{ usersList.length }}</span>
-            </div>
-            <div class="bg-satus-dark border border-zinc-800 px-4 py-2 rounded-sm">
-                <span class="text-gray-500 block text-[9px] tracking-wider">RED ESTADO</span>
-                <span class="text-satus-on font-bold text-sm tracking-tighter">ONLINE</span>
-            </div>
+        <div
+            class="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-[#050505] via-transparent to-[#050505] pointer-events-none z-10">
         </div>
-    </header>
 
-    <!-- REJILLA CENTRAL DE CONTROL -->
-    <div class="w-full max-w-6xl bg-satus-dark border border-zinc-800 rounded-sm overflow-hidden shadow-2xl">
+        <div class="relative z-20 w-full max-w-5xl flex flex-col items-center">
 
-        <div class="overflow-x-auto custom-scroll">
-            <table class="w-full text-left border-collapse text-xs">
+            <!-- CABECERA DE LA TORRE DE MANDO -->
+            <header
+                class="w-full max-w-6xl mb-10 flex flex-col md:flex-row justify-between items-start md:items-center border-b border-zinc-800 pb-6 gap-4">
+                <div>
+                    <h1
+                        class="text-xl font-bold tracking-widest text-satus-bronce drop-shadow-[0_0_10px_rgba(205,182,50,0.3)]">
+                        CENTRAL DE CONTROL 📡
+                    </h1>
+                    <p class="text-[11px] text-gray-500 mt-1">Monitoreo global de infraestructura relacional y licencias
+                        en ráfaga</p>
+                </div>
 
-                <thead>
-                    <tr class="border-b border-zinc-800 bg-zinc-950/50 text-gray-400 tracking-wider">
-                        <th class="p-4 font-bold text-zinc-500">IDENTIFICADOR</th>
-                        <th class="p-4 font-bold text-zinc-500">USUARIO / EMAIL</th>
-                        <th class="p-4 font-bold text-zinc-400">RANGO ROL</th>
-                        <th class="p-4 font-bold text-zinc-400">ESTADO</th>
-                        <th class="p-4 font-bold text-satus-bronce text-center">ACTIVADOR</th>
-                    </tr>
-                </thead>
+                <!-- CONTADORES DE TELEMETRÍA GLOBAL -->
+                <div class="flex gap-4 text-xs">
+                    <div class="bg-satus-dark border border-zinc-800 px-4 py-2 rounded-sm">
+                        <span class="text-gray-500 block text-[9px] tracking-wider">TOTAL USUARIOS</span>
+                        <span class="text-gray-500 block text-sm">{{ usersList.length }}</span>
+                    </div>
+                    <div class="bg-satus-dark border border-zinc-800 px-4 py-2 rounded-sm">
+                        <span class="text-gray-500 block text-[9px] tracking-wider">RED ESTADO</span>
+                        <span class="text-satus-on font-bold text-sm tracking-tighter">ONLINE</span>
+                    </div>
+                </div>
+            </header>
 
-                <!-- CUERPO DE LA REJILLA  -->
-                <tbody class="divide-y divide-zinc-900">
-                    <tr *ngFor="let user of usersList" class="hover:bg-zinc-900/30 transition-colors duration-150">
+            <!-- REJILLA CENTRAL DE CONTROL -->
+            <div class="w-full max-w-6xl bg-satus-dark border border-zinc-800 rounded-sm overflow-hidden shadow-2xl">
 
-                        <!-- Hexadecimal Físico de MongoDB -->
-                        <td class="p-4 font-mono text-zinc-600 text-[11px] select-all">{{ user._id }}</td>
+                <div class="overflow-x-auto custom-scroll">
+                    <table class="w-full text-left border-collapse text-xs">
 
-                        <!-- Datos de Cuenta -->
-                        <td class="p-4">
-                            <div class="flex flex-col">
-                                <span class="text-white font-bold tracking-wide">{{ user.username || user.name }}</span>
-                                <span class="text-zinc-500 text-[11px]">{{ user.email }}</span>
-                            </div>
-                        </td>
+                        <thead>
+                            <tr class="border-b border-zinc-800 bg-zinc-950/50 text-gray-400 tracking-wider">
+                                <th class="p-4 font-bold text-zinc-500">IDENTIFICADOR</th>
+                                <th class="p-4 font-bold text-zinc-500">USUARIO / EMAIL</th>
+                                <th class="p-4 font-bold text-zinc-400">RANGO ROL</th>
+                                <th class="p-4 font-bold text-zinc-400">ESTADO</th>
+                                <th class="p-4 font-bold text-satus-bronce text-center">ACTIVADOR</th>
+                            </tr>
+                        </thead>
 
-                        <!-- Rango Actual Satus -->
-                        <td class="p-4">
-                            <span [ngClass]="{
+                        <!-- CUERPO DE LA REJILLA  -->
+                        <tbody class="divide-y divide-zinc-900">
+                            <tr *ngFor="let user of usersList"
+                                class="hover:bg-zinc-900/30 transition-colors duration-150">
+
+                                <!-- Hexadecimal Físico de MongoDB -->
+                                <td class="p-4 font-mono text-zinc-600 text-[11px] select-all">{{ user._id }}</td>
+
+                                <!-- Datos de Cuenta -->
+                                <td class="p-4">
+                                    <div class="flex flex-col">
+                                        <span class="text-white font-bold tracking-wide">{{ user.username || user.name
+                                            }}</span>
+                                        <span class="text-zinc-500 text-[11px]">{{ user.email }}</span>
+                                    </div>
+                                </td>
+
+                                <!-- Rango Actual Satus -->
+                                <td class="p-4">
+                                    <span [ngClass]="{
                 'text-zinc-500 bg-zinc-900 border-zinc-800': user.roleName === 'GUEST',
                 'text-satus-neon bg-zinc-950/50 border-satus-neon/20': user.roleName === 'FREEDefault',
                 'text-satus-bronce bg-zinc-950 border-satus-bronce/30 shadow-[0_0_8px_rgba(205,182,50,0.1)]': user.roleName === 'PROLicense'
             }" class="text-[10px] font-bold px-2 py-0.5 rounded-sm border inline-block tracking-wider">
-                                {{ user.roleName }}
-                            </span>
-                        </td>
+                                        {{ user.roleName }}
+                                    </span>
+                                </td>
 
-                        <!-- Switch Elástico IsActive -->
-                        <td class="p-4">
-                            <span class="flex items-center gap-1.5 font-bold" [class.text-satus-on]="user.isActive"
-                                [class.text-satus-alert]="!user.isActive">
-                                <span class="h-1.5 w-1.5 rounded-full bg-current"
-                                    [class.animate-pulse]="user.isActive"></span>
-                                {{ user.isActive ? 'ACTIVO' : 'SUSPENDIDO' }}
-                            </span>
-                        </td>
+                                <!-- Switch Elástico IsActive -->
+                                <td class="p-4">
+                                    <span class="flex items-center gap-1.5 font-bold"
+                                        [class.text-satus-on]="user.isActive" [class.text-satus-alert]="!user.isActive">
+                                        <span class="h-1.5 w-1.5 rounded-full bg-current"
+                                            [class.animate-pulse]="user.isActive"></span>
+                                        {{ user.isActive ? 'ACTIVO' : 'SUSPENDIDO' }}
+                                    </span>
+                                </td>
 
-                        <!-- INTERRUPTOR MANUAL DE LICENCIAS EN CALIENTE (EL BOTÓN SSS) -->
-                        <td class="p-4 text-center">
-                            <div class="flex justify-center gap-2">
+                                <!-- INTERRUPTOR MANUAL DE LICENCIAS EN CALIENTE (EL BOTÓN SSS) -->
+                                <td class="p-4 text-center">
+                                    <div class="flex justify-center gap-2">
 
-                                <!-- Botón Degradación Gratuita -->
-                                <button *ngIf="user.roleName === 'PROLicense'"
-                                    (click)="toggleUserRole(user._id, 'FREE')"
-                                    class="border border-satus-alert/40 text-satus-alert hover:bg-satus-alert hover:text-white px-2 py-1 text-[10px] font-bold tracking-tighter transition-all rounded-sm uppercase">
-                                    [ DEGRADAR FREE ]
-                                </button>
+                                        <!-- Botón Degradación Gratuita -->
+                                        <button *ngIf="user.roleName === 'PROLicense'"
+                                            (click)="toggleUserRole(user._id, 'FREE')"
+                                            class="border border-satus-alert/40 text-satus-alert hover:bg-satus-alert hover:text-white px-2 py-1 text-[10px] font-bold tracking-tighter transition-all rounded-sm uppercase">
+                                            [ DEGRADAR FREE ]
+                                        </button>
 
-                                <!-- Botón Escalamiento Premium  -->
-                                <button *ngIf="user.roleName !== 'PROLicense'" (click)="toggleUserRole(user._id, 'PRO')"
-                                    class="border border-satus-bronce text-satus-bronce hover:bg-satus-bronce hover:text-satus-bg px-2 py-1 text-[10px] font-bold tracking-tighter transition-all rounded-sm uppercase shadow-sm">
-                                    [ OTORGAR PRO ]
-                                </button>
+                                        <!-- Botón Escalamiento Premium  -->
+                                        <button *ngIf="user.roleName !== 'PROLicense'"
+                                            (click)="toggleUserRole(user._id, 'PRO')"
+                                            class="border border-satus-bronce text-satus-bronce hover:bg-satus-bronce hover:text-satus-bg px-2 py-1 text-[10px] font-bold tracking-tighter transition-all rounded-sm uppercase shadow-sm">
+                                            [ ESCALAR A PRO ]
+                                        </button>
 
-                            </div>
-                        </td>
+                                    </div>
+                                </td>
 
-                    </tr>
-                </tbody>
+                            </tr>
+                        </tbody>
 
-            </table>
+                    </table>
+                </div>
+
+            </div>
         </div>
-
-    </div>
-</div>

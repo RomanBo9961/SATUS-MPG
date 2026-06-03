@@ -290,6 +290,11 @@ document.addEventListener(
 
     const link = e.target.closest("a");
     if (link && threatList.has(link.href)) {
+
+      if (e.target.closest('.satus-popup') || link.classList.contains('satus-bypass')) {
+      return; 
+    }
+
       e.preventDefault();
       e.stopPropagation();
 
@@ -298,7 +303,7 @@ document.addEventListener(
     <b class="satus-threat-alert">💀 [ ACCESO BLOQUEADO ]</b><br><br>
     <p style="color: #ccc; font-size: 11px;">El núcleo ha detectado este hilo contenedor de phishing o malware y a impedido el acceso para su seguridad.</p>
     <div id="btn-container"></div>
-    <a href="${link.href}" target="_blank" style="color: #444; font-size: 9px; display: block; margin-top: 15px;">
+    <a href="${link.href}" target="_blank" class="satus-bypass" style="color: #444; font-size: 9px; display: block; margin-top: 15px;">
         Entiendo el riesgo y aun asi deseo acceder...
     </a>
   </div>

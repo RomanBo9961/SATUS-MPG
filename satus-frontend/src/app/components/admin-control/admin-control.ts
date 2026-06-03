@@ -75,7 +75,7 @@ export class AdminControl implements OnInit {
     });
   }
 
-  // 🚀 INTERRUPTOR MANUAL EN CALIENTE: Mutación instantánea de rangos (FREE / PRO)
+  // Ascención entre rangos (FREE / PRO)
   public toggleUserRole(userId: string, targetTier: 'FREE' | 'PRO') {
     const token = localStorage.getItem('satusToken');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
