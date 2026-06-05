@@ -16,8 +16,8 @@
         <form class="space-y-6">
             <!-- Campo Usuario / ID -->
             <div class="space-y-1">
-                <label class="text-[9px] text-gray-500 uppercase tracking-widest">Identificador Usuario</label>
-                <input type="text" name="email" [(ngModel)]="userCredentials.email" placeholder="USER_ID"
+                <label class="text-[9px] text-gray-500 uppercase tracking-widest">Usuario</label>
+                <input type="text" name="email" [(ngModel)]="userCredentials.email" placeholder="User/Email"
                     class="w-full bg-transparent border-b border-white/10 p-2 text-satus-bronce outline-none focus:border-satus-bronce transition-all">
             </div>
 
@@ -30,17 +30,22 @@
 
             <!-- Botón de Ingreso -->
             <button type="button" (click)="onLogin()"
-                class="w-full bg-satus-bronce/20 border border-satus-bronce py-3 text-xs uppercase tracking-[0.3em] text-satus-bronce hover:bg-satus-bronce hover:text-black transition-all cursor-pointer font-mono">
+                class="w-full bg-satus-report/10 border border-none py-3 text-xs uppercase tracking-[0.3em] text-satus-report hover:bg-satus-bronce/40 hover:text-black transition-all cursor-pointer font-mono">
                 [ Ingresar ]
             </button>
         </form>
 
-        <div class="mt-1.5 pt-1 flex flex-col items-center justify-center border-t border-white/5 pt-4 font-mono w-full">
+        <div
+            class="mt-1.5 pt-1 flex flex-col items-center justify-center border-t border-white/5 pt-4 font-mono w-full">
 
             <!-- Contenedor para inyectar el botón oficial de GOOG por software -->
             <div id="googleBtnAnchor"></div>
 
         </div>
+
+        <p class="mt-6 text-center text-[10px] text-gray-600 lowcase">
+            Aun no tiene un nodo, <a routerLink="/register" class="text-satus-report underline">¡Registrese ya!</a>
+        </p>
 
         <div class="mt-8 text-center">
             <a routerLink="/"

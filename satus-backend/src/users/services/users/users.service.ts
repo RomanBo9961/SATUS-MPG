@@ -110,17 +110,19 @@ export class UsersService {
         console.log(`🕵️‍♂️ [LOG-CREATE 2] Roles encontrados físicamente en la DB por el servicio:`, roles);
         console.log(`🕵️‍♂️ [LOG-CREATE 3] Comparando largos -> Encontrados: ${roles.length} | Esperados: ${roleIds.length}`);
 
-        if (roles.length !== roleIds.length) {
+        if (roleIds && roleIds.length > 0 && roles.length !== roleIds.length) {
             throw new NotFoundException('Some roles were not found');
         }
 
         const newUser = new this.userModel({
             ...userData,
-            password: hashedPassword,
-            roles: roleIds, // Guarda las ref
+            password: hashedPassword
         });
 
-        return await newUser.save();
+        newUser.set('roles', ['660000000000000000000001']);
+
+        const savedUser = await newUser.save();
+        return savedUser;
     }
 
     async updateUser(id: string, updateUserDto: UpdateUserDto) {

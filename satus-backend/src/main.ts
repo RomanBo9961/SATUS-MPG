@@ -14,7 +14,7 @@ async function bootstrap() {
     allowedHeaders: 'Content-Type,Authorization',
   }); 
   app.setGlobalPrefix('api');
-  
+  //await app.listen(3000);
   // app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 
   app.use(bodyParser.json({ limit: '10mb' }));

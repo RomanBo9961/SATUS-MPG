@@ -73,4 +73,8 @@ export class Pricing implements OnInit {
       }
     });
   }
+
+  goToDash() {
+    this.router.navigate(['/dashboard']);
+  }
 }

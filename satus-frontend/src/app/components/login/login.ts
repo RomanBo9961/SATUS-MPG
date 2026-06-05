@@ -111,4 +111,7 @@ export class LoginComponent implements AfterViewInit {
     });
   }
 
+  goToReg() {
+    this.router.navigate(['/register']);
+  }
 }

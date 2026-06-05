@@ -14,6 +14,7 @@ declare const google: any;
   styleUrl: './landing.css',
 })
 export class Landing implements OnInit, AfterViewInit {
+  estadoExtension: string = 'disponible';
   loadingSystem = true;
   progress = 0;
 
@@ -35,6 +36,9 @@ export class Landing implements OnInit, AfterViewInit {
     this.systemBoot();
     this.getLiveSpecs();
     this.igniteGoogleOneTap();
+    if (localStorage.getItem('ext_instalada') === 'true') {
+      this.estadoExtension = 'instalado';
+    }
   }
 
   // DISPARO DEL GOOGLE ONE TAP 
@@ -192,5 +196,19 @@ export class Landing implements OnInit, AfterViewInit {
         }, 800);
       }
     }, 150);
+  }
+
+  //Instalacion EXTENSION
+  emularInstalacion() {
+    if (this.estadoExtension !== 'disponible') return;
+
+    this.estadoExtension = 'instalando';
+
+    setTimeout(() => {
+      this.estadoExtension = 'instalado';
+      localStorage.setItem('ext_instalada', 'true');
+      this.cd.detectChanges();
+
+    }, 3000);
   }
 }

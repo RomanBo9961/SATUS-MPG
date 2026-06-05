@@ -27,8 +27,8 @@ export class AuthService {
         );
     }
 
-    register(userData: any) {
-        return this.http.post<any>('/api/users/register', userData);
+    register(payload: any) {
+        return this.http.post<any>('http://localhost:3000/api/users/register', payload);
     }
 
     getUsername() {

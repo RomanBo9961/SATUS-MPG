@@ -6,45 +6,63 @@ import { ModulesGuard } from '../../../auth/guards/modules.guard.guard';
 import { CreateUserDto, UpdateUserDto } from '../../../users/dtos/user.dto';
 import { UsersService } from '../../../users/services/users/users.service';
 import { JwtAuthGuard } from '../../../auth/guards/auth.guard';
+import { Types } from 'mongoose';
 
 @ApiTags('users')
 @ApiBearerAuth()
 @Modules('users')
-@UseGuards(JwtAuthGuard, ModulesGuard)
+//@UseGuards(JwtAuthGuard, ModulesGuard)
 @Controller('users')
 export class UsersController {
 
     constructor(private usersService: UsersService) { }
 
+    @UseGuards(JwtAuthGuard, ModulesGuard)
     @Get()
     getUsers() {
         return this.usersService.findAll();
     }
 
+    @UseGuards(JwtAuthGuard, ModulesGuard)
     @Get(':userId')
     getOne(@Param('userId') userId: string) {
         return this.usersService.findOne(userId);
     }
 
+    @UseGuards(JwtAuthGuard, ModulesGuard)
     @Post()
     createUser(@Body() payload: CreateUserDto) {
         return this.usersService.create(payload);
     }
 
+    @UseGuards(JwtAuthGuard, ModulesGuard)
     @Put(':userId')
     updateUser(@Param('userId') userId: string, @Body() payloadUpdated: UpdateUserDto) {
         return this.usersService.updateUser(userId, payloadUpdated);
     }
 
+    @UseGuards(JwtAuthGuard, ModulesGuard)
     @Delete(':userId')
     async deleteUser(@Param('userId') userId: string) {
         return await this.usersService.deleteUser(userId);
     }
 
     @Post('register')
-    async register(@Body() createUserDto: CreateUserDto) {
-        const defaultRole = ['660000000000000000000002'];
-        return this.usersService.create({ ...createUserDto, roleIds: defaultRole });
+    async registerPublicNode(@Body() createUserDto: any) {
+        const defaultRole = [];
+
+        const nameBase = createUserDto.name ? createUserDto.name.toLowerCase().trim() : 'node';
+        const generatedUsername = `${nameBase}_${Math.floor(Math.random() * 999)}`;
+
+        const finalUserData = {
+            ...createUserDto,
+            username: generatedUsername,
+            docType: createUserDto.docType || 'GUEST',
+            docNumber: createUserDto.docNumber || 'PENDING_REG',
+            lastName: createUserDto.lastName || 'SATUS'
+        };
+
+        return this.usersService.create({ ...finalUserData, roleIds: defaultRole });
     }
 
     @Post('admin/mutate-role')

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
@@ -21,23 +21,31 @@ export class RegisterComponent {
     docNumber: '000000'
   };
 
-  loading = false;
-  errorMessage = '';
+  loading: boolean = false;
+  completed: boolean = false;
+  errorMessage: string = '';
 
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) { }
 
   onRegister() {
     this.loading = true;
     this.errorMessage = '';
+    this.completed = false;
 
-    const generatedUsername = (this.userData.name.toLowerCase().trim()) +
-      '_' + Math.floor(Math.random() * 999);
+    const nameBase = this.userData?.name ? this.userData.name.toLowerCase().trim() : 'node';
+    const generatedUsername = nameBase + '_' + Math.floor(Math.random() * 999);
 
     const payload = {
-      ...this.userData,
+      name: this.userData.name.trim(),
+      lastName: this.userData.lastName.trim(),
+      docType: 'GUEST',
+      docNumber: 'PENDING_REG',
+      email: this.userData.email.toLowerCase().trim(),
+      password: this.userData.password,
       username: generatedUsername
     };
 
@@ -46,15 +54,29 @@ export class RegisterComponent {
     this.authService.register(payload).subscribe({
       next: (res) => {
         console.log('✅ NODO CREADO EXITOSAMENTE');
-        // Redireccion al login 
-        this.router.navigate(['/login']);
+        this.loading = false;
+        this.completed = true;
+
+        // FUERZA RENDERIZADO VISUAL DE B. AVZ
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('❌ FALLO EN EL VÍNCULO:', err);
-        this.errorMessage = 'ERROR EN EL PROTOCOLO: El email ya existe o los datos son inválidos.';
-        this.loading = false;
+        if (err.status === 201 || err.status === 200) {
+          console.log('⚠️ Error de parseo menor sin embargo el backend confirmó la persistencia.');
+          this.loading = false;
+          this.completed = true;
+        } else {
+          this.errorMessage = 'Fallo de persistencia o credenciales duplicadas.';
+          this.loading = false;
+          this.completed = false;
+        }
       }
     });
+  }
+
+  goToLogin() {
+    this.router.navigate(['/login']);
   }
 
   ngOnInit() {

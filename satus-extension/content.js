@@ -286,14 +286,22 @@ async function checkPageIntegrity() {
 document.addEventListener(
   "click",
   (e) => {
+    if (
+      window.location.href.includes("localhost:4200") ||
+      window.location.href.includes("register")
+    ) {
+      return;
+    }
     if (userRole !== "PROLicense" && userRole !== "SUPAdmin") return;
 
     const link = e.target.closest("a");
     if (link && threatList.has(link.href)) {
-
-      if (e.target.closest('.satus-popup') || link.classList.contains('satus-bypass')) {
-      return; 
-    }
+      if (
+        e.target.closest(".satus-popup") ||
+        link.classList.contains("satus-bypass")
+      ) {
+        return;
+      }
 
       e.preventDefault();
       e.stopPropagation();
@@ -301,7 +309,7 @@ document.addEventListener(
       const warningHtml = `
   <div style="text-align: center;">
     <b class="satus-threat-alert">💀 [ ACCESO BLOQUEADO ]</b><br><br>
-    <p style="color: #ccc; font-size: 11px;">El núcleo ha detectado este hilo contenedor de phishing o malware y a impedido el acceso para su seguridad.</p>
+    <p style="color: #ccc; font-size: 11px;">El núcleo ha detectado este hilo como contenedor potencial de phishing o malware y le a impedido el acceso para su seguridad.</p>
     <div id="btn-container"></div>
     <a href="${link.href}" target="_blank" class="satus-bypass" style="color: #444; font-size: 9px; display: block; margin-top: 15px;">
         Entiendo el riesgo y aun asi deseo acceder...
@@ -317,7 +325,17 @@ document.addEventListener(
           const btn = document.createElement("button");
           btn.innerText = "[ REGRESAR AL NÚCLEO ]";
           btn.className = "satus-main-btn";
-          btn.onclick = () => document.querySelector(".satus-popup")?.remove();
+          btn.onclick = () => {
+            const popup = document.querySelector(".satus-popup");
+            if (popup) popup.remove();
+
+            const isLocal = true;
+            const targetDomain = isLocal
+              ? "http://localhost:4200"
+              : "https://satus-app.com";
+
+            window.location.href = `${targetDomain}/login`;
+          };
           container.appendChild(btn);
         }
       }, 50);
