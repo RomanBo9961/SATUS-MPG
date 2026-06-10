@@ -1,0 +1,29 @@
+
+/* Ancho de la barra */
+::-webkit-scrollbar {
+width: 5px;          
+height: 5px;         
+}
+
+/* fondo por donde se desliza la barra */
+::-webkit-scrollbar-track {
+background: #09090b; 
+border-radius: 2px;
+}
+
+/* La barra que se mueve*/
+::-webkit-scrollbar-thumb {
+background: #c29b5bc3; /* Tu color satus-bronce corporativo */
+border-radius: 4px;
+}
+
+/* Efecto deslizamiento del cursor */
+::-webkit-scrollbar-thumb:hover {
+background: #eafe01; 
+}
+
+/* 2. Soporte estándar para Firefox */
+* {
+scrollbar-width: thin;
+scrollbar-color: #c3bcb0af #09090b;
+}

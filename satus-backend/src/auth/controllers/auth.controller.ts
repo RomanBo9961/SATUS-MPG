@@ -40,13 +40,13 @@ export class AuthController {
 
     @UseGuards(JwtAuthGuard)
     @Post('upgrade-license')
-    @ApiOperation({ summary: 'Escalamiento de rango a PROLicense y migración masiva de escaneos históricos' })
+    @ApiOperation({ summary: 'Escalamiento de rango y migración masiva de escaneos históricos' })
     async upgradeToProAccount(
         @Request() req: any,
         @Body() body: { guestId: string }
     ) {
         const userId = req.user._id;
-        const { guestId } = body;
+        const { guestId, targetLicense } = body as any;
 
         if (!guestId) {
             return { success: false, message: 'Aduana SATUS: Identificador de terminal ausente.' };
@@ -55,13 +55,13 @@ export class AuthController {
         console.log(`📥 [COMPRA DETECTADA] Solicitud de escalamiento enviada por analista: ${userId}`);
 
         // Invoca el reactor UPGRADE del UsersService 
-        const migrationResult = await this.usersService.upgradeToPro(userId, guestId);
+        const migrationResult = await this.usersService.upgradeLicenseRange(userId, guestId, targetLicense);
 
         // Firma de nueva credencial PRO 
         const newSessionToken = await this.authService.login({
             _id: userId,
-            username: migrationResult.user.username,
-            roleName: migrationResult.user.role
+            username: migrationResult.username,
+            roleName: migrationResult.newRoleName
         });
 
         return {

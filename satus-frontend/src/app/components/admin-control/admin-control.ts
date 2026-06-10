@@ -12,6 +12,9 @@ import { Router } from '@angular/router';
 })
 export class AdminControl implements OnInit {
 
+  //array de lectura logs central ctrl
+  liveSystemLogs: Array<{ time: string, text: string }> = [];
+
   // Matriz elástica que almacenará el mapa global de usuarios extraídos de MongoDB
   public usersList: any[] = [];
 
@@ -22,9 +25,27 @@ export class AdminControl implements OnInit {
   ) { }
 
   ngOnInit() {
+    const originalLog = console.log;
+
+    console.log = (...args: any[]) => {
+      originalLog.apply(console, args);
+
+      const message = args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : arg).join(' ');
+      const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+      // Agregamos el objeto al inicio del array
+      this.liveSystemLogs.unshift({ time, text: message });
+
+      // Limite de 12 entradas para mantener el rendimiento impecable
+      if (this.liveSystemLogs.length > 12) this.liveSystemLogs.pop();
+
+      this.cd.detectChanges();
+    };
+
     console.log("🛰️ [TORRE ADMIN] Inicializando canales de telemetría global...");
     this.checkSecurityClearance();
     this.fetchGlobalUsers();
+
   }
 
   //  Si el usuario actual no es ADMIN, lo expulsamos
@@ -99,5 +120,9 @@ export class AdminControl implements OnInit {
         alert("❌ Error de comunicación: La torre de control de NestJS no respondió.");
       }
     });
+  }
+
+  goToDash() {
+    this.router.navigate(['/dashboard']);
   }
 }

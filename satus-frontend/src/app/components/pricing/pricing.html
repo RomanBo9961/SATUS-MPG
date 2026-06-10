@@ -50,9 +50,9 @@
                                     Centinela en Ráfaga Pasiva</del></li>
                         </ul>
                     </div>
-                    <button (click)="goToDash()"
+                    <button (click)=" goToDash()"
                         class="w-full bg-transparent border border-satus-report/20 text-satus-report/20 font-bold text-[11px] tracking-wider py-3 mt-8 rounded-sm transition-all duration-300">
-                        [ >> VOLVER ATRÁS]
+                        {{ currentRole === 'FREEDefault' ? '[ MANTENERSE GUEST ]' : '[ GUEST ADQUIRIDO ]' }}
                     </button>
                 </div>
 
@@ -79,9 +79,12 @@
                                     Centinela en Ráfaga Global</del></li>
                         </ul>
                     </div>
-                    <button
-                        class="w-full bg-transparent border border-satus-bronce text-satus-bronce font-bold text-[11px] tracking-wider py-3 mt-8 rounded-sm transition-all duration-200 hover:bg-satus-bronce hover:text-satus-bg hover:shadow-[0_0_15px_rgba(205,182,50,0.4)]">
-                        [ ADQUIRIR BUSINESS ]
+                    <button (click)="handleBusinessAction()" class="w-full bg-transparent font-bold text-[11px] tracking-wider py-3 mt-8 rounded-sm transition-all duration-300 border
+                {{ currentRole === 'AVZAccount' || currentRole === 'PROLicense' 
+                    ? 'border-zinc-800 text-zinc-600 cursor-pointer bg-zinc-950/40 hover:bg-zinc-900/30' 
+                    : 'border-satus-bronce text-satus-bronce hover:bg-satus-bronce/10 cursor-pointer' }}">
+                        {{ currentRole === 'PROLicense' ? '[ BUSINESS ADQUIRIDO ]' : (currentRole === 'AVZAccount' ? '[
+                        MANTENERSE BUSINESS ]' : '[ ADQUIRIR BUSINESS ]') }}
                     </button>
                 </div>
 
@@ -108,10 +111,9 @@
                                 Centinela Masivo en el DOM</li>
                         </ul>
                     </div>
-                    <button
-                        class="w-full bg-[rgba(205,182,50,0.03)] border border-satus-bronce text-satus-bronce font-bold text-[11px] tracking-wider py-3 mt-8 rounded-sm transition-all duration-200 hover:bg-satus-bronce hover:text-satus-bg hover:shadow-[0_0_15px_rgba(205,182,50,0.4)]"
-                        (click)="triggerProUpgrade()">
-                        [ ADQUIRIR EJECUTIVO ]
+                    <button (click)="triggerUpgrade('PRO')" [disabled]="currentRole === 'PROLicense'"
+                        class="w-full bg-[rgba(205,182,50,0.03)] border border-satus-bronce text-satus-bronce font-bold text-[11px] tracking-wider py-3 mt-8 rounded-sm transition-all duration-200 hover:bg-satus-bronce hover:text-satus-bg hover:shadow-[0_0_15px_rgba(205,182,50,0.4)]">
+                        {{ currentRole === 'PROLicense' ? '[ PLAN ACTUAL ]' : '[ ADQUIRIR EJECUTIVO ]' }}
                     </button>
                 </div>
 

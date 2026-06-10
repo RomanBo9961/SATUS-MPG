@@ -17,15 +17,52 @@
     </div>
 
     <div class="flex items-center gap-6">
-      <div class="text-[10px] text-satus-neon tracking-widest uppercase">
-        Estado: <span class="text-satus-on">Seguro</span> | Nodo: <span class="text-satus-on">{{ userRole }}</span>
+      <div class="text-[10px] text-satus-neon tracking-widest uppercase flex items-center gap-1">
+
+        <!-- inicio ENCABEZADO con NODO & STATUS -->
+        <span>Estado: <span class="text-satus-on">Seguro</span> | </span>
+
+        <!-- CONTENEDOR RELATIVO DEL NODO (Dispara el Popup en Hover) -->
+        <div
+          class="relative group cursor-pointer select-none py-0.5 px-1 rounded-sm transition-colors duration-200 hover:bg-zinc-900/40">
+
+          <!-- Texto original dinámico con tu variable {{ userRole }} -->
+          <span>Nodo: <span class="text-satus-on">{{ userRole }}</span></span>
+
+          <div *ngIf="userRole === 'AVZAccount'"
+            class="absolute right-0 top-full mt-2 w-64 bg-zinc-950 border border-zinc-800 p-4 rounded-sm shadow-2xl opacity-0 invisible translate-y-1
+                  transition-all duration-300 delay-300 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 z-50 pointer-events-none group-hover:pointer-events-auto normal-case tracking-normal">
+
+            <!-- Cabecera de la terminal -->
+            <div class="font-mono text-[9px] tracking-widest text-zinc-500 mb-2 uppercase">CAPACIDAD DEL NODO</div>
+
+            <div class="space-y-2 border-b border-zinc-900 pb-3 mb-3 font-mono">
+              <div class="flex justify-between text-[10px] uppercase">
+                <span class="text-zinc-400">Escudo Heurístico:</span>
+                <span class="text-satus-on font-bold">ACTIVO</span>
+              </div>
+              <div class="flex justify-between text-[10px] uppercase">
+                <span class="text-zinc-400">Escudo Centinela:</span>
+                <span class="text-satus-bronce font-bold animate-pulse">[ BLOQUEADO ]</span>
+              </div>
+
+
+              <a [routerLink]="['/pricing']"
+                class="block w-full text-center py-2 bg-satus-bronce/10 border border-satus-bronce/30 text-satus-bronce font-bold text-[9px] tracking-widest uppercase rounded-sm transition-all duration-200 hover:bg-satus-bronce hover:text-black">
+                [ DESBLOQUEAR NODO PRO ]
+              </a>
+            </div>
+
+          </div>
+
+        </div>
       </div>
 
       <!--BOTON SuperADMIN-->
       <div *ngIf="userRole === 'ADMIN' || userRole === 'SUPAdmin'" class="flex items-center">
         <button routerLink="/admin-control"
-          class="border border-satus-bronce text-satus-bronce bg-zinc-950/40 px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest hover:bg-satus-bronce hover:text-satus-bg hover:shadow-[0_0_15px_rgba(205,182,50,0.4)] transition-all duration-200 rounded-sm cursor-pointer animate-pulse">
-          [ CENTRAL DE CONTROL ]
+          class="border border-none text-satus-bronce bg-zinc-950/40 px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest hover:bg-satus-bronce hover:text-satus-bg hover:shadow-[0_0_15px_rgba(205,182,50,0.4)] transition-all duration-200 rounded-sm cursor-pointer animate-pulse">
+          >> Ir a Central de Control
         </button>
       </div>
 
@@ -101,7 +138,7 @@
 
               <button (click)="scan.expanded = !scan.expanded"
                 class="block mt-2 text-satus-neon hover:underline cursor-pointer uppercase text-[9px] tracking-widest">
-                {{ scan.expanded ? '[ - COLAPSAR ]' : '[ + VER_MÁS ]' }}
+                {{ scan.expanded ? '[ - COLAPSAR ]' : '[ + VER MÁS... ]' }}
               </button>
             </ng-container>
 
@@ -142,7 +179,7 @@
 
           <button routerLink="/pricing"
             class="bg-satus-on text-black px-8 py-3 text-xs font-bold uppercase tracking-widest hover:scale-105 transition-transform shadow-[0_10px_20px_rgba(0,0,0,0.5)]">
-            [ Subir a NIVEL AVANZADO ]
+            [ Subir de NODO]
           </button>
 
           <p class="mt-4 text-[8px] text-gray-500 uppercase">Desbloquea reportes y análisis detallados</p>

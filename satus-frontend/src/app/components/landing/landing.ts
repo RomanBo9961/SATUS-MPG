@@ -71,7 +71,8 @@ export class Landing implements OnInit, AfterViewInit {
       google.accounts.id.initialize({
         client_id: '231382826392-s8tv5kiimpuc2j27lafdlli6hit51vlb.apps.googleusercontent.com',
         callback: (response: any) => this.handleGoogleCredential(response),
-        auto_select: false
+        auto_select: false,
+        use_fedcm_for_prompt: false // <-- Linea para ignorar el fedCM para el oneTap 
       });
 
       google.accounts.id.prompt((notification: any) => {

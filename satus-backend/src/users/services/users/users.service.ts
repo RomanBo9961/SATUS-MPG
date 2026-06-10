@@ -119,7 +119,13 @@ export class UsersService {
             password: hashedPassword
         });
 
-        newUser.set('roles', ['660000000000000000000001']);
+        //newUser.set('roles', ['660000000000000000000001']);
+        // Si encuentra roles mapeados los usa, si viene vacío [] inyecta el de respaldo
+        const rolesToAssign = roles && roles.length > 0
+            ? roles.map(role => role._id)
+            : ['660000000000000000000001'];
+
+        newUser.set('roles', rolesToAssign);
 
         const savedUser = await newUser.save();
         return savedUser;
@@ -170,18 +176,30 @@ export class UsersService {
 
             const hashedPassword = await bcrypt.hash(`GUEST_KEY_${guestId}`, 10);
 
+            //Def. de Rol por default para registro
+            let guestRoleId = '660000000000000000000001'; // Tu ID de confianza por defecto
+
+            try {
+                const guestRole = await this.rolesService.findOne('GUEST');
+                if (guestRole && guestRole._id) {
+                    guestRoleId = guestRole._id.toString();
+                }
+            } catch (error) {
+                console.log('[NGXLOG] No se pudo recuperar el rol dinámico, usando respaldo fijo.');
+            }
+
             // Creamos e insertamos el documento en un solo ciclo 
             guestUser = await this.userModel.create({
                 _id: new Types.ObjectId(fixedGuestObjectId),
                 name: 'Invitado',
                 lastName: 'SATUS',
-                username: guestId, // Mantiene el nombre dinámico GUEST_ZS8RW4 
+                username: guestId,
                 docType: 'GUEST',
                 docNumber: guestId,
                 email: technicalEmail,
                 password: hashedPassword,
                 isActive: true,
-                roles: ['660000000000000000000001'] // Rol FREEDefault indexado
+                roles: [guestRoleId] // Rol FREEDefault indexado
             });
         }
 
@@ -195,7 +213,7 @@ export class UsersService {
 
     //metodo UPGRADE para roles / MIGRACION escaneos entre roles
 
-    async upgradeToPro(userId: string, guestId: string) {
+    /*async upgradeToPro(userId: string, guestId: string) {
         console.log(` [ASCENSO A PRO] Iniciando escalamiento seguro a PROLicense para el usuario: ${userId}`);
         console.log(` [MUDA DE ESCANEOS] Se heredarán los escaneos del dispositivo: ${guestId}`);
 
@@ -231,5 +249,62 @@ export class UsersService {
                 role: (userUpdated as any).roleName || 'PROLicense'
             }
         };
+    } */
+
+    async upgradeLicenseRange(userId: string, guestId: string, targetLicense: 'AVANZADO' | 'PRO') {
+
+        let targetRoleId = '660000000000000000000003';
+        let roleNameResponse = 'PROLicense';
+
+        if (targetLicense === 'AVANZADO') {
+            targetRoleId = '660000000000000000000002';
+            roleNameResponse = 'AVZAccount';
+        }
+
+        try {
+            // Intentamos buscar el rol real en DB
+            const searchName = targetLicense === 'AVANZADO' ? 'AVZAccount' : 'PROLicense';
+            const dbRole = await this.rolesService.findOne(searchName);
+            if (dbRole && dbRole._id) {
+                targetRoleId = dbRole._id.toString();
+            }
+        } catch (error) {
+            console.log(`[MongoDB] No se pudo mapear el rol dinámico para ${targetLicense}, activando ID de contingencia física.`);
+        }
+
+        // 1. Ejecuta subida de rol
+        const userUpdated = await this.userModel.findByIdAndUpdate(
+            userId,
+            { $set: { roles: [targetRoleId] } },
+            { returnDocument: 'after' }
+        ).exec();
+
+        if (!userUpdated) throw new NotFoundException('El analista objetivo no existe en la base de datos.');
+
+        // 2. MIGRACIÓN HISTÓRICA DE ESCANEOS 
+        const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(guestId);
+
+        if (isValidObjectId) {
+            const technicalGuestId = new Types.ObjectId(guestId);
+            const userObjectId = new Types.ObjectId(userId);
+
+            const migrationResult = await this.userModel.db.collection('detections').updateMany(
+                { owner: technicalGuestId, terminalId: guestId },
+                { $set: { owner: userObjectId, terminalId: null, updatedAt: new Date() } }
+            );
+
+            console.log(`[MongoDB] Migración completa. ${migrationResult.modifiedCount} escaneos heredados al usuario real.`);
+        } else {
+            console.log(`⚠️ [PUENTE]: guestId analizado [${guestId}] no es una firma válida de MongoDB. Saltando herencia de escaneos.`);
+        }
+        // 3. Firma y respuesta para armar el JWT Token
+        return {
+            success: true,
+            message: `Aduana SATUS: Rango escalado a ${roleNameResponse} y escaneos vinculados con éxito.`,
+            username: (userUpdated as any).username || (userUpdated as any).email,
+            user_role: targetRoleId,
+            newRoleName: roleNameResponse
+        };
     }
+
 }

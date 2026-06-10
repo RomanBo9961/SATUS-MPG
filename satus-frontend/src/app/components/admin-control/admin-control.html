@@ -30,6 +30,12 @@
 
                 <!-- CONTADORES DE TELEMETRÍA GLOBAL -->
                 <div class="flex gap-4 text-xs">
+
+                    <p class="mt-6 text-center text-[10px] text-gray-600 lowcase">
+                        <a (click)="goToDash()" class="text-satus-report underline cursor-pointer select-none transition-colors duration-200 hover:text-satus-bronce hover:underline">« Volver al
+                            Dashboard</a>
+                    </p>
+
                     <div class="bg-satus-dark border border-zinc-800 px-4 py-2 rounded-sm">
                         <span class="text-gray-500 block text-[9px] tracking-wider">TOTAL USUARIOS</span>
                         <span class="text-gray-500 block text-sm">{{ usersList.length }}</span>
@@ -120,6 +126,36 @@
                         </tbody>
 
                     </table>
+                </div>
+
+                <!-- TERMINAL DE AUDITORÍA -->
+                <div
+                    class="mt-8 border border-zinc-900 bg-black/40 p-5 rounded-sm font-mono text-[10px] tracking-widest text-zinc-500">
+
+                    <!-- Encabezado de la Terminal -->
+                    <div class="flex justify-between items-center border-b border-zinc-900 pb-2 mb-3 select-none">
+                        <span class="text-satus-bronce font-bold animate-pulse"> REGISTRO DE ACTIVIDAD EN NUCLEO</span>
+                        <span class="text-[9px] text-zinc-600">[ ESTADO: MONITOREO DE HILOS ]</span>
+                    </div>
+
+                    <!-- Contenedor con scroll de entradas mapeados -->
+                    <div class="max-h-[160px] overflow-y-auto space-y-1.5 scrollbar-thin scrollbar-thumb-zinc-950">
+                        <div *ngFor="let log of liveSystemLogs"
+                            class="flex gap-3 hover:bg-zinc-900/30 py-0.5 px-1 transition-colors duration-150">
+                            <!-- Hora en un tono apagado -->
+                            <span class="text-zinc-700 select-none">[{{ log.time }}]</span>
+
+                            <!-- Cuerpo del mensaje resaltando tus prefijos con condicionales rápidos -->
+                            <span [ngClass]="{
+        'text-satus-neon font-bold': log.text.includes('[NÚCLEO') || log.text.includes('[CENTINELA]'),
+        'text-amber-500': log.text.includes('[PUENTE]'),
+        'text-emerald-400': log.text.includes('[MongoDB]'),
+        'text-zinc-400': !log.text.includes('[')
+        }">
+                                {{ log.text }}
+                            </span>
+                        </div>
+                    </div>
                 </div>
 
             </div>
