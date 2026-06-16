@@ -11,7 +11,7 @@ import config from '../config';
 import { ModulesGuard } from './guards/modules.guard.guard';
 import { JwtAuthGuard } from './guards/auth.guard';
 import { RolesModule } from '../roles/roles.module';
-import { TelemetryGateway } from '../telemetry/gateways/telemetry/telemetry.gateway';
+import { TelemetryModule } from '../telemetry/telemetry.module';
 
 
 @Module({
@@ -19,7 +19,7 @@ import { TelemetryGateway } from '../telemetry/gateways/telemetry/telemetry.gate
     UsersModule,
     PassportModule,
     RolesModule,
-    TelemetryGateway,
+    TelemetryModule,
     JwtModule.registerAsync({
       inject: [config.KEY],
       useFactory: (configType: ConfigType<typeof config>): JwtModuleOptions => {
