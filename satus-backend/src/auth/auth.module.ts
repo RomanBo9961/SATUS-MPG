@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
-import { JwtModule, JwtModuleOptions } from '@nestjs/jwt'; 
+import { JwtModule, JwtModuleOptions } from '@nestjs/jwt';
 import { ConfigType } from '@nestjs/config';
 
 import { AuthService } from '../auth/services/auth.service';
@@ -10,13 +10,16 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import config from '../config';
 import { ModulesGuard } from './guards/modules.guard.guard';
 import { JwtAuthGuard } from './guards/auth.guard';
-import { RolesModule } from '../roles/roles.module'; 
+import { RolesModule } from '../roles/roles.module';
+import { TelemetryGateway } from '../telemetry/gateways/telemetry/telemetry.gateway';
+
 
 @Module({
   imports: [
     UsersModule,
     PassportModule,
     RolesModule,
+    TelemetryGateway,
     JwtModule.registerAsync({
       inject: [config.KEY],
       useFactory: (configType: ConfigType<typeof config>): JwtModuleOptions => {
@@ -33,4 +36,4 @@ import { RolesModule } from '../roles/roles.module';
   controllers: [AuthController],
   exports: [AuthService, ModulesGuard, JwtAuthGuard],
 })
-export class AuthModule {}
+export class AuthModule { }

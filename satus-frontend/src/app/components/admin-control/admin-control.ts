@@ -1,7 +1,9 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { TelemetryService } from '../../services/telemetry';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-admin-control',
@@ -10,7 +12,7 @@ import { Router } from '@angular/router';
   templateUrl: './admin-control.html',
   styleUrl: './admin-control.css'
 })
-export class AdminControl implements OnInit {
+export class AdminControl implements OnInit, OnDestroy {
 
   //array de lectura logs central ctrl
   liveSystemLogs: Array<{ time: string, text: string }> = [];
@@ -18,10 +20,13 @@ export class AdminControl implements OnInit {
   // Matriz elástica que almacenará el mapa global de usuarios extraídos de MongoDB
   public usersList: any[] = [];
 
+  private telemetrySub!: Subscription;
+
   constructor(
     private readonly http: HttpClient,
     private readonly router: Router,
-    private readonly cd: ChangeDetectorRef
+    private readonly cd: ChangeDetectorRef,
+    private readonly telemetryService: TelemetryService
   ) { }
 
   ngOnInit() {
@@ -46,16 +51,30 @@ export class AdminControl implements OnInit {
     this.checkSecurityClearance();
     this.fetchGlobalUsers();
 
+    this.telemetryService.connectSystem();
+
+    // B. Nos suscribimos al dardo que viene del servidor
+    this.telemetrySub = this.telemetryService.getLiveLogs().subscribe((nuevoLog) => {
+
+      console.log(`📡 [${nuevoLog.type}]: ${nuevoLog.message} (Operador: ${nuevoLog.operator})`);
+    });
   }
 
-  //  Si el usuario actual no es ADMIN, lo expulsamos
+  ngOnDestroy() {
+    if (this.telemetrySub) {
+      this.telemetrySub.unsubscribe();
+    }
+    this.telemetryService.disconnectSystem();
+  }
+
+
+  //  Si el usuario actual no es ADMIN, lo expulsa
   private checkSecurityClearance() {
     const userRole = localStorage.getItem('user_role');
     const token = localStorage.getItem('satusToken');
 
-    // Cortafuegos local: Si intenta saltarse el path escribiéndolo en la barra de navegación
     if (!token || token === 'GUEST_TOKEN' || (userRole !== 'ADMIN' && userRole !== 'SUPAdmin')) {
-      console.error("🚨 [ALERTA PRIVILEGIOS] Intento de intrusión detectado en ruta administrativa.");
+      console.error("🚨 [ALERTA] Intrusión en ruta administrativa.");
       this.router.navigate(['/']);
     }
   }

@@ -5,12 +5,14 @@ import { LoginDto } from '../dtos/login.dto';
 import { AuthService } from '../services/auth.service';
 import { JwtAuthGuard } from '../guards/auth.guard';
 import { UsersService } from '../../users/services/users/users.service';
+import { TelemetryGateway } from '../../telemetry/gateways/telemetry/telemetry.gateway';
 
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
 
     constructor(private readonly authService: AuthService,
+        private readonly telemetryGateway: TelemetryGateway,
         private readonly usersService: UsersService) { }
 
     @Post('login')
@@ -68,6 +70,20 @@ export class AuthController {
             ...migrationResult,
             token: newSessionToken.access_token
         };
+    }
+
+    @Post('test-telemetry')
+    async triggerTestLog() {
+        console.log('💥 [NÚCLEO]: Disparando ráfaga de prueba hacia el WebSocket...');
+
+        // Invoca el método de la antena para lanzar el JSON 
+        this.telemetryGateway.broadcastSystemLog({
+            type: 'SECURITY_ALERT',
+            message: '¡PERÍMETRO INTACTO! Conexión bidireccional NestJS-Angular verificada.',
+            operator: 'SUPAdmin_Kernel'
+        });
+
+        return { success: true, status: 'Dardo de telemetría emitido con éxito.' };
     }
 }
 
