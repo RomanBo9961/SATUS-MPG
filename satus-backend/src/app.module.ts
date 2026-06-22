@@ -11,6 +11,7 @@ import { UsersModule } from './users/users.module';
 import { enviroments } from './enviroments';
 import { DetectionsModule } from './detections/detections.module';
 import { TelemetryModule } from './telemetry/telemetry.module';
+import { PaymentsModule } from './payments/payments.module';
 import config from './config';
 
 const nodeEnv = process.env.NODE_ENV || 'dev'; 
@@ -42,6 +43,7 @@ const nodeEnv = process.env.NODE_ENV || 'dev';
     UsersModule,
     DetectionsModule,
     TelemetryModule,
+    PaymentsModule,
     // Nota: Roles y Permissions se manejarán como campos en el Doc de Usuario en Mongo
   ],
   controllers: [AppController],

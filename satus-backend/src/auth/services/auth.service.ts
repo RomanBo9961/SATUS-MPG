@@ -147,6 +147,23 @@ export class AuthService {
 
         return this.login(mappedUser);
     }
+
+    // Metodo UPGRADE sint controller
+    async processLicenseUpgrade(userId: string, guestId: string, targetLicense: 'AVANZADO' | 'PRO') {
+
+        const migrationResult = await this.usersService.upgradeLicenseRange(userId, guestId, targetLicense);
+
+        const newSessionToken = await this.login({
+            _id: userId,
+            username: migrationResult.username,
+            roleName: migrationResult.newRoleName
+        });
+
+        return {
+            ...migrationResult,
+            token: newSessionToken.access_token
+        };
+    }
 }
 
 
