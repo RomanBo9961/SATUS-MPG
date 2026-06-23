@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { MongooseModule } from '@nestjs/mongoose'; 
+import { MongooseModule } from '@nestjs/mongoose';
 import * as Joi from 'joi';
 
 import { AppController } from './app.controller';
@@ -14,7 +14,7 @@ import { TelemetryModule } from './telemetry/telemetry.module';
 import { PaymentsModule } from './payments/payments.module';
 import config from './config';
 
-const nodeEnv = process.env.NODE_ENV || 'dev'; 
+const nodeEnv = process.env.NODE_ENV || 'dev';
 
 @Module({
   imports: [
@@ -23,14 +23,14 @@ const nodeEnv = process.env.NODE_ENV || 'dev';
       load: [config],
       isGlobal: true,
       validationSchema: Joi.object({
-        
+
         MONGO_INITDB_ROOT_USERNAME: Joi.string().required(),
         MONGO_INITDB_ROOT_PASSWORD: Joi.string().required(),
         MONGO_NAME: Joi.string().required(),
-        MONGO_PORT: Joi.number().required(),
+        MONGO_PORT: Joi.number().optional(),
         MONGO_HOST: Joi.string().required(),
         MONGO_CONNECTION: Joi.string().required(), // Ej: mongodb
-        
+
         // Modulo d Cibersec & Auth
         JWT_SECRET: Joi.string().required(),
         JWT_EXPIRES_IN: Joi.string().required(), // Admite '24h'
@@ -38,7 +38,7 @@ const nodeEnv = process.env.NODE_ENV || 'dev';
         AI_API_KEY: Joi.string().required(),     // Para traductor humano
       }),
     }),
-    DatabaseModule, 
+    DatabaseModule,
     AuthModule,
     UsersModule,
     DetectionsModule,
@@ -49,4 +49,4 @@ const nodeEnv = process.env.NODE_ENV || 'dev';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }
