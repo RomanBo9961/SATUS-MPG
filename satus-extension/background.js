@@ -3,7 +3,7 @@ const IS_DEVELOPMENT = false;
 
 const BACKEND_URL = IS_DEVELOPMENT
   ? "http://localhost:3000/api"
-  : "https://onrender.com";
+  : "https://satus-ecosystem.onrender.com";
 
 let currentSatusUser = { username: "INVITADO", role: "GUEST" };
 
