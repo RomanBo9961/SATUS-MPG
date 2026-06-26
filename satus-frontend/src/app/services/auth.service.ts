@@ -6,10 +6,14 @@ import { Router } from '@angular/router';
 
 
 declare const chrome: any;
+const BACKEND_URL = window.location.hostname.includes('onrender')
+    ? 'https://onrender.com'
+    : 'http://localhost:3000/api';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-    private apiUrl = '/api/auth/login'; //Confg Prox
+    //private apiUrl = '/api/auth/login'; //Confg Prox
+    private apiUrl = `${BACKEND_URL}/auth/login`;
 
     constructor(
         private http: HttpClient,
@@ -28,7 +32,8 @@ export class AuthService {
     }
 
     register(payload: any) {
-        return this.http.post<any>('http://localhost:3000/api/users/register', payload);
+        //return this.http.post<any>('http://localhost:3000/api/users/register', payload);
+        return this.http.post<any>(`${BACKEND_URL}/users/register`, payload);
     }
 
     getUsername() {
@@ -74,7 +79,8 @@ export class AuthService {
     //SINCRONIZACION para NODOS Invitado
     syncGuestSession(guestId: string): Observable<any> {
         // Peticion al controlador del Backend
-        return this.http.post<any>('http://localhost:3000/api/auth/guest-sync', { guestId }).pipe(
+        //return this.http.post<any>('http://localhost:3000/api/auth/guest-sync', { guestId }).pipe(
+        return this.http.post<any>(`${BACKEND_URL}/auth/guest-sync`, { guestId }).pipe(
             tap(res => {
                 // Con la rta de NestJS del token de MongoDB refuerza el LocalStorage
                 if (res && res.access_token) {
