@@ -2,17 +2,17 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import * as bodyParser from 'body-parser'; 
+import * as bodyParser from 'body-parser';
 
 async function bootstrap() {
-  
+
   const app = await NestFactory.create(AppModule, { bodyParser: true });
-  
-    app.enableCors({
-    origin: 'http://localhost:4200',
-    methods: 'GET,POST',
+
+  app.enableCors({
+    origin: ['https://satus-ecosystem.onrender.com', 'http://localhost:4200'],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     allowedHeaders: 'Content-Type,Authorization',
-  }); 
+  });
   app.setGlobalPrefix('api');
   //await app.listen(3000);
   // app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
@@ -21,7 +21,7 @@ async function bootstrap() {
   app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
 
   //console.log('📋 --- [TELEMETRÍA SATUS] MAPA DE COMPUERTAS ACTIVAS ---');
-    
+
   const config = new DocumentBuilder()
     .setTitle('API')
     .setDescription('The SATUS API description')
@@ -32,7 +32,7 @@ async function bootstrap() {
   SwaggerModule.setup('docs', app, document);
 
   //console.log('⚠️ [TELEMETRÍA] El router nativo de Express no está accesible directamente.');
-  
+
   await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
 }
 bootstrap();
