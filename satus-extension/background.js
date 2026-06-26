@@ -1,4 +1,10 @@
 // 1. Menú Contextual (Click derecho)
+const IS_DEVELOPMENT = false;
+
+const BACKEND_URL = IS_DEVELOPMENT
+  ? "http://localhost:3000/api"
+  : "https://onrender.com";
+
 let currentSatusUser = { username: "INVITADO", role: "GUEST" };
 
 chrome.runtime.onInstalled.addListener(() => {
@@ -103,7 +109,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     chrome.storage.local.get(["satusToken"], (result) => {
       const token = result.satusToken || "GUEST_TOKEN";
 
-      fetch("http://localhost:3000/api/detections/scan", {
+      //fetch("http://localhost:3000/api/detections/scan", {
+      fetch(`${BACKEND_URL}/detections/scan`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -127,7 +134,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     chrome.storage.local.get(["satusToken"], (result) => {
       const token = result.satusToken || "GUEST_TOKEN";
 
-      fetch("http://localhost:3000/api/detections/check-integrity", {
+      //fetch("http://localhost:3000/api/detections/check-integrity", {
+      fetch(`${BACKEND_URL}/detections/check-integrity`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -147,7 +155,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     chrome.storage.local.get(["satusToken"], (result) => {
       const token = result.satusToken || "GUEST_TOKEN";
 
-      fetch("http://localhost:3000/api/detections/bulk-check", {
+      //fetch("http://localhost:3000/api/detections/bulk-check", {
+      fetch(`${BACKEND_URL}/detections/bulk-check`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
