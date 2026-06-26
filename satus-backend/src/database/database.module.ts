@@ -12,6 +12,12 @@ import config from '../config';
       useFactory: (configService: ConfigType<typeof config>) => {
         const { connection, user, password, host, port, dbName } = configService.database;
 
+        console.log(`📡 [AUDITORÍA DE VARIABLES DEL ENV]`);
+        console.log(`➡️ CONNECTION: "${connection}" (Longitud: ${connection?.length})`);
+        console.log(`➡️ USERNAME: "${user}" (Longitud: ${user?.length})`);
+        console.log(`➡️ PASSWORD: "${password?.substring(0, 3)}...[TAPADO]" (Longitud: ${password?.length})`);
+        console.log(`➡️ HOST: "${host}" (Longitud: ${host?.length})`);
+
         //const portString = connection.includes('+srv') ? '' : (port ? `:${port}` : '');
         const portSection = connection.includes('srv') ? '' : (port ? `:${port}` : '');
 
