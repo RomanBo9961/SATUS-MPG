@@ -15,14 +15,14 @@ import config from '../config';
         //const portString = connection.includes('+srv') ? '' : (port ? `:${port}` : '');
         const portSection = connection.includes('srv') ? '' : (port ? `:${port}` : '');
 
-        const finalUri = `${connection}://${user}:${password}@${host}${portSection}/${dbName}?authSource=admin`;
+        const finalUri = `${connection}://${user}:${password}@${host}${portSection}/${dbName}`;
 
         console.log(`📡 [AUDITORÍA RED] URL construida: ${finalUri.replace(password, 'XXXXX')}`);
 
         return {
 
           uri: finalUri,
-          authSource: 'admin',
+          //authSource: 'admin',
         };
       },
     }),
