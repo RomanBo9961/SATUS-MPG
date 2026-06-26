@@ -12,13 +12,13 @@ import config from '../config';
       useFactory: (configService: ConfigType<typeof config>) => {
         const { connection, user, password, host, port, dbName } = configService.database;
 
-        const portString = connection.includes('+srv') ? '' : (port ? `:${port}` : '');
+        //const portString = connection.includes('+srv') ? '' : (port ? `:${port}` : '');
+        const portSection = connection.includes('srv') ? '' : (port ? `:${port}` : '');
 
         return {
-          // Construye la URI: mongodb://admin:615243@localhost:27017/
-          uri: `${connection}://${user}:${password}@${host}${portString}/${dbName}?authSource=admin`,
-          dbName,
-          authSource: 'admin', // Indica que el usuario 'admin' está en la db de administración de Mongo
+
+          uri: `${connection}://${user}:${password}@${host}${portSection}/${dbName}?authSource=admin`,
+          authSource: 'admin',
         };
       },
     }),
