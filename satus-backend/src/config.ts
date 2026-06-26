@@ -6,7 +6,9 @@ export default registerAs('config', () => {
       dbName: process.env.MONGO_NAME,
       user: process.env.MONGO_INITDB_ROOT_USERNAME,
       password: process.env.MONGO_INITDB_ROOT_PASSWORD,
-      port: parseInt(process.env.MONGO_PORT as string, 10),
+      port: process.env.MONGO_CONNECTION?.includes('+srv')
+        ? null
+        : (parseInt(process.env.MONGO_PORT, 10) || 27017),
       host: process.env.MONGO_HOST,
       connection: process.env.MONGO_CONNECTION,
     },
