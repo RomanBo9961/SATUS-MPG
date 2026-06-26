@@ -22,11 +22,22 @@ export class AuthService {
 
     login(credentials: any) {
         return this.http.post<any>(this.apiUrl, credentials).pipe(
-            tap(res => {
-                // Guardado en la Web. El content.js se encargará de "ver" esto.
-                localStorage.setItem('satusToken', res.access_token);
-                localStorage.setItem('user_role', res.role);
-                localStorage.setItem('username', res.username);
+            tap((res: any) => {
+
+                console.log('📡 [AUDITORÍA FRONT] Objeto completo de respuesta:', res);
+
+                if (res) {
+
+                    const token = res.access_token || res.token || res.satusToken;
+
+                    if (token) {
+                        localStorage.setItem('satusToken', token);
+                        localStorage.setItem('user_role', res.role || res.user_role || 'Analista_Satus');
+                        localStorage.setItem('username', res.username || res.user?.username || 'satusBG');
+                    } else {
+                        console.error('❌ [AUDITORÍA] La respuesta llegó viva, pero no contiene ninguna propiedad de token legible.');
+                    }
+                }
             })
         );
     }
