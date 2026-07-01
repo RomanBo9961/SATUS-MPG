@@ -18,8 +18,18 @@ export class AuthService {
     async validateUser(identifier: string, pass: string) {
         const user = await this.usersService.findByIdentifier(identifier);
 
+        console.log("📡 [TELEMETRÍA AUTH BACKEND] Intentando validar usuario...");
+        console.log(`➡️ IDENTIFICADOR RECIBIDO: "${identifier}"`);
+        console.log(`➡️ CONTRASEÑA RECIBIDA: "${pass}" (Longitud: ${pass?.length})`);
+        console.log(`➡️ USUARIO ENCONTRADO EN BD?: ${!!user}`);
+
         if (user) {
+
+            console.log(`➡️ HASH EN ATLAS: "${user.password}"`);
+            console.log(`➡️ ESTRUCTURA DE ROLES EN ATLAS:`, JSON.stringify((user as any).roles || user.roles));
+
             const isMatch = await bcrypt.compare(pass, user.password);
+            console.log(`➡️ ¿EL MATCH DE BCRYPT DIO VERDADERO?: ${isMatch}`);
 
             if (isMatch) {
                 // FREE default
