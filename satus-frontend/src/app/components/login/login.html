@@ -26,6 +26,9 @@
                 <label class="text-[9px] text-gray-500 uppercase tracking-widest">Contraseña</label>
                 <input type="password" name="password" [(ngModel)]="userCredentials.password" placeholder="********"
                     class="w-full bg-transparent border-b border-white/10 p-2 text-satus-bronce outline-none focus:border-satus-bronce transition-all">
+                <button type="button" class="eye-btn" (click)="togglePassword()">
+                    {{ showPassword ? '🙈' : '👁️' }}
+                </button>
             </div>
 
             <!-- Botón de Ingreso -->

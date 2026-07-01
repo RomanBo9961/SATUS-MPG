@@ -23,6 +23,13 @@ export class LoginComponent implements AfterViewInit {
     private router: Router
   ) { }
 
+  // mostrar/ocultar contraseña 
+  showPassword = false;
+
+  togglePassword() {
+    this.showPassword = !this.showPassword;
+  }
+
   // Inicio de sesión
   onLogin() {
 
@@ -31,7 +38,10 @@ export class LoginComponent implements AfterViewInit {
       return;
     }
 
-    //console.log("PAQUETE_A_ENVIAR:", this.userCredentials);
+    this.userCredentials.email = this.userCredentials.email.trim();
+    this.userCredentials.password = this.userCredentials.password.trim();
+
+    console.log("📡 PAQUETE A ENVIAR SANITIZADO:", this.userCredentials);
 
     this.authService.login(this.userCredentials).subscribe({
       next: (res) => {
