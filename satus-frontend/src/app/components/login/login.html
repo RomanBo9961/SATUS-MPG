@@ -24,12 +24,18 @@
             <!-- Campo Password -->
             <div class="space-y-1">
                 <label class="text-[9px] text-gray-500 uppercase tracking-widest">Contraseña</label>
-                <input [type]="showPassword ? 'text' : 'password'" name="password"
-                    [(ngModel)]="userCredentials.password" placeholder="********"
-                    class="w-full bg-transparent border-b border-white/10 p-2 text-satus-bronce outline-none focus:border-satus-bronce transition-all">
-                <button type="button" class="eye-btn" (click)="togglePassword()">
-                    {{ showPassword ? '🕳️' : '👁️‍🗨️' }}
-                </button>
+
+                <div class="relative w-full flex items-center">
+
+                    <input [type]="showPassword ? 'text' : 'password'" name="password"
+                        [(ngModel)]="userCredentials.password" placeholder="********"
+                        class="w-full bg-transparent border-b border-white/10 p-2 text-satus-bronce outline-none focus:border-satus-bronce transition-all">
+                    <button type="button" (click)="togglePassword()"
+                        class="absolute right-2 bg-transparent border-none text-xs cursor-pointer outline-none p-1 transition-transform active:scale-95">
+                        {{ showPassword ? '🕳️' : '👁️‍🗨️' }}
+                    </button>
+
+                </div>
             </div>
 
             <!-- Botón de Ingreso -->
