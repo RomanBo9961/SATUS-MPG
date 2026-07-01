@@ -7,7 +7,7 @@ import { Router } from '@angular/router';
 
 declare const chrome: any;
 const BACKEND_URL = window.location.hostname.includes('onrender')
-    ? 'https://satus-ecosystem.onrender.com'
+    ? 'https://satus-backend.onrender.com'
     : 'http://localhost:3000/api';
 
 @Injectable({ providedIn: 'root' })

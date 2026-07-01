@@ -16,11 +16,14 @@
     "scripting"
   ],
   "host_permissions": [
-    "http://localhost:3000/*"
+    "http://localhost:3000/*",
+    "https://satus-backend.onrender.com*"
   ],
 
   "externally_connectable": {
-    "matches": ["http://localhost:4200/*"]
+    "matches": [
+    "http://localhost:4200/*",
+    "https://satus-ecosystem.onrender.com*"]
   },
   
   "background": {

@@ -1,3 +1,9 @@
+const IS_DEVELOPMENT = false;
+
+const FRONTEND_URL = IS_DEVELOPMENT
+  ? "http://localhost:4200"
+  : "https://satus-ecosystem.onrender.com";
+
 let userRole = "GUEST";
 let threatList = new Set();
 let satusBadge = null;
@@ -147,7 +153,7 @@ function initSatusSensor() {
             shortMessage +
             " <br><br><b style='color: #aaa697be;'>[ FIN DE MINUTA ]</b>";
 
-          const popupContent = `<div class="satus-info-box" style="font-size: 11px; line-height: 1.4; color: #e0e0e0;">${displayMessage}</div><div style="margin-top: 15px; border-top: 1px solid #c09e2fcc; padding-top: 10px;"><a href="http://localhost:4200/dashboard" target="_blank" style="color: #c09e2fbe; text-decoration: none; font-size: 10px; font-weight: bold; letter-spacing: 1px; display: block;">> REPORTE DETALLADO</a></div>`;
+          const popupContent = `<div class="satus-info-box" style="font-size: 11px; line-height: 1.4; color: #e0e0e0;">${displayMessage}</div><div style="margin-top: 15px; border-top: 1px solid #c09e2fcc; padding-top: 10px;"><a href="${FRONTEND_URL}/dashboard" target="_blank" style="color: #c09e2fbe; text-decoration: none; font-size: 10px; font-weight: bold; letter-spacing: 1px; display: block;">> REPORTE DETALLADO</a></div>`;
 
           showSatusPopup(popupContent, e.pageX, e.pageY);
         }
@@ -287,7 +293,7 @@ document.addEventListener(
   "click",
   (e) => {
     if (
-      window.location.href.includes("localhost:4200") ||
+      window.location.href.includes(FRONTEND_URL) ||
       window.location.href.includes("register")
     ) {
       return;
@@ -329,10 +335,10 @@ document.addEventListener(
             const popup = document.querySelector(".satus-popup");
             if (popup) popup.remove();
 
-            const isLocal = true;
+            const isLocal = false;
             const targetDomain = isLocal
               ? "http://localhost:4200"
-              : "https://satus-app.com";
+              : "https://satus-ecosystem.onrender.com";
 
             window.location.href = `${targetDomain}/login`;
           };
@@ -389,8 +395,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     localStorage.removeItem("username");
 
     // Si la vista actual esta en el Dashboard, lo expulsa nativamente a la Landing
-    if (window.location.origin.includes("localhost:4200")) {
-      window.location.href = "http://localhost:4200/login"; // Expulsión nativa directa
+    if (
+      window.location.origin.includes("localhost:4200") ||
+      window.location.origin.includes("https://satus-ecosystem.onrender.com")
+    ) {
+      window.location.href = `${FRONTEND_URL}/login`; // Expulsión nativa directa
     } else {
       console.log(
         "🔄 [EXTERNO] Detectada pestaña de auditoría. Sincronizando degradación pasiva...",
@@ -418,7 +427,7 @@ window.addEventListener("storage", (event) => {
       console.log(
         "🔄 Evacuando búnker pasivo de fondo de forma automatizada...",
       );
-      window.location.href = "http://localhost:4200/login"; // Destruye el estado zombie
+      window.location.href = `${FRONTEND_URL}/login`; // Destruye el estado zombie
     }
   }
 });

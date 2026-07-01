@@ -9,7 +9,10 @@ import { Server, Socket } from 'socket.io';
 // Habilitamos la antena en el puerto nativo de la app con CORS para desarrollo
 @WebSocketGateway({
   cors: {
-    origin: 'http://localhost:4200',
+    origin: [
+      'https://satus-ecosystem.onrender.com',
+      'http://localhost:4200'
+    ],
     credentials: true,
   },
 })

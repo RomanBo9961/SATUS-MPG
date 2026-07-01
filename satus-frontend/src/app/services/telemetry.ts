@@ -11,10 +11,15 @@ export class TelemetryService {
   private logStream$ = new Subject<any>();
 
   constructor() {
+
+    const BACKEND_SOCKET_URL = window.location.hostname.includes('onrender')
+      ? 'https://onrender.com'
+      : 'http://localhost:3000';
+
     // Inicializamos la conexión al backend
-    this.socket = io('http://localhost:3000', {
+    this.socket = io(BACKEND_SOCKET_URL, {
       withCredentials: true,
-      autoConnect: false 
+      autoConnect: false
     });
 
     this.socket.on('[SATUS_AUDIT_STREAM]', (nuevoLog: any) => {

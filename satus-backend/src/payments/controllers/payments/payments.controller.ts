@@ -1,4 +1,5 @@
 import { Controller, Post, Body, Headers, Req, UseGuards, UnauthorizedException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
 import { AuthService } from '../../../auth/services/auth.service';
 import Stripe from 'stripe';
@@ -9,7 +10,8 @@ export class PaymentsController {
     private stripe: Stripe;
 
     constructor(
-        private readonly authService: AuthService
+        private readonly authService: AuthService,
+        private readonly configService: ConfigService
     ) {
         // 🎯 SE INICIALIZA AQUÍ (Cuando el .env ya está cargado en la RAM)
         this.stripe = new Stripe(process.env['STRIPE_SECRET_KEY']!, {
@@ -29,6 +31,8 @@ export class PaymentsController {
         try {
             console.log(`💳 [NÚCLEO FINANCIERO]: Generando pasarela de suscripción para nodo [${userId || guestId}]...`);
 
+            const frontendUrl = this.configService.get<string>('FRONTEND_URL') || 'http://localhost:4200';
+
             const session = await this.stripe.checkout.sessions.create({
                 payment_method_types: ['card'],
                 mode: 'subscription',
@@ -46,8 +50,10 @@ export class PaymentsController {
                         quantity: 1,
                     },
                 ],
-                success_url: `http://localhost:4200/dashboard?status=success&session_id={CHECKOUT_SESSION_ID}`,
-                cancel_url: `http://localhost:4200/pricing?status=cancelled`,
+                //success_url: `http://localhost:4200/dashboard?status=success&session_id={CHECKOUT_SESSION_ID}`,
+                success_url: `${frontendUrl}/dashboard?status=success&session_id={CHECKOUT_SESSION_ID}`,
+                //cancel_url: `http://localhost:4200/pricing?status=cancelled`,
+                cancel_url: `${frontendUrl}/pricing?status=cancelled`,
                 metadata: {
                     userId: userId || 'GUEST',
                     guestId: guestId || 'NONE',

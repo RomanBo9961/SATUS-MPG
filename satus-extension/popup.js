@@ -1,3 +1,9 @@
+const IS_DEVELOPMENT = false;
+
+const FRONTEND_URL = IS_DEVELOPMENT
+  ? "http://localhost:4200"
+  : "https://satus-ecosystem.onrender.com";
+
 document.addEventListener("DOMContentLoaded", () => {
   const toggle = document.getElementById("shield-toggle"),
     statusText = document.getElementById("status-text");
@@ -16,7 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
     authBtn.innerText = isGuest ? "[ INICIAR SESIÓN ]" : "[ CERRAR SESIÓN ]";
     authBtn.onclick = () =>
       isGuest
-        ? chrome.tabs.create({ url: "http://localhost:4200/login" })
+        ? chrome.tabs.create({ url: `${FRONTEND_URL}/login` })
         : logoutSession();
 
     dashLink.innerText = isGuest
@@ -25,7 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
     dashLink.style.color = isGuest ? "#444" : "#c09e2fbe";
     dashLink.onclick = isGuest
       ? null
-      : () => chrome.tabs.create({ url: "http://localhost:4200/dashboard" });
+      : () => chrome.tabs.create({ url: `${FRONTEND_URL}/dashboard` });
   }
 
   // Degrada el token en background.js y refresca la pestaña activa

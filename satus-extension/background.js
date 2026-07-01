@@ -5,6 +5,10 @@ const BACKEND_URL = IS_DEVELOPMENT
   ? "http://localhost:3000/api"
   : "https://satus-ecosystem.onrender.com";
 
+const FRONTEND_URL = IS_DEVELOPMENT
+  ? "http://localhost:4200"
+  : "https://onrender.com";
+
 let currentSatusUser = { username: "INVITADO", role: "GUEST" };
 
 chrome.runtime.onInstalled.addListener(() => {
@@ -59,7 +63,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
           chrome.tabs.query({}, (tabs) => {
             if (tabs && tabs.length > 0) {
               tabs.forEach((tab) => {
-                if (tab.url && tab.url.includes("localhost:4200")) {
+                //if (tab.url && tab.url.includes("localhost:4200")) {
+                if (tab.url && tab.url.includes(FRONTEND_URL)) {
                   console.log(
                     `🛰️ [CENTRAL] Forzando purga de localStorage en: ${tab.id}`,
                   );
@@ -72,7 +77,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                           "🔌 [SATUS SHIELD] Purga atómica ejecutada desde la central.",
                         );
                         localStorage.clear();
-                        window.location.href = "http://localhost:4200/login";
+                        //window.location.href = "http://localhost:4200/login";
+                        window.location.href = `${FRONTEND_URL}/login`;
                       },
                     })
                     .catch(() => {});
