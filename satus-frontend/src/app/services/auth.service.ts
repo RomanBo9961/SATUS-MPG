@@ -26,12 +26,12 @@ export class AuthService {
 
                 console.log('📡 [AUDITORÍA FRONT] Objeto completo de respuesta:', res);
 
-                if (res) {
+                if (res && (res.token || res.access_token)) {
 
-                    const token = res.access_token || res.token || res.satusToken;
+                    const securetoken = res.access_token || res.token || res.satusToken;
 
-                    if (token) {
-                        localStorage.setItem('satusToken', token);
+                    if (securetoken) {
+                        localStorage.setItem('satusToken', securetoken);
                         localStorage.setItem('user_role', res.role || res.user_role || 'Analista_Satus');
                         localStorage.setItem('username', res.username || res.user?.username || 'satusBG');
                     } else {
