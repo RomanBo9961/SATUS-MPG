@@ -9,9 +9,11 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bodyParser: true });
 
   app.enableCors({
-    origin: ['https://satus-ecosystem.onrender.com', 'http://localhost:4200'],
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    //origin: ['https://satus-ecosystem.onrender.com', 'http://localhost:4200'],
+    origin: true,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     allowedHeaders: 'Content-Type,Authorization',
+    credentials: true
   });
   app.setGlobalPrefix('api');
   //await app.listen(3000);

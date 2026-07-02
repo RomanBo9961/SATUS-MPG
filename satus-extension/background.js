@@ -3,11 +3,11 @@ const IS_DEVELOPMENT = false;
 
 const BACKEND_URL = IS_DEVELOPMENT
   ? "http://localhost:3000/api"
-  : "https://satus-ecosystem.onrender.com";
+  : "https://satus-backend.onrender.com";
 
 const FRONTEND_URL = IS_DEVELOPMENT
   ? "http://localhost:4200"
-  : "https://onrender.com";
+  : "https://satus-ecosystem.onrender.com";
 
 let currentSatusUser = { username: "INVITADO", role: "GUEST" };
 
@@ -48,21 +48,28 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
           console.log("💾 [CENTRAL] Identidad PRO anclada en el búnker.");
         },
       );
-    }
-
-    else if (request.action === "scanUrl") {
-      console.log("📡 [CENTRAL] Capturado hilo de escaneo asíncrono para internet:", request.url);
+    } else if (request.action === "scanUrl") {
+      console.log(
+        "📡 [CENTRAL] Capturado hilo de escaneo asíncrono para internet:",
+        request.url,
+      );
 
       (async () => {
         try {
           const response = await fetch(`${BACKEND_URL}/detections/scan`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ url: request.url, userId: currentSatusUser?.id })
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              url: request.url,
+              userId: currentSatusUser?.id,
+            }),
           });
 
           const data = await response.json();
-          console.log("📡 [CENTRAL] Respuesta real entregada al canal interno:", data);
+          console.log(
+            "📡 [CENTRAL] Respuesta real entregada al canal interno:",
+            data,
+          );
 
           sendResponse(data);
         } catch (err) {
@@ -106,7 +113,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                         window.location.href = `${FRONTEND_URL}/login`;
                       },
                     })
-                    .catch(() => { });
+                    .catch(() => {});
                 }
               });
             }
@@ -135,9 +142,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }
   }
 
-  // B. Orden de Escaneo 
+  // B. Orden de Escaneo
   if (request.action === "ANALYZE_LINK") {
-    console.log("📡 [CENTRAL] Iniciando aduana criptográfica para el link:", request.url);
+    console.log(
+      "📡 [CENTRAL] Iniciando aduana criptográfica para el link:",
+      request.url,
+    );
 
     (async () => {
       try {
@@ -147,13 +157,18 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
         // Si no hay token en la extensión, cruzamos el puente hacia la pestaña web
         if (!token || token === "GUEST_TOKEN") {
-          const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
+          const [activeTab] = await chrome.tabs.query({
+            active: true,
+            currentWindow: true,
+          });
           if (activeTab?.url?.includes("onrender.com")) {
             // Extraemos el token real del LocalStorage de Angular mediante scripting nativo
-            const [{ result: webToken }] = await chrome.scripting.executeScript({
-              target: { tabId: activeTab.id },
-              func: () => localStorage.getItem("satusToken")
-            });
+            const [{ result: webToken }] = await chrome.scripting.executeScript(
+              {
+                target: { tabId: activeTab.id },
+                func: () => localStorage.getItem("satusToken"),
+              },
+            );
             if (webToken) token = webToken;
           }
         }
@@ -161,16 +176,18 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         // Si no registra sexcon iniciada, lanza el descarte seguro
         if (!token) token = "GUEST_TOKEN";
 
-        console.log(`📡 [CENTRAL] Disparando petición a Render. Token Firmado: ${token.substring(0, 15)}...`);
+        console.log(
+          `📡 [CENTRAL] Disparando petición a Render. Token Firmado: ${token.substring(0, 15)}...`,
+        );
 
         // Dispara la petición HTTP a NestJS real en la web
         const response = await fetch(`${BACKEND_URL}/detections/scan`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
+            Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ url: request.url })
+          body: JSON.stringify({ url: request.url }),
         });
 
         if (response.status === 401) {
@@ -178,11 +195,16 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         }
 
         const data = await response.json();
-        console.log("📡 [CENTRAL] Datos de análisis devueltos con éxito por Render:", data);
+        console.log(
+          "📡 [CENTRAL] Datos de análisis devueltos con éxito por Render:",
+          data,
+        );
         sendResponse(data); // Envia los metadatos puros de la IA y VT al content.js
-
       } catch (err) {
-        console.error("❌ [BÚNKER EXTENSIÓN] Falló el análisis asíncrono:", err.message);
+        console.error(
+          "❌ [BÚNKER EXTENSIÓN] Falló el análisis asíncrono:",
+          err.message,
+        );
         sendResponse({ error: true, message: err.message });
       }
     })();
