@@ -3,7 +3,7 @@ const IS_DEVELOPMENT = false;
 
 const BACKEND_URL = IS_DEVELOPMENT
   ? "http://localhost:3000/api"
-  : "https://satus-backend.onrender.com";
+  : "https://satus-backend.onrender.com/api";
 
 const FRONTEND_URL = IS_DEVELOPMENT
   ? "http://localhost:4200"
