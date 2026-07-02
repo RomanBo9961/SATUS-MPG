@@ -3,6 +3,10 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 
+const BACKEND_URL = window.location.hostname.includes('onrender')
+  ? 'https://satus-backend.onrender.com/api'
+  : 'http://localhost:3000/api';
+
 @Component({
   selector: 'app-pricing',
   standalone: true,
@@ -59,7 +63,7 @@ export class Pricing implements OnInit {
     };
 
     // Enlaza al controlador dinámico 
-    this.http.post('/api/payments/create-checkout-session', payload, { headers })
+    this.http.post('${BACKEND_URL}/payments/create-checkout-session', payload, { headers })
       .subscribe({
         next: (res: any) => {
           if (res && res.success && res.url) {

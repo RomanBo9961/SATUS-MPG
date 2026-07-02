@@ -5,6 +5,10 @@ import { Router } from '@angular/router';
 import { TelemetryService } from '../../services/telemetry';
 import { Subscription } from 'rxjs';
 
+const BACKEND_URL = window.location.hostname.includes('onrender')
+  ? 'https://satus-backend.onrender.com/api'
+  : 'http://localhost:3000/api';
+
 @Component({
   selector: 'app-admin-control',
   standalone: true,
@@ -87,7 +91,7 @@ export class AdminControl implements OnInit, OnDestroy {
     console.log("📥 [MongoDB] Extrayendo inventario de usuarios...");
 
     // Apuntaremos a la nueva ruta administrativa que expondremos en NestJS
-    this.http.get<any[]>('/api/users', { headers }).subscribe({
+    this.http.get<any[]>('${BACKEND_URL}/users', { headers }).subscribe({
       next: (res: any) => {
         console.log("🛰️ [TORRE CONTROL] Respuesta cruda del Backend recibida:", res);
 
@@ -123,7 +127,7 @@ export class AdminControl implements OnInit, OnDestroy {
     console.log(`⚡ [MUTACIÓN DETECTADA] Solicitando cambio de rango a ${targetTier} para el usuario: ${userId}`);
 
     // Dispararemos una petición transaccional hacia la compuerta administrativa del Backend
-    this.http.post('/api/users/admin/mutate-role', { userId, targetTier }, { headers }).subscribe({
+    this.http.post('${BACKEND_URL}/users/admin/mutate-role', { userId, targetTier }, { headers }).subscribe({
       next: (res: any) => {
         if (res && res.success) {
           alert(`🏆 Operación Exitosa en MongoDB:\nRango alterado correctamente a nivel de infraestructura.`);

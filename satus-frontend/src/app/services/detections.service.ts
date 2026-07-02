@@ -2,11 +2,15 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
+const BACKEND_URL = window.location.hostname.includes('onrender')
+  ? 'https://satus-backend.onrender.com/api'
+  : 'http://localhost:3000/api';
+
 @Injectable({
   providedIn: 'root'
 })
 export class DetectionsService {
-  private apiUrl = '/api/detections'; // proxy previamente config
+  private apiUrl = `${BACKEND_URL}/detections`; // proxy previamente config
   public currentModel = 'LLAMA 3.1 8B INSTANT';
 
   constructor(private http: HttpClient) { }
