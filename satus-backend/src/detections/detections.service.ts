@@ -91,7 +91,7 @@ export class DetectionsService {
           );
 
           return {
-            status: "processing",
+            status: "¡Procesando link nuevo! Reintente en 10 segundos...",
             message: "¡Link nuevo identificado! SATUS lo está analizando. ¡Reintente en 10 segundos!"
           };
         } catch (postError: any) {
