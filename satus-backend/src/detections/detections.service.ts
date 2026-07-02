@@ -105,25 +105,31 @@ export class DetectionsService {
 
   private async fetchVTReport(urlBase64: string, apiKey: string) {
 
-    const response = await firstValueFrom(
-      this.httpService.get(`https://www.virustotal.com/api/v3/urls/${urlBase64}`, {
-        headers: { 'x-apikey': apiKey }
-      })
-    );
+    try {
+      const response = await firstValueFrom(
+        this.httpService.get(`https://www.virustotal.com/api/v3/urls/${urlBase64}`, {
+          headers: { 'x-apikey': apiKey }
+        })
+      );
 
-    const attributes = response.data.data.attributes;
-    const stats = attributes.last_analysis_stats;
+      const attributes = response.data.data.attributes;
+      const stats = attributes.last_analysis_stats;
 
-    return {
-      status: "success",
-      riskLevel: stats.malicious > 0 ? "ALTO" : "BAJO",
-      details: {
-        stats: stats,           // Números (Malicious, Harmless...)
-        info: attributes,       // Contexto (Title, Categories, Reputation...)
-        lastAnalysis: attributes.last_analysis_results //Reporte Unitario Motor Antimlware (opcional)
-      }
-    };
+      return {
+        status: "success",
+        riskLevel: stats.malicious > 0 ? "ALTO" : "BAJO",
+        details: {
+          stats: stats,           // Números (Malicious, Harmless...)
+          info: attributes,       // Contexto (Title, Categories, Reputation...)
+          lastAnalysis: attributes.last_analysis_results //Reporte Unitario Motor Antimlware (opcional)
+        }
+      };
+
+    } catch (error: any) {
+      throw error;
+    }
   }
+
 
   private async getAiAdvice(url: string, details: any) {
     try {
