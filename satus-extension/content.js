@@ -126,8 +126,10 @@ function initSatusSensor() {
         satusBadge.style.transition = "transform 0.2s";
 
         if (chrome.runtime.lastError || !response) {
-          console.error("❌ Error de comunicación:", chrome.runtime.lastError);
+          console.error("❌ Error de comunicación:", chrome.runtime.lastError?.message);
           alert("❌ Error: No se pudo contactar con la central SATUS.");
+          satusBadge.style.animation = "none"; // Apaga el pulso visual
+          return; // Detiene la función 
         } else {
           const fullMessage = response.status || response.message || "";
 
